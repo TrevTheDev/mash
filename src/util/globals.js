@@ -123,10 +123,7 @@ export const DEFAULT_CONFIG = {
   },
 
   shell: {
-    initScript: fsPromises.readFile(
-      `${process.cwd()}/src/parsers/init.sh`,
-      'utf8'
-    ),
+    initScript: fsPromises.readFile(`src/parsers/init.sh`, 'utf8'),
     sudoWait: 50
   },
 
