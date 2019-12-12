@@ -1,0 +1,11 @@
+/.nyc_output
+/coverage
+/logs
+/node_modules
+/test
+/x_cruf
+/dist
+.DS_Store
+**/node_modules/**
+./node_modules/**
+/<node_internals>/**
