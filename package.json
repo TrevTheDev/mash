@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
@@ -55,5 +55,6 @@
   "engines": {
     "node": "^13.0.1"
   },
+  "type": "module",
   "readmeFilename": "README.md"
 }
