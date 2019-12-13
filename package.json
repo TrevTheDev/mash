@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
@@ -48,12 +48,12 @@
     "prettier": "^1.19.1"
   },
   "dependencies": {
-    "@trevthedev/shell-harness": "^1.0.5",
+    "@trevthedev/shell-harness": "^1.0.6",
     "date-fns": "^2.8.1",
     "esm": "^3.2.25"
   },
   "engines": {
-    "node": ">=12"
+    "node": "^13.0.1"
   },
   "readmeFilename": "README.md"
 }
