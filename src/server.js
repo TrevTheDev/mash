@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 import ShellHarnessM from '@trevthedev/shell-harness'
-import ExecutionContext from './locations/u'
+import ExecutionContext from './locations/execution context'
 import {DEFAULT_CONFIG, glob, FILE_TYPE_ENUMS, CP_TYPE} from './util/globals'
 import FsObject from './locations/fs object'
 import Directory from './locations/types/directory'

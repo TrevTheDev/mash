@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
