@@ -53,6 +53,11 @@ describe('quick tests', () => {
     expect(`${parent}`).to.equal(`${cwd}`)
   })
 
+  it("u('./path/to/fileOrDir').stat()", async () => {
+    const tst = await expect(u(`${tstDir}`).stat()).to.be.fulfilled
+    console.log(tst.toJSON())
+  })
+
   it("u('./path/to/fileOrDir').exists", async () => {
     expect(await u(`${tstDir}`).exists).to.be.true
   })
