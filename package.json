@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/TrevTheDev/mash.git"
   },
-  "exports": "./src/server.js",
+  "exports": "src/server.js",
   "private": false,
   "scripts": {
     "lint": "eslint src",
@@ -45,12 +45,12 @@
     "mocha-steps": "^1.3.0",
     "nodemon": "^1.19.3",
     "nyc": "^14.1.1",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "esm": "^3.2.25"
   },
   "dependencies": {
     "@trevthedev/shell-harness": "^1.0.6",
-    "date-fns": "^2.8.1",
-    "esm": "^3.2.25"
+    "date-fns": "^2.8.1"
   },
   "engines": {
     "node": "^13.0.1"
