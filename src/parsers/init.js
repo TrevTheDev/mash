@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable func-names */
+const initScript = `
 CMDDIVIDER='___EOC___';
 GRPDIVIDER='___EOG___';
 statObj()
@@ -104,4 +107,5 @@ user_info()
   echo "$GROUPIDS";
   GROUPSN=$(id -Gn "$GETUID");
   printf "%s" "$GROUPSN";
-};
+};`
+export default initScript

@@ -1,5 +1,6 @@
 // const fsPromises = require('fs').promises
-import {promises as fsPromises} from 'fs'
+// import {promises as fsPromises} from 'fs'
+import initScript from '../parsers/init'
 /* REGIONALISATION
  ******************************************************************************************************
  */
@@ -123,7 +124,7 @@ export const DEFAULT_CONFIG = {
   },
 
   shell: {
-    initScript: fsPromises.readFile(`src/parsers/init.sh`, 'utf8'),
+    initScript,
     sudoWait: 50
   },
 
