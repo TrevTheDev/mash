@@ -5,6 +5,7 @@
   "keywords": [
     "shell",
     "bash",
+    "file system",
     "script",
     "queue",
     "spawn",
@@ -20,7 +21,7 @@
     "url": "git+https://github.com/TrevTheDev/mash.git"
   },
   "main": "./src/server.js",
-  "private": true,
+  "private": false,
   "scripts": {
     "lint": "eslint src",
     "test": "mocha -r esm -r mocha-steps --timeout 16000 \"src/**/*.test.js\"",

@@ -63,7 +63,7 @@ u('./path/to/dir').addDirectory(['a', 'b', 'c']) // creates three new dirs [arra
 
 u('./path/to/dir').addFile('newFile.txt', 'content') // creates a new file with content.
 
-u('./path/to/source').linkTo('/path/to/symlink') // creates symlink object
+u('./path/to/newSymlink').linkTo('/path/to/source') // creates symlink object
 u('./path/to/symlink').linkTarget // returns symlink's Target FSObject
 u('./path/to/symlink').linkEndTarget // symlink's ultimate target FSObject
 

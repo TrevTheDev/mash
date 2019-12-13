@@ -66,7 +66,7 @@ export default class Permissions {
       user: this.user.toJSON(),
       octal: this.octal,
       symbolic: this.symbol,
-      boolean: this.boolArray,
+      boolean: JSON.stringify(this.boolArray),
       canRead: this.canRead,
       canWrite: this.canWrite,
       canExecute: this.canExecute,
