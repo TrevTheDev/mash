@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
@@ -50,7 +50,7 @@
     "promise-map-series": "^0.2.3"
   },
   "dependencies": {
-    "@trevthedev/shell-harness": "file:../shell-harness",
+    "@trevthedev/shell-harness": "^1.0.8",
     "date-fns": "^2.8.1"
   },
   "engines": {
