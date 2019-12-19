@@ -1,41 +1,37 @@
 {
-    "extends": [
-        "airbnb-base",
-        //"eslint:recommended",
-        "plugin:prettier/recommended",
-        "plugin:mocha/recommended"
-    ],
-    "env": {
-        "browser": false,
-        "node": true,
-        "mocha": true
-    },
-    "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module"
-    },
-    "root": true,
-    "plugins": [
-		"import",
-        "node",
-        "prettier",
-        "mocha",
-        "chai-expect"
-    ],
-    "rules": {
-        "prettier/prettier": "error",
-        "no-console": "off",
-        "no-param-reassign":"warn",
-        "no-underscore-dangle":"off",
-        "mocha/no-exclusive-tests": "error",
-        "no-unused-vars": [
-            "error",
-            {
-              "varsIgnorePattern": "should|expect"
-            }
-          ]
-    },
-    "globals": {
-        "step": true
-    }
+  "extends": [
+    "airbnb-base",
+    //"eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:mocha/recommended"
+  ],
+  "env": {
+    "browser": false,
+    "node": true,
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "root": true,
+  "plugins": ["import", "node", "prettier", "mocha", "chai-expect"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-console": "off",
+    "no-param-reassign": "warn",
+    "import/extensions": ["error", "ignorePackages"],
+    "no-underscore-dangle": "off",
+    "mocha/no-exclusive-tests": "error",
+    "mocha/no-mocha-arrows": "off",
+    "no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "should|expect"
+      }
+    ]
+  },
+  "globals": {
+    "step": true
+  }
 }

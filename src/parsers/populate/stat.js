@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
-import Size from '../../formatters/size'
-import {FILE_TYPE_ENUMS} from '../../util/globals'
+import Size from '../../formatters/size.js'
+import {FILE_TYPE_ENUMS} from '../../util/globals.js'
 
 /**
  * translates a stat file type string to a FILE_TYPE_ENUMS

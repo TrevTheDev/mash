@@ -1,4 +1,4 @@
-import NumberWithCommas from './number with commas'
+import NumberWithCommas from './number with commas.js'
 
 export const DECIMAL_BYTE_SCALE = {
   scale: {

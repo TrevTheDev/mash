@@ -1,11 +1,11 @@
-import NumberWithCommas from './number with commas'
+import NumberWithCommas from './number with commas.js'
 import {
   DECIMAL_BYTE_SCALE // ,
   // BINARY_BYTE_SCALE,
   // DECIMAL_BIT_SCALE,
   // BINARY_BIT_SCALE
-} from './size'
-import {isNumber} from '../util/utils'
+} from './size.js'
+import {isNumber} from '../util/utils.js'
 
 export default class Rate {
   constructor(rateInBytesPerSecond, fixedScale, scales = DECIMAL_BYTE_SCALE) {

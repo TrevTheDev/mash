@@ -2,7 +2,7 @@ import {promises as fsPromises} from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import os from 'os'
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async (FSObject, content, overwrite) => {
   if ((await FSObject.exists) && !overwrite)

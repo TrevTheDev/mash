@@ -1,4 +1,4 @@
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async FSObject => {
   const cat = await FSObject.sh(`cat -- ${FSObject.toSh()};`)

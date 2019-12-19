@@ -1,5 +1,5 @@
-import {LOCAL, glob} from '../../util/globals'
-import parse from './parse'
+import {LOCAL, glob} from '../../util/globals.js'
+import parse from './parse.js'
 
 /**
  * queries `fsObj` and the returns stat'ed | gio'ed | lsattr'ed relevant `FSObject`

@@ -1,4 +1,4 @@
-import {glob} from '../util/globals'
+import {glob} from '../util/globals.js'
 
 export default async server => {
   const gioTrashEmpty = await server.sh('gio trash --empty;')

@@ -20,11 +20,12 @@
     "type": "git",
     "url": "git+https://github.com/TrevTheDev/mash.git"
   },
-  "exports": "src/server.js",
   "private": false,
   "scripts": {
     "lint": "eslint src",
-    "test": "mocha -r esm -r mocha-steps --timeout 16000 \"src/**/*.test.js\"",
+    "test": "node --inspect-brk tests/moche.mjs -r mocha-steps \"tests/**/*.test.js\"",
+    "test1": "mocha --experimental-modules -r mocha-steps --timeout 16000 \"tests/**/*.test.js\"",
+    "test2": "node --inspect-brk ./node_modules/mocha/bin/mocha",
     "testBug": "mocha debug -r esm -r mocha-steps --timeout 600000 \"src/**/*.test.js\""
   },
   "author": "Trevor Rabie",
@@ -33,28 +34,29 @@
     "chai": "^4.2.0",
     "chai-arrays": "^2.0.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.2.0",
-    "eslint-config-prettier": "^4.3.0",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-chai-expect": "^2.1.0",
     "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-prettier": "^3.1.1",
-    "mocha": "^6.2.1",
+    "eslint-plugin-mocha": "^6.2.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "esm": "^3.2.25",
+    "mocha": "git+https://github.com/giltayar/mocha.git#node-esm-support",
     "mocha-steps": "^1.3.0",
-    "nodemon": "^1.19.3",
     "nyc": "^14.1.1",
     "prettier": "^1.19.1",
-    "esm": "^3.2.25"
+    "promise-map-series": "^0.2.3"
   },
   "dependencies": {
-    "@trevthedev/shell-harness": "^1.0.7",
+    "@trevthedev/shell-harness": "file:../shell-harness",
     "date-fns": "^2.8.1"
   },
   "engines": {
-    "node": "^13.0.1"
+    "node": "^13.3.0"
   },
   "type": "module",
+  "main": "./src/server.js",
   "readmeFilename": "README.md"
 }

@@ -1,13 +1,10 @@
 {
-  "mocha.node_options": ["-r","esm"],
-  "mocha.requires": [
-    "esm",
-    "mocha-steps"
-  ],
+  "mocha.node_options": ["-r", "esm"],
+  "mocha.requires": ["esm", "mocha-steps"],
   "mocha.options": {
     "timeout": 600000
   },
-  "mocha.files.glob": "src/**/*.test.js",
+  "mocha.files.glob": "tests/**/*.test.js",
   "mocha.parallelTests": 5,
   "cSpell.words": [
     "CMDOUTPUT",
@@ -84,16 +81,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "spellright.language": [
-    "English (American)",
-    "English (Australian)"
-  ],
-  "spellright.documentTypes": [
-    "markdown",
-    "latex",
-    "plaintext",
-    "javascript"
-  ],
+  "spellright.language": ["English (American)", "English (Australian)"],
+  "spellright.documentTypes": ["markdown", "latex", "plaintext", "javascript"],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

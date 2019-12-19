@@ -1,5 +1,5 @@
-import FsObject from '../fs object'
-import {FILE_TYPE_ENUMS} from '../../util/globals'
+import FsObject from '../fs object.js'
+import {FILE_TYPE_ENUMS} from '../../util/globals.js'
 
 export default class Symlink extends FsObject {
   constructor(u, path, createAutomationFunctions) {

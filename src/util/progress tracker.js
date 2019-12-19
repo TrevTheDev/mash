@@ -1,5 +1,9 @@
 import {EventEmitter} from 'events'
-import {format, formatDistance} from 'date-fns'
+import * as datefns from 'date-fns'
+// import * as format from 'date-fns/format/index.js'
+// import * as formatDistance from 'date-fns/esm/formatDistance/index.js'
+
+const {format, formatDistance} = datefns.default || datefns
 
 export default class ProgressTracker extends EventEmitter {
   constructor(copyManager) {
@@ -105,8 +109,7 @@ export default class ProgressTracker extends EventEmitter {
     return format(this._copyManager.init.baselinedAt, 'pp')
   }
 
-  then() {
-    // eslint-disable-next-line
-    return this._copyManager.promise.then.apply(this._copyManager.promise, arguments)
+  then(...thenArgs) {
+    return this._copyManager.promise.then(...thenArgs)
   }
 }

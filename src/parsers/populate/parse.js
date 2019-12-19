@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
-import {FILE_TYPE_ENUMS, LOCAL} from '../../util/globals'
-import updateObjWithStatOutput from './stat'
-import updateObjWithGioOutput from './gio'
-import updateObjWithLsattrOutput from './lsattr'
-import updateObjWithSizeOutput from './size'
-import Permissions from '../../locations/permission'
+import {FILE_TYPE_ENUMS, LOCAL} from '../../util/globals.js'
+import updateObjWithStatOutput from './stat.js'
+import updateObjWithGioOutput from './gio.js'
+import updateObjWithLsattrOutput from './lsattr.js'
+import updateObjWithSizeOutput from './size.js'
+import Permissions from '../../locations/permission.js'
 
 export default async (fsObj, gio, lsattr, size, fsObjString) => {
   fsObj._transitionState('loading')

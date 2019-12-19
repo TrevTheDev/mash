@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 /**
  * mkdir - see `addDirectory`
  * TODO: check what happens if person tries to delete /

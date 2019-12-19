@@ -3,7 +3,7 @@ import Size, {
   BINARY_BYTE_SCALE,
   DECIMAL_BIT_SCALE,
   BINARY_BIT_SCALE
-} from './size'
+} from './size.js'
 
 const SCALE = {
   ...DECIMAL_BYTE_SCALE.scale,

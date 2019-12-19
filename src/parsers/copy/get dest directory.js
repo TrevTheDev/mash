@@ -1,4 +1,4 @@
-import {CP_TYPE, LOCAL, FILE_TYPE_ENUMS} from '../../util/globals'
+import {CP_TYPE, LOCAL, FILE_TYPE_ENUMS} from '../../util/globals.js'
 
 export default async (src, dstP, copyType, isNewTree) => {
   const dstName = src.path.base

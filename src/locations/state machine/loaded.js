@@ -1,4 +1,4 @@
-import {loadableMixins} from './loadable'
+import {loadableMixins} from './loadable.js'
 
 /* eslint-disable no-param-reassign */
 const mParts = Object.getOwnPropertyDescriptors({

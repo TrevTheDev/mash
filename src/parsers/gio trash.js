@@ -1,4 +1,4 @@
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async fsObject => {
   const gioTrash = await fsObject.sh(

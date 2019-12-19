@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import path from 'path'
-import {pathExists, canonisePath, symlinkTarget} from '../parsers/realpath'
-import {LOCAL} from '../util/globals'
+import {pathExists, canonisePath, symlinkTarget} from '../parsers/realpath.js'
+import {LOCAL} from '../util/globals.js'
 
 const uriToPathString = uri => {
   if (!/^file:\/\/(\w|\/|\.|-| )+/.test(uri) || /\.\.|\/\./.test(uri)) {

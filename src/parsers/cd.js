@@ -1,5 +1,5 @@
-import {LOCAL, glob} from '../util/globals'
-import pwd from './pwd'
+import {LOCAL, glob} from '../util/globals.js'
+import pwd from './pwd.js'
 
 export default async FSObject => {
   const cd = await FSObject.sh(

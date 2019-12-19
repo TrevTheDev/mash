@@ -1,4 +1,4 @@
-import {FILE_TYPE_ENUMS} from '../util/globals'
+import {FILE_TYPE_ENUMS} from '../util/globals.js'
 
 export default class FSObjectArray extends Array {
   // async deleteAll() {

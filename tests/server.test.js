@@ -5,8 +5,8 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {u, sh, ShellHarness} from './server'
-import {FILE_TYPE_ENUMS} from './util/globals'
+import Server, {u, sh, ShellHarness} from '../src/server.js'
+import {FILE_TYPE_ENUMS} from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
@@ -221,15 +221,17 @@ describe('posix fs object', () => {
       await u(`${cwd}/test/many`).delete(true, undefined, true)
       const manyDir = await tstDir.addDirectory('many', true)
       const pms = [...Array(50).keys()].map(number => {
-        return new Promise(async resolve => {
-          const d = await manyDir.addDirectory(`D${number}`)
-          // console.log(`D${number}`)
-          const f = await d.addFile(`F${number}`, `F${number}`)
-          // console.log(`F${number}`)
-          await f.delete()
-          await d.delete()
-          // console.log(`P${number}`)
-          resolve(true)
+        return new Promise(resolve => {
+          ;(async () => {
+            const d = await manyDir.addDirectory(`D${number}`)
+            // console.log(`D${number}`)
+            const f = await d.addFile(`F${number}`, `F${number}`)
+            // console.log(`F${number}`)
+            await f.delete()
+            await d.delete()
+            // console.log(`P${number}`)
+            resolve(true)
+          })()
         })
       })
       await expect(Promise.all(pms)).to.be.fulfilled

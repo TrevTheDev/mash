@@ -7,8 +7,8 @@ import {promises as fsPromises} from 'fs'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
-import Server, {u, ShellHarness} from '../server'
-import Elevator from '../parsers/elevator'
+import Server, {u, ShellHarness} from '../src/server.js'
+import Elevator from '../src/parsers/elevator.js'
 
 chai.use(chaiAsPromised)
 

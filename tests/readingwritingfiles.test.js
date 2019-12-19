@@ -2,7 +2,7 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Server, {u, ShellHarness} from '../server'
+import Server, {u, ShellHarness} from '../src/server.js'
 
 chai.use(chaiAsPromised)
 

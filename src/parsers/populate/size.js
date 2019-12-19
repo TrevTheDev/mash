@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import DirectorySize from '../../util/directory size'
+import DirectorySize from '../../util/directory size.js'
 
 export default (sizeOutput, fsObj) => {
   const obj = fsObj._props

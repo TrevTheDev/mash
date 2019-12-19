@@ -1,4 +1,4 @@
-import {CP_TYPE, glob, LOCAL} from '../../util/globals'
+import {CP_TYPE, glob, LOCAL} from '../../util/globals.js'
 
 const handleDirtyPath = async (isNewTree, copyManager, src, dstP) => {
   if (isNewTree) return true

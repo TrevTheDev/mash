@@ -1,7 +1,7 @@
-import getDestDirectory from './get dest directory'
-import populateDirectory from '../populate/populateDirectory'
-import {FILE_TYPE_ENUMS} from '../../util/globals'
-import copyFile from './copy file'
+import getDestDirectory from './get dest directory.js'
+import populateDirectory from '../populate/populateDirectory.js'
+import {FILE_TYPE_ENUMS} from '../../util/globals.js'
+import copyFile from './copy file.js'
 
 const copyDirectory = async (copyManager, src, dstP, isNewTree = false) => {
   copyManager.progressUpdateBeforeCopy(src.path, dstP)

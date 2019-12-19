@@ -1,4 +1,4 @@
-import {glob} from '../util/globals'
+import {glob} from '../util/globals.js'
 
 // /**
 //  * readlinks `path`

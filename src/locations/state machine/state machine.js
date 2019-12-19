@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
-import init from './init'
-import loadable from './loadable'
-import loading from './loading'
-import loaded from './loaded'
-import outdated from './outdated'
+import init from './init.js'
+import loadable from './loadable.js'
+import loading from './loading.js'
+import loaded from './loaded.js'
+import outdated from './outdated.js'
 
 export default {
   transition(target, toState) {

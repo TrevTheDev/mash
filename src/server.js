@@ -1,19 +1,19 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 import ShellHarnessM from '@trevthedev/shell-harness'
-import ExecutionContext from './locations/execution context'
-import {DEFAULT_CONFIG, glob, FILE_TYPE_ENUMS, CP_TYPE} from './util/globals'
-import FsObject from './locations/fs object'
-import Directory from './locations/types/directory'
-import File from './locations/types/file'
-import Symlink from './locations/types/symlink'
-import BlockDevice from './locations/types/block device'
-import CharacterDevice from './locations/types/character device'
-import LocalSocket from './locations/types/local socket'
-import NamedPipe from './locations/types/named pipe'
-import Users from './user/users'
-import FSObjectArray from './locations/fs object array'
-import Logger from './logger'
+import {DEFAULT_CONFIG, glob, FILE_TYPE_ENUMS, CP_TYPE} from './util/globals.js'
+import ExecutionContext from './locations/execution context.js'
+import FsObject from './locations/fs object.js'
+import Directory from './locations/types/directory.js'
+import File from './locations/types/file.js'
+import Symlink from './locations/types/symlink.js'
+import BlockDevice from './locations/types/block device.js'
+import CharacterDevice from './locations/types/character device.js'
+import LocalSocket from './locations/types/local socket.js'
+import NamedPipe from './locations/types/named pipe.js'
+import Users from './user/users.js'
+import FSObjectArray from './locations/fs object array.js'
+import Logger from './logger.js'
 
 export {FILE_TYPE_ENUMS, CP_TYPE}
 

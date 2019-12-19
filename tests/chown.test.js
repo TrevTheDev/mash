@@ -1,9 +1,11 @@
+/* eslint-disable mocha/no-setup-in-describe */
+/* eslint-disable mocha/no-hooks-for-single-case */
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Server, {ShellHarness, u} from '../server'
-import Elevator from './elevator'
+import Server, {ShellHarness, u} from '../src/server.js'
+import Elevator from '../src/parsers/elevator.js'
 
 chai.use(chaiAsPromised)
 

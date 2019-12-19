@@ -4,7 +4,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {u} from './server'
+import Server, {u} from '../src/server.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)

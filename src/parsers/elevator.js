@@ -1,4 +1,4 @@
-import {ShellHarness} from '../server'
+import {ShellHarness} from '../server.js'
 
 export default class Elevator {
   constructor(

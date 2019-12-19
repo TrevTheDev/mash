@@ -1,5 +1,5 @@
-import Size from '../formatters/size'
-import NumberWithCommas from '../formatters/number with commas'
+import Size from '../formatters/size.js'
+import NumberWithCommas from '../formatters/number with commas.js'
 
 export default class DirectorySize {
   constructor(bytes, diskUsageBytes, directoryCount, fileCount) {

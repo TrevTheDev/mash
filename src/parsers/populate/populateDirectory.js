@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 // import FSObjectArray from '../../locations/fs object array'
-import {LOCAL, glob} from '../../util/globals'
-import parse from './parse'
+import {LOCAL, glob} from '../../util/globals.js'
+import parse from './parse.js'
 
 /**
  * reads `directory` content and the returns stat'ed | gio'ed | lsattr'ed `FSObjectArray`

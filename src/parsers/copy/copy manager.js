@@ -1,9 +1,9 @@
-import {CP_TYPE, LOCAL} from '../../util/globals'
-import Size from '../../formatters/size'
-import ProgressTracker from '../../util/progress tracker'
-import Percentage from '../../formatters/percentage'
-import Rate from '../../formatters/rate'
-import copy from './copy'
+import {CP_TYPE, LOCAL} from '../../util/globals.js'
+import Size from '../../formatters/size.js'
+import ProgressTracker from '../../util/progress tracker.js'
+import Percentage from '../../formatters/percentage.js'
+import Rate from '../../formatters/rate.js'
+import copy from './copy.js'
 
 export default class CopyManager {
   constructor(

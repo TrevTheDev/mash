@@ -1,4 +1,4 @@
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async (FSObject, group, recursive) => {
   const chgrp = await FSObject.sh(

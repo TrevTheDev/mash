@@ -4,8 +4,8 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {sh, ShellHarness, u} from '../../server'
-import {CP_TYPE} from '../../util/globals'
+import Server, {sh, ShellHarness, u} from '../src/server.js'
+import {CP_TYPE} from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)

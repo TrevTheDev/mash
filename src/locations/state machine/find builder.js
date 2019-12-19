@@ -1,8 +1,8 @@
-import stringToSize from '../../formatters/string to size'
-import Size from '../../formatters/size'
-import find from '../../parsers/find'
-import {FILE_TYPE_ENUMS} from '../../util/globals'
-import {isNumber} from '../../util/utils'
+import stringToSize from '../../formatters/string to size.js'
+import Size from '../../formatters/size.js'
+import find from '../../parsers/find.js'
+import {FILE_TYPE_ENUMS} from '../../util/globals.js'
+import {isNumber} from '../../util/utils.js'
 
 const convertFileEnumToType = fileEnum =>
   ['f', 'd', 'l', 'c', 'b', 's', 'p'][fileEnum.index]

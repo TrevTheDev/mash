@@ -1,8 +1,7 @@
-import stateMachine from './state machine/state machine'
-import {PathContainer} from './path'
-import {glob, FILE_TYPE_ENUMS} from '../util/globals'
-
-const EventEmitter = require('events')
+import EventEmitter from 'events'
+import stateMachine from './state machine/state machine.js'
+import {PathContainer} from './path.js'
+import {glob, FILE_TYPE_ENUMS} from '../util/globals.js'
 
 export default class FsObject extends EventEmitter {
   constructor(executionContext, path, createAutomationFunctions = true) {

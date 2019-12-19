@@ -1,6 +1,6 @@
 // const fsPromises = require('fs').promises
 // import {promises as fsPromises} from 'fs'
-import initScript from '../parsers/init'
+import initScript from '../parsers/init.js'
 /* REGIONALISATION
  ******************************************************************************************************
  */

@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async fsObject => {
   const touch = await fsObject.sh(`touch -- ${fsObject.toSh()};`, 'touch')

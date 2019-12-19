@@ -1,4 +1,4 @@
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async (directory, cmdString) => {
   const find = await directory.sh(cmdString, 'find')

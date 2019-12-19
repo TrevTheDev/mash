@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import copyFile from './copy file'
-import copyDirectory from './copy directory'
-import {CP_TYPE, FILE_TYPE_ENUMS, LOCAL, glob} from '../../util/globals'
-import startTimedProgressReport from './timed progress report'
+import copyFile from './copy file.js'
+import copyDirectory from './copy directory.js'
+import {CP_TYPE, FILE_TYPE_ENUMS, LOCAL, glob} from '../../util/globals.js'
+import startTimedProgressReport from './timed progress report.js'
 
 export default async copyM => {
   const src = await copyM.sourceFSObj

@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 // import deasync from 'deasync'
-import CopyManager from '../../parsers/copy/copy manager'
-import FindBuilder from './find builder'
+import CopyManager from '../../parsers/copy/copy manager.js'
+import FindBuilder from './find builder.js'
 // import {LOCAL} from '../../util/globals'
 // import {ChainablePromise} from '../../util/utils'
 

@@ -1,5 +1,5 @@
-import {propertiesThatRequireStat} from './init'
-import {loadedMixin} from './loaded'
+import {propertiesThatRequireStat} from './init.js'
+import {loadedMixin} from './loaded.js'
 
 /* eslint-disable no-param-reassign */
 // const mixin = {}

@@ -1,8 +1,8 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Rate from './rate'
-import Size from './size'
-import stringToSize from './string to size'
+import Rate from '../src/formatters/rate.js'
+import Size from '../src/formatters/size.js'
+import stringToSize from '../src/formatters/string to size.js'
 
 chai.use(chaiAsPromised)
 

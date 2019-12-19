@@ -1,4 +1,4 @@
-import posixId from '../parsers/id'
+import posixId from '../parsers/id.js'
 
 /* eslint-disable class-methods-use-this */
 class BaseUser {

@@ -1,4 +1,4 @@
-import {LOCAL, glob} from '../util/globals'
+import {LOCAL, glob} from '../util/globals.js'
 
 export default async (targetFSObject, sourceFSObject) => {
   if (sourceFSObject.state !== 'loaded') await sourceFSObject.stat()

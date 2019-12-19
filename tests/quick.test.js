@@ -5,8 +5,8 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
 import ShellHarness from '@trevthedev/shell-harness'
-import Server, {u, sh} from './server'
-import {CP_TYPE} from './util/globals'
+import Server, {u, sh} from '../src/server.js'
+import {CP_TYPE} from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
@@ -270,13 +270,13 @@ describe('quick tests', () => {
     expect(find[0].path.base).to.equal('match')
   })
   it("u('./path/to/dir').find.byRegEx('regex')", async () => {
-    await u(`${tstDir}/filexyz.doc`).delete(true, undefined, true)
-    await u(`${tstDir}/filexyz1.doc`).delete(true, undefined, true)
-    await tstDir.addFile('filexyz.doc')
-    await tstDir.addFile('filexyz1.doc')
-    const find = await u(`${tstDir}`).find.byRegEx('f.*xyz*..doc')
+    await u(`${tstDir}/fileXyz.doc`).delete(true, undefined, true)
+    await u(`${tstDir}/fileXyz1.doc`).delete(true, undefined, true)
+    await tstDir.addFile('fileXyz.doc')
+    await tstDir.addFile('fileXyz1.doc')
+    const find = await u(`${tstDir}`).find.byRegEx('f.*Xyz*..doc')
     expect(find.length).to.equal(2)
-    expect(find[0].path.base).to.equal('filexyz.doc')
+    expect(find[0].path.base).to.equal('fileXyz.doc')
   })
 
   it("sh('some shell cmd;')", async () => {

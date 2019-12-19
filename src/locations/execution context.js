@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import {glob} from '../util/globals'
-import pwd from '../parsers/pwd'
-import gioTrashEmpty from '../parsers/gio trash empty'
-import {pathNormaliser} from './path'
+import {glob} from '../util/globals.js'
+import pwd from '../parsers/pwd.js'
+import gioTrashEmpty from '../parsers/gio trash empty.js'
+import {pathNormaliser} from './path.js'
 
 /**
  * U is a class the provides execution context
