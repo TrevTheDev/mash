@@ -1,5 +1,13 @@
 /* eslint-disable no-bitwise */
 export default class Permissions {
+  canRead
+  canWrite
+  canExecute
+  canDelete
+  canTrash
+  canRename
+  userReal
+
   get octal() {
     return this._octal
   }
@@ -31,6 +39,7 @@ export default class Permissions {
   get symbol() {
     return [...this._octal]
       .map(number => {
+        // noinspection JSBitwiseOperatorUsage
         return `${number & 4 ? 'r' : '-'}${number & 2 ? 'w' : '-'}${
           number & 1 ? 'x' : '-'
         }`

@@ -30,7 +30,7 @@ const mParts = Object.getOwnPropertyDescriptors({
       blocksAllocated: this.blocksAllocated,
       // accessRights: this.accessRights,
       deviceNumber: this.deviceNumber,
-      type: this.type.name,
+      type: this.type,
       // group: this.group.toJSON(),
       // user: this.user.toJSON(),
       numberHardLinks: this.numberHardLinks,
@@ -53,13 +53,13 @@ const mParts = Object.getOwnPropertyDescriptors({
       fileId: this.fileId,
       mode: this.mode,
       rdev: this.rdev,
-      lsattr: this.lsattr.toJSON(),
-      size: this.size.toJSON(),
+      size: this.size,
       loadedGio: this.loadedGio,
       loadedStat: this.loadedStat,
       loadedLsattr: this.loadedLsattr,
       permissions: this.permissions.toJSON()
     }
+    if (this.lsattr) json.lsattr = this.lsattr.toJSON()
     if (expandContent && this._content)
       json.content = this._content.toJSON(pathOnly, expandContent)
     return json

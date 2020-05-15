@@ -1,5 +1,4 @@
 // import deasync from 'deasync'
-// import SimplePromise from './promse'
 
 // eslint-disable-next-line import/prefer-default-export
 export const isNumber = value =>

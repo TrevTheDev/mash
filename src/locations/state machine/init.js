@@ -186,19 +186,6 @@ export default {
           configurable: true,
           enumerable: true,
           get: () => {
-            //   let i = 0
-            //   let obj
-            //   target.then(done => {
-            //     obj = done
-            //   })
-            //   deasync.loopWhile(() => {
-            //     i += 1
-            //     console.log(`init - ${prop} - ${i}:${target}: ${target.state}`)
-            //     return target && obj === undefined && i < 1000
-            //   })
-            //   return obj[prop]
-            // }
-            console.log(prop)
             return new Promise(resolve =>
               target.then(result => resolve(result[prop]))
             )

@@ -60,11 +60,11 @@ class Lsattr {
 }
 /**
  * takes raw lsattr output, parses it, and updates `fsObj`
- * @param {string} gioOutput - raw string output from lsattr
- * @param {object} fsObj - obj to imbue with lsattr information
+ * @param {string} lsattrOutput - raw string output from lsattr
+ * @param {FsObject} fsObj - obj to imbue with lsattr information
  * @returns updated `fsObj`
  */
-export default (lsattrOutput, fsObj) => {
+const lsattr = (lsattrOutput, fsObj) => {
   const obj = fsObj._props
   if (lsattrOutput.includes('LSATTRFAILED')) {
     obj.loadedLsattr = false
@@ -79,3 +79,4 @@ export default (lsattrOutput, fsObj) => {
   )
   obj.loadedLsattr = true
 }
+export default lsattr

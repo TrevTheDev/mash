@@ -2,12 +2,12 @@
 /* eslint-disable no-restricted-syntax */
 import {LOCAL, glob} from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
+ * mkDir - see `addDirectory`
  * TODO: code could be slightly optimised (lowest priority)
  * TODO: consider using Array of Paths
- * @param {Directory||FSObjectArray} directory containing parent directory
- * @param {Array of strings} tree an array of strings containing directory names
- * @param {boolean} ignoreAnyExistingDirectories wether to overwrite existing directories (-p)
+ * @param {Directory|FSObjectArray} directory - parent directory
+ * @param {Array<strings>} folderName folder - name to add
+ * @param {boolean} ignoreAnyExistingDirectories - whether to overwrite existing directories (-p)
  * @returns
  */
 

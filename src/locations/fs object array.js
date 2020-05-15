@@ -26,6 +26,8 @@ export default class FSObjectArray extends Array {
   }
 
   toJSON(pathOnly = false, content = true) {
-    return this.map(fsObj => fsObj.toJSON(pathOnly, content))
+    const arr = []
+    this.forEach(fsObj => arr.push(fsObj.toJSON(pathOnly, content)))
+    return arr
   }
 }

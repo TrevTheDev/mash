@@ -1,7 +1,6 @@
-/* eslint-disable no-param-reassign */
 import DirectorySize from '../../util/directory size.js'
 
-export default (sizeOutput, fsObj) => {
+const size = (sizeOutput, fsObj) => {
   const obj = fsObj._props
   // if (sizeOutput.includes('SIZEFAILED')) {
   //   obj.loadedSize = false
@@ -20,3 +19,4 @@ export default (sizeOutput, fsObj) => {
   )
   obj.loadedSize = true
 }
+export default size

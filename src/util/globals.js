@@ -1,10 +1,11 @@
+/* eslint-disable max-classes-per-file */
 // const fsPromises = require('fs').promises
 // import {promises as fsPromises} from 'fs'
 import initScript from '../parsers/init.js'
-/* REGIONALISATION
+/* REGIONALIZATION
  ******************************************************************************************************
  */
-export const LOCAL = {
+export const LOCAL = Object.freeze({
   pathNotFound: 'path not found',
   directoryNotFound: 'directory not found',
   requiredCmdNotFound: 'required command not found',
@@ -29,70 +30,11 @@ export const LOCAL = {
   pathTypeNotSupported: 'path type not supported',
   symlinkBroken: 'symlink broken',
   destNotADir: 'destinationDirectory is not a directory'
-}
-
-/* ENUMS
- ******************************************************************************************************
- */
-
-class EnumKey {
-  constructor(props) {
-    Object.freeze(Object.assign(this, props))
-  }
-
-  toString() {
-    return this.name
-  }
-
-  toJSON() {
-    return this.name
-  }
-}
-
-class Enum {
-  constructor(...keys) {
-    keys.forEach((key, index) => {
-      Object.defineProperty(this, key, {
-        value: new EnumKey({
-          name: key,
-          index
-        }),
-        enumerable: true
-      })
-    })
-    Object.freeze(this)
-  }
-
-  *[Symbol.iterator]() {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const key of Object.keys(this)) {
-      yield this[key]
-    }
-  }
-
-  toString() {
-    return [...this].join(', ')
-  }
-}
+})
 
 /* ENUMS - START
  ******************************************************************************************************
  */
-
-/**
- * Enum for posix file types.
- * @readonly
- * @enum {number} based on position
- */
-export const FILE_TYPE_ENUMS = new Enum(
-  'file',
-  'directory',
-  'symbolicLink',
-  'characterDevice',
-  'blockDevice',
-  'localSocket',
-  'namedPipe'
-)
 
 // export const MV_TYPE = new Enum(
 //   'overwrite',
@@ -102,12 +44,27 @@ export const FILE_TYPE_ENUMS = new Enum(
 //   'doNotOverwrite'
 // )
 
-export const CP_TYPE = new Enum(
-  'overwrite',
-  'overwriteOlder',
-  'askBeforeOverwrite',
-  'doNotOverwrite'
-)
+/**
+ * Enum for posix file types.
+ * @readonly
+ * @enum {number} based on position
+ */
+export const FILE_TYPE_ENUMS = Object.freeze({
+  file: 'file',
+  directory: 'directory',
+  symbolicLink: 'symbolicLink',
+  characterDevice: 'characterDevice',
+  blockDevice: 'blockDevice',
+  localSocket: 'localSocket',
+  namedPipe: 'namedPipe'
+})
+
+export const CP_TYPE = Object.freeze({
+  overwrite: 'overwrite',
+  overwriteOlder: 'overwriteOlder',
+  askBeforeOverwrite: 'askBeforeOverwrite',
+  doNotOverwrite: 'doNotOverwrite'
+})
 
 /* globalOptions
  ******************************************************************************************************
@@ -141,11 +98,5 @@ export const DEFAULT_CONFIG = {
     }
   }
 }
-
-// class Glob {
-//   constructor() {
-//     if (Glob.instance) return Glob.instance
-//   }
-// }
 
 export const glob = {}

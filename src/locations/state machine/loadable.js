@@ -79,7 +79,7 @@ const shared = Object.getOwnPropertyDescriptors({
   get size() {
     // TODO: Test
     return new Promise(async resolve => {
-      await this.stat(this.loadedGio || true, this.LoadedLsattr || true, true)
+      await this.stat(this.loadedGio || true, this.loadedLsattr || true, true)
       resolve(this.size)
     })
   }
@@ -97,16 +97,15 @@ const directory = Object.getOwnPropertyDescriptors({
    *                                                path+/A2
    *                                                path+/A3
    * TODO: consider accepting arrays for permissions, owner and group
-   * @param {String or Array of Strings} nameArr name(s) of new directories to create
+   * @param {String | Path } nameArr name(s) of new directories to create
    * @param {boolean} [ignoreAnyExistingDirectories=false] ignore any existing directories or no
    * @returns DirectoryProxy or Array of DirectoryProxies
-   * @memberof Directory
    */
   async addDirectory(nameArr, ignoreAnyExistingDirectories = false) {
     let nameArrMod
     if (nameArr.constructor.name === 'String')
-      nameArrMod = new Path(nameArr).toArray
-    else if (nameArr.constructor.name === 'Path') nameArrMod = nameArr.toArray
+      nameArrMod = new Path(nameArr).toArray()
+    else if (nameArr.constructor.name === 'Path') nameArrMod = nameArr.toArray()
     else if (nameArr.constructor.name !== 'Array')
       throw new Error('invalid directory name(s)')
     else nameArrMod = nameArr
@@ -115,7 +114,7 @@ const directory = Object.getOwnPropertyDescriptors({
     return newDirs.length === 1 ? newDirs[0] : newDirs
   },
 
-  async addFile(name, content, overwrite = false) {
+  async addFile(name, content = '', overwrite = false) {
     const newFile = await this.u(name)
     await newFile.write(content, overwrite)
     return newFile
@@ -127,8 +126,8 @@ const directory = Object.getOwnPropertyDescriptors({
    * TODO: test limitToThisDirsFileSystem
    * @param {boolean} [recursive=false] deletes all content recursively
    * @param {boolean} [limitToThisDirsFileSystem=false] limit delete to the fs on which the directory is
+   * @param {boolean} [onlyIfExists=false] confirms if file exists before trying to delete
    * @returns true if directory deleted, or throws if not.
-   * @memberof Directory
    */
   delete(
     recursive = false,

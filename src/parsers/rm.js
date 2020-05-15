@@ -1,38 +1,29 @@
 /* eslint-disable no-param-reassign */
 import {LOCAL, glob} from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
- * TODO: check what happens if person tries to delete /
- * TODO: check what happens if insufficient permissions
- * @param {string} path
- * @param {boolean} deleteIfNotEmpty
+ * @param {FsObject} fsObject
+ * @param {boolean} recursive
  * @param {boolean} limitToCWDFilesystem
+ * @param {boolean} onlyIfExists
  * @returns
  */
-export default async (
-  fsObject,
-  recursive,
-  limitToCWDFilesystem,
-  onlyIfExists
-) => {
+const rm = async (fsObject, recursive, limitToCWDFilesystem, onlyIfExists) => {
   if (onlyIfExists) if (!(await fsObject.exists)) return false
-  const rm = await fsObject.sh(
+  const rmSh = await fsObject.sh(
     `rm -d${recursive ? ' -r' : ''}${
       limitToCWDFilesystem ? ' --one-file-system' : ''
     } -- ${fsObject.toSh()};`,
     'rm'
   )
-  if (rm.error) {
+  if (rmSh.error) {
     let msg
-    if (rm.output.includes('Directory not empty'))
+    if (rmSh.output.includes('Directory not empty'))
       msg = `${LOCAL.directoryNotEmpty}: rm: ${fsObject}`
-    else if (rm.output.includes('Permission denied'))
+    else if (rmSh.output.includes('Permission denied'))
       msg = `${LOCAL.permissionDenied}: rm: ${fsObject}`
-    else if (rm.output.includes('wrong password'))
-      msg = `${LOCAL.wrongPassword}: rm: ${fsObject}`
-    else if (rm.output.includes('No such file or directory'))
+    else if (rmSh.output.includes('No such file or directory'))
       msg = `${LOCAL.noFileOnRM}: rm: ${fsObject}`
-    else msg = `${rm.output}: rm: ${fsObject}`
+    else msg = `${rmSh.output}: rm: ${fsObject}`
     if (glob.logger) glob.logger.error(msg, 'rm')
     throw new Error(msg)
   }
@@ -43,3 +34,5 @@ export default async (
   fsObject.deleted = true
   return true
 }
+
+export default rm

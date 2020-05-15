@@ -1,26 +1,27 @@
 import {LOCAL, glob} from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
+ * chmod - modifies fsObject permissions
  * TODO: check what happens if person tries to delete /
  * TODO: check what happens if insufficient permissions
- * @param {string} path
- * @param {boolean} requireDirectoryToBeEmpty
- * @param {boolean} limitToCWDFilesystem
- * @returns
+ * @param {FsObject} fsObject
+ * @param {boolean} permissions - string of permission '777' or 'a+w'
+ * @param {boolean} recursive - apply permissions recursively
+ * @returns fsObject - but state will be outdated
  */
-export default async (FSObject, permissions, recursive) => {
-  const chmod = await FSObject.sh(
-    `chmod ${permissions} ${recursive ? '-R ' : ''}-- ${FSObject.toSh()};`,
+const chmod = async (fsObject, permissions, recursive) => {
+  const chmodSh = await fsObject.sh(
+    `chmod ${permissions} ${recursive ? '-R ' : ''}-- ${fsObject.toSh()};`,
     'chmod'
   )
-  if (chmod.error) {
+  if (chmodSh.error) {
     let msg
-    if (chmod.output.includes('Permission denied'))
-      msg = `${LOCAL.permissionDenied}: chmod: ${FSObject}`
-    else msg = `chmod: ${chmod.output}`
+    if (chmodSh.output.includes('Permission denied'))
+      msg = `${LOCAL.permissionDenied}: chmod: ${fsObject}`
+    else msg = `chmod: ${chmodSh.output}`
     if (glob.logger) glob.logger.error(msg, 'chmod')
     throw new Error(msg)
   }
-  if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
-  return FSObject
+  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
+  return fsObject
 }
+export default chmod

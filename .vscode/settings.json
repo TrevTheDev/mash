@@ -1,11 +1,12 @@
 {
-  "mocha.node_options": ["-r", "esm"],
-  "mocha.requires": ["esm", "mocha-steps"],
+  "mocha.requires": ["mocha-steps"],
   "mocha.options": {
     "timeout": 600000
   },
   "mocha.files.glob": "tests/**/*.test.js",
   "mocha.parallelTests": 5,
+  "mochaExplorer.logpanel": true,
+  "mochaExplorer.files": "tests/**/*.test.mjs",
   "cSpell.words": [
     "CMDOUTPUT",
     "Chainable",
@@ -39,6 +40,7 @@
     "cmdline",
     "cmin",
     "commandline",
+    "datefns",
     "deasync",
     "errback",
     "errbacks",

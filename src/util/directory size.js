@@ -1,35 +1,32 @@
 import Size from '../formatters/size.js'
-import NumberWithCommas from '../formatters/number with commas.js'
+// import NumberWithCommas from '../formatters/number with commas.js'
 
 export default class DirectorySize {
   constructor(bytes, diskUsageBytes, directoryCount, fileCount) {
-    this._size = new Size(bytes)
-    this._diskUsageBytes = new Size(diskUsageBytes)
-    this._directoryCount = new NumberWithCommas(directoryCount)
-    this._fileCount = new NumberWithCommas(fileCount)
+    this.bytes = bytes
+    this.diskUsageBytes = diskUsageBytes
+    this.directoryCount = directoryCount
+    this.fileCount = fileCount
   }
 
   get size() {
-    return this._size
-  }
-
-  get diskUsage() {
-    return this._diskUsageBytes
-  }
-
-  get directoryCount() {
-    return this._directoryCount
-  }
-
-  get fileCount() {
-    return this._fileCount
+    return this.bytes
   }
 
   toString() {
-    return `${this.size}`
+    return `${new Size(this.bytes)}`
   }
 
   valueOf() {
-    return this.size.valueOf()
+    return this.bytes
+  }
+
+  toJSON() {
+    return {
+      bytes: this.bytes,
+      diskUsageBytes: this.diskUsageBytes,
+      directoryCount: this.directoryCount,
+      fileCount: this.fileCount
+    }
   }
 }

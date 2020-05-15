@@ -31,8 +31,5 @@ export default async (FSObject, content, overwrite) => {
   }
   if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
 
-  const newFile = FSObject.executionContext.getFileFromPath(`${FSObject}`)
-  // Object.setPrototypeOf(newFile, new glob.File(newFile.executionContext))
-
-  return newFile
+  return FSObject.executionContext.getFileFromPath(`${FSObject}`)
 }

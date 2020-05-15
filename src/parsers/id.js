@@ -1,28 +1,24 @@
 /* eslint-disable no-param-reassign */
 import {LOCAL, glob} from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
- * TODO: check what happens if person tries to delete /
- * TODO: check what happens if insufficient permissions
- * @param {string} path
- * @param {boolean} requireDirectoryToBeEmpty
- * @param {boolean} limitToCWDFilesystem
+ * @param {Users} users
+ * @param {String} uidOrName - default = ''
  * @returns
  */
-export default async (users, uidOrName = '') => {
-  const id = await users.executionContext.shell.createCommand(
+const id = async (users, uidOrName = '') => {
+  const idSh = await users.executionContext.shell.createCommand(
     `user_info ${uidOrName};`
   )
-  if (id.error) {
+  if (idSh.error) {
     let msg
-    if (id.output.includes('no such user'))
+    if (idSh.output.includes('no such user'))
       msg = `${LOCAL.noSuchUser}: id: ${uidOrName}`
-    else msg = `id: ${id.output}`
+    else msg = `id: ${idSh.output}`
     if (glob.logger) glob.logger.error(msg, 'id')
     throw new Error(msg)
   }
 
-  const Res = id.output.split('\n')
+  const Res = idSh.output.split('\n')
   const user = users._getUser(parseInt(Res[0], 10), Res[1])
   const effectiveGroupId = parseInt(Res[2], 10)
   const groupIds = Res[3].split(' ')
@@ -38,3 +34,5 @@ export default async (users, uidOrName = '') => {
   }
   return user
 }
+
+export default id

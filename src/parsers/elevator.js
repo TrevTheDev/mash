@@ -43,7 +43,9 @@ export default class Elevator {
 
     return finalCommand
   }
-
+  /**
+   * @returns {ShellHarness}
+   */
   async shell() {
     if (this._shell) return this._shell
     this._shell = new ShellHarness(this.shellPoolConfig)

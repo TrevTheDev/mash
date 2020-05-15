@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import Size from '../../formatters/size.js'
+// import Size from '../../formatters/size.js'
 import {FILE_TYPE_ENUMS} from '../../util/globals.js'
 
 /**
@@ -36,7 +36,7 @@ const translateToFileTypeEnum = fileType => {
  * @param {object} fsObj - obj to imbue with stat information
  * @returns updated `fsObj`
  */
-export default (statOutput, fsObj) => {
+const stat = (statOutput, fsObj) => {
   const obj = fsObj._props
   const [
     accessRights,
@@ -74,7 +74,7 @@ export default (statOutput, fsObj) => {
   obj.deviceNumber = parseInt(deviceNumber, 10)
   obj.numberHardLinks = parseInt(numberHardLinks, 10)
   obj.inode = parseInt(inode, 10)
-  obj.size = new Size(parseInt(totalSizeInBytes, 10))
+  obj.size = parseInt(totalSizeInBytes, 10)
   obj.majorDeviceType = parseInt(majorDeviceType, 10)
   obj.minorDeviceType = parseInt(minorDeviceType, 10)
 
@@ -88,3 +88,4 @@ export default (statOutput, fsObj) => {
   obj.timeOfLastMetaDataChange = new Date(Date.parse(timeOfLastMetaDataChange))
   obj.loadedStat = true
 }
+export default stat

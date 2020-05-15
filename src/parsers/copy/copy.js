@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 import copyFile from './copy file.js'
 import copyDirectory from './copy directory.js'
-import {CP_TYPE, FILE_TYPE_ENUMS, LOCAL, glob} from '../../util/globals.js'
-import startTimedProgressReport from './timed progress report.js'
+import {CP_TYPE, FILE_TYPE_ENUMS, glob, LOCAL} from '../../util/globals.js'
+import ProgressReporter from './progress reporter.js'
 
-export default async copyM => {
+const copy = async copyM => {
   const src = await copyM.sourceFSObj
   await Promise.all([
     (async () => {
@@ -26,35 +26,39 @@ export default async copyM => {
     src.size.fileCount || 1,
     src.size.directoryCount || 0
   )
-
-  const baselineInterval = setInterval(() => copyM.setBaseline(), 30000)
-
-  const timedProgressReport = startTimedProgressReport(copyM)
+  copyM.startBaselining()
+  copyM.progressReporter = new ProgressReporter(
+    copyM,
+    copyM.progressReporterInterval
+  )
 
   try {
+    let result
     if (src.type === FILE_TYPE_ENUMS.directory) {
       const dst = await src.executionContext.getFsObjectFromPath(
         copyM.destinationDirectory.path.addSegment(src.path.base)
       )
       copyM.progressUpdateBeforeCopy(src.path, dst.path)
-      if (
-        (await dst.exists) &&
-        copyM.copyType === CP_TYPE.askBeforeOverwrite &&
-        !(await copyM.askBeforeOverwrite(copyM.progressTracker))
-      )
-        copyM.cancel()
-      else
-        copyM.success(
-          await copyDirectory(copyM, src, copyM.destinationDirectory)
-        )
-    } else copyM.success(await copyFile(copyM, src, copyM.destinationDirectory))
+      if ((await dst.exists) && copyM.copyType === CP_TYPE.askBeforeOverwrite) {
+        await dst.stat(false, false, true)
+        if (await copyM.askBeforeOverwrite(src, dst))
+          result = await copyDirectory(copyM, src, copyM.destinationDirectory)
+        else result = undefined
+      } else {
+        result = await copyDirectory(copyM, src, copyM.destinationDirectory)
+      }
+    } else result = await copyFile(copyM, src, copyM.destinationDirectory)
+    if (copyM.cancelled) throw new Error(`${LOCAL.cancelledByUser}`)
+    return result
   } catch (err) {
     const msg = `${copyM.move ? 'moveTo' : 'copyTo'}: ${err.message}`
     if (glob.logger) glob.logger.error(msg, copyM.move ? 'moveTo' : 'copyTo')
-    copyM.fail(new Error(msg))
+    throw new Error(msg)
   } finally {
     copyM.completedAt = new Date()
-    clearInterval(timedProgressReport)
-    clearInterval(baselineInterval)
+    copyM.progressReporter.stop()
+    copyM.stopBaselining()
   }
 }
+
+export default copy

@@ -27,11 +27,11 @@ export default async (fsObj, gio, lsattr, size, fsObjString) => {
         fsObj._props.linkEndTarget = linkTarget
       else fsObj._props.linkEndTarget = linkTarget._props.linkEndTarget
       fsObj._props.linkTarget = linkTarget
-      fsObj._props.size = fsObj._props.linkTarget.size
+      // fsObj._props.size = fsObj._props.linkTarget.size
     } else {
       fsObj._props.linkEndTarget = undefined
       fsObj._props.linkTarget = pth
-      fsObj._props.size = undefined
+      // fsObj._props.size = undefined
       if (size) throw new Error(`stat: ${LOCAL.symlinkBroken}: ${fsObj}`)
     }
   }

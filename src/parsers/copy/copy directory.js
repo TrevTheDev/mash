@@ -6,7 +6,7 @@ import copyFile from './copy file.js'
 const copyDirectory = async (copyManager, src, dstP, isNewTree = false) => {
   copyManager.progressUpdateBeforeCopy(src.path, dstP)
 
-  if (copyManager.cancelled) return false
+  if (copyManager.cancelled) return {cancelled: true}
 
   const {dst, clean} = await getDestDirectory(
     src,
@@ -25,7 +25,7 @@ const copyDirectory = async (copyManager, src, dstP, isNewTree = false) => {
   pa.push(dst.cloneAttrs(src))
   await Promise.all(pa)
   const copiedDir = src.executionContext.getDirectoryFromPath(dst)
-  if (copyManager.move) {
+  if (copyManager.move && !copyManager.cancelled) {
     const srcContent = await populateDirectory(src, false, false, false)
     if (srcContent.length === 0) await src.delete()
   }

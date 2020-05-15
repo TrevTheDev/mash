@@ -50,22 +50,22 @@ export default class ProgressTracker extends EventEmitter {
   get deltaETC() {
     const roc = this.deltaRateOfCompletion
     const timeNow = new Date()
-    if (this.bytesRemaining.bytes === 0) return formatDistance(timeNow, timeNow)
-    if (roc.number === 0 || Number.isNaN(roc.number)) return Infinity
+    if (this.bytesRemaining === 0) return formatDistance(timeNow, timeNow)
+    if (roc === 0 || Number.isNaN(roc)) return Infinity
     return formatDistance(
       timeNow,
-      new Date(timeNow.valueOf() + this.bytesRemaining / roc.number)
+      new Date(timeNow.valueOf() + this.bytesRemaining / roc)
     )
   }
 
   get ETC() {
     const roc = this.rateOfCompletion
     const timeNow = new Date()
-    if (this.bytesRemaining.bytes === 0) return formatDistance(timeNow, timeNow)
-    if (roc.number === 0 || Number.isNaN(roc.number)) return Infinity
+    if (this.bytesRemaining === 0) return formatDistance(timeNow, timeNow)
+    if (roc === 0 || Number.isNaN(roc)) return Infinity
     return formatDistance(
       timeNow,
-      new Date(timeNow.valueOf() + this.bytesRemaining / roc.number)
+      new Date(timeNow.valueOf() + this.bytesRemaining / roc)
     )
   }
 
@@ -111,5 +111,30 @@ export default class ProgressTracker extends EventEmitter {
 
   then(...thenArgs) {
     return this._copyManager.promise.then(...thenArgs)
+  }
+
+  toJSON() {
+    return {
+      bytesCompleted: this.bytesCompleted,
+      bytesRemaining: this.bytesRemaining,
+      deltaElapsedTime: this.deltaElapsedTime,
+      elapsedTime: this.elapsedTime,
+      elapsedTimeF: this.elapsedTimeF,
+      percentageCompleted: this.percentageCompleted,
+      deltaRateOfCompletion: this.deltaRateOfCompletion,
+      rateOfCompletion: this.rateOfCompletion,
+      deltaETC: this.deltaETC,
+      ETC: this.ETC,
+      targetBytes: this.targetBytes,
+      targetFileCount: this.targetFileCount,
+      targetDirectoryCount: this.targetDirectoryCount,
+      progressFileCount: this.progressFileCount,
+      progressDirectoryCount: this.progressDirectoryCount,
+      sourceFSObject: `${this.sourceFSObject}`,
+      destinationDirectory: `${this.destinationDirectory}`,
+      currentSourcePath: `${this.currentSourcePath}`,
+      currentDestinationDirectoryPath: `${this.currentDestinationDirectoryPath}`,
+      startedAt: this.startedAt
+    }
   }
 }

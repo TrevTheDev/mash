@@ -71,12 +71,8 @@ export class Path {
     return new Path(path.join(`${this}`, `${segment}`))
   }
 
-  get toArray() {
-    return this.pathString.split(path.sep).filter(name => name !== '')
-  }
-
   get isValid() {
-    return this.toArray.every(name => {
+    return this.toArray().every(name => {
       return /^[\w\-. ]+$/.test(name)
     })
   }
@@ -100,12 +96,16 @@ export class Path {
   toSh() {
     return `"$(cat<<'+++EOF+++'\n${this}\n+++EOF+++\n)"`
   }
+
+  toArray() {
+    return this.pathString.split(path.sep).filter(name => name !== '')
+  }
 }
 export class PathContainer {
   constructor(fsObject, requestedPath, statPath) {
     this._fsObject = fsObject
     if (requestedPath) this._setRequestedPath(requestedPath)
-    if (statPath) this._statPath(statPath)
+    if (statPath) this._setStatPath(statPath)
   }
 
   get requestedPath() {

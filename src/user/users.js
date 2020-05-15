@@ -30,7 +30,7 @@ class Group extends BaseUser {
     return this._id
   }
 
-  get _knownUsers() {
+  get knownUsers() {
     return this._knownUsers
   }
 
@@ -77,6 +77,10 @@ class User extends BaseUser {
 }
 
 export default class Users {
+  /**
+   * @param {ExecutionContext} [executionContext]
+   * @returns {User}
+   */
   constructor(executionContext) {
     this._executionContext = executionContext
     this._knownUsers = {}
@@ -111,7 +115,9 @@ export default class Users {
     this._knownGroups[gid] = group
     return group
   }
-
+  /**
+   * @returns {ExecutionContext}
+   */
   get executionContext() {
     return this._executionContext
   }

@@ -4,6 +4,10 @@ import {PathContainer} from './path.js'
 import {glob, FILE_TYPE_ENUMS} from '../util/globals.js'
 
 export default class FsObject extends EventEmitter {
+  state
+  deleted
+  _props
+  _permissions
   constructor(executionContext, path, createAutomationFunctions = true) {
     super()
     this._createAutomationFunctions = createAutomationFunctions
@@ -87,6 +91,7 @@ export default class FsObject extends EventEmitter {
       default:
         throw new Error('not yet implemented')
     }
+    // noinspection JSUnresolvedVariable
     delete nType._events
     nType._createAutomationFunctions = this._createAutomationFunctions
     Object.setPrototypeOf(this, nType)

@@ -42,10 +42,10 @@ const DEFAULT_OPTIONS = {
 export default class FindBuilder {
   constructor(fsObject) {
     this._fsObject = fsObject
-    this._setOptions = undefined
+    this._setOptions()
   }
 
-  set _setOptions(options = {...DEFAULT_OPTIONS}) {
+  _setOptions(options = {...DEFAULT_OPTIONS}) {
     this._options = options
   }
 
@@ -109,7 +109,7 @@ export default class FindBuilder {
     if (size.constructor.name === 'String') sz = stringToSize(size)
     else if (isNumber(size)) sz = new Size(size)
     if (sz.constructor.name !== 'Size')
-      throw new Error('biggerThan: invalid size')
+      throw new Error('smallerThan: invalid size')
     this._options.smallerThan = sz
     return this
   }
@@ -205,7 +205,7 @@ export default class FindBuilder {
   }
 
   options(options) {
-    this._setOptions = {...this._options, ...options}
+    this._setOptions({...this._options, ...options})
     return this
   }
 

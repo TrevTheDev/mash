@@ -1,35 +1,32 @@
 import {LOCAL, glob} from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
- * TODO: check what happens if person tries to delete /
- * TODO: check what happens if insufficient permissions
- * @param {string} path
- * @param {boolean} requireDirectoryToBeEmpty
- * @param {boolean} limitToCWDFilesystem
+ * @param {FsObject} fsObject
+ * @param {Path|String|FsObject} destination
  * @returns
  */
-export default async (FSObject, destination) => {
-  const ln = await FSObject.sh(
+const ln = async (fsObject, destination) => {
+  const lnSh = await fsObject.sh(
     // `ln -Tsn -- ${destination.toSh()} ${FSObject.toSh()};`,
-    `if [ -L ${FSObject.toSh()} ]; then ln -Tfsn -- ${destination.toSh()} ${FSObject.toSh()}; else ln -Tsn -- ${destination.toSh()} ${FSObject.toSh()}; fi;`,
+    `if [ -L ${fsObject.toSh()} ]; then ln -Tfsn -- ${destination.toSh()} ${fsObject.toSh()}; else ln -Tsn -- ${destination.toSh()} ${fsObject.toSh()}; fi;`,
     'ln'
   )
-  if (ln.error) {
+  if (lnSh.error) {
     let msg
-    if (ln.output.includes('File exists'))
-      msg = `ln: ${LOCAL.fsObjAlreadyExists}: ${FSObject}`
-    else if (ln.output.includes('Operation not permitted'))
-      msg = `ln: ${LOCAL.permissionDenied}: ${FSObject}`
-    else msg = `ln: ${ln.output}`
+    if (lnSh.output.includes('File exists'))
+      msg = `ln: ${LOCAL.fsObjAlreadyExists}: ${fsObject}`
+    else if (lnSh.output.includes('Operation not permitted'))
+      msg = `ln: ${LOCAL.permissionDenied}: ${fsObject}`
+    else msg = `ln: ${lnSh.output}`
     if (glob.logger) glob.logger.error(msg, 'ln')
     throw new Error(msg)
   }
 
-  const newSymlink = await FSObject.executionContext.getSymlinkFromPath(
-    `${FSObject}`
+  const newSymlink = await fsObject.executionContext.getSymlinkFromPath(
+    `${fsObject}`
   )
 
-  if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
+  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
 
   return newSymlink
 }
+export default ln

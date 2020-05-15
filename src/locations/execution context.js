@@ -4,13 +4,13 @@ import pwd from '../parsers/pwd.js'
 import gioTrashEmpty from '../parsers/gio trash empty.js'
 import {pathNormaliser} from './path.js'
 
-/**
- * U is a class the provides execution context
- *
- * @export
- * @class Locations
- */
 export default class ExecutionContext {
+  /**
+   * @param {Server} server
+   * @param {ShellHarness} shell
+   * @param {Object} options
+   * @returns {ExecutionContext}
+   */
   constructor(server, shell, options) {
     this._options = options
     this._server = server
@@ -24,7 +24,9 @@ export default class ExecutionContext {
   get server() {
     return this._server
   }
-
+  /**
+   * @returns {ShellHarness}
+   */
   get shell() {
     return this._shell
   }

@@ -2,11 +2,12 @@ import {LOCAL, glob} from '../../util/globals.js'
 import parse from './parse.js'
 
 /**
- * queries `fsObj` and the returns stat'ed | gio'ed | lsattr'ed relevant `FSObject`
- * @param {FSObject} fsObj - `FSObject` that should be read
- * @param {boolean=true} gio - whether `FSObject` should be populated with gio information
- * @param {boolean=true} lsattr - whether `FSObject` should be populated with lsattr information
- * @returns relevant populated `FSObject`
+ * queries `fsObj` and the returns stat'ed | gio'ed | lsattr'ed  | size of relevant `FSObject`
+ * @param {FsObject} fsObj - `FsObject` that should be queried
+ * @param {boolean=true} gio - whether `fsObj` should be populated with gio information
+ * @param {boolean=true} lsattr - whether `fsObj` should be populated with lsattr information
+ * @param {boolean=true} size - whether `fsObj` should calculate the size of directories
+ * @returns relevant populated `fsObj`
  */
 export default async (fsObj, gio = true, lsattr = true, size = false) => {
   const queryFileResults = await fsObj.sh(

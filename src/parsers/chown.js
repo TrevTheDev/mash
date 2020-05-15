@@ -2,27 +2,29 @@ import {LOCAL, glob} from '../util/globals.js'
 /**
  * mkdir - see `addDirectory`
  * TODO: check what happens if person tries to delete /
- * TODO: check what happens if insuffieicent permissions
- * @param {string} path
- * @param {boolean} requireDirectoryToBeEmpty
- * @param {boolean} limitToCWDFilesystem
+ * TODO: check what happens if insufficient permissions
+ * @param {FsObject} fsObject
+ * @param {String|String} user
+ * @param {String|String} group
+ * @param {Boolean} recursive
  * @returns
  */
-export default async (FSObject, user, group, recursive) => {
-  const chown = await FSObject.sh(
+const chown = async (fsObject, user, group, recursive) => {
+  const chownSh = await fsObject.sh(
     `chown${recursive ? ' -R' : ''} ${user}${
       group ? `:${group}` : ''
-    } -- ${FSObject.toSh()};`,
+    } -- ${fsObject.toSh()};`,
     'chown'
   )
-  if (chown.error) {
+  if (chownSh.error) {
     let msg
-    if (chown.output.includes('Operation not permitted'))
-      msg = `${LOCAL.permissionDenied}: chown: ${FSObject}`
-    else msg = `chown: ${chown.output}`
+    if (chownSh.output.includes('Operation not permitted'))
+      msg = `${LOCAL.permissionDenied}: chown: ${fsObject}`
+    else msg = `chown: ${chownSh.output}`
     if (glob.logger) glob.logger.error(msg, 'chown')
     throw new Error(msg)
   }
-  if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
-  return FSObject
+  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
+  return fsObject
 }
+export default chown

@@ -2,7 +2,7 @@
 /**
  * takes raw gio output, parses it, and updates `fsObj`
  * @param {string} gioOutput - raw string output from gio
- * @param {object} fsObj - obj to imbue with gio information
+ * @param {FsObject} fsObj - obj to imbue with gio information
  * @returns updated `fsObj`
  */
 export default (gioOutput, fsObj) => {

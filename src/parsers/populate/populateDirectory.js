@@ -5,9 +5,10 @@ import parse from './parse.js'
 
 /**
  * reads `directory` content and the returns stat'ed | gio'ed | lsattr'ed `FSObjectArray`
- * @param {object} directory - `directory` that should be read
+ * @param {Directory} directory - `directory` that should be read
  * @param {boolean=true} gio - whether `FSObjects` should be populated with gio information
  * @param {boolean=true} lsattr - whether `FSObjects` should be populated with lsattr information
+ * @param {boolean=true} size - whether `FSObjects` should calculate the size of directories
  * @returns FSObjectArray - of `directory`'s content
  */
 export default async (directory, gio = true, lsattr = true, size = false) => {

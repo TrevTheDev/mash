@@ -18,18 +18,19 @@ const handleDirtyPath = async (isNewTree, copyManager, src, dstP) => {
     case CP_TYPE.overwriteOlder:
       return src.timeOfLastModification > dst.timeOfLastModification // TODO: Test
     case CP_TYPE.askBeforeOverwrite:
-      return copyManager.askBeforeOverwrite()
+      return copyManager.askBeforeOverwrite(src, dst)
     case CP_TYPE.doNotOverwrite:
+      copyManager.cancelled = true
       throw new Error(`${LOCAL.fsObjAlreadyExists}: ${dst}`)
     default:
+      copyManager.cancelled = true
       throw new Error(`${LOCAL.invalidArgument}: copyType`)
   }
 }
 
 const rsyncProgressParser = (copyManager, stdout) => {
   const arr = stdout
-    // eslint-disable-next-line no-useless-escape
-    .replace(/\,/g, '')
+    .replace(/,/g, '')
     .split(/(\s+)/)
     .filter(e => e.trim().length > 0)
   const bytesCopied = /^\d+$/.test(arr[0]) ? parseInt(arr[0], 10) : undefined
@@ -39,8 +40,9 @@ const rsyncProgressParser = (copyManager, stdout) => {
   if (bytesCopied) copyManager.progressUpdate(0, bytesCopied)
 }
 
-export default async (copyManager, src, dstP, isNewTree = false) => {
-  if (copyManager.cancelled) return false
+const copyFile = async (copyManager, src, dstP, isNewTree = false) => {
+  if (copyManager.cancelled) return {cancelled: true}
+
   const newFilePath = dstP.path.addSegment(src.path.base)
 
   copyManager.progressUpdateBeforeCopy(src.path, dstP.path)
@@ -65,10 +67,12 @@ export default async (copyManager, src, dstP, isNewTree = false) => {
   }
 
   const copiedFile = src.executionContext.getFileFromPath(newFilePath)
-  const sz = src.size.bytes
+  const sz = src.size
 
-  if (copyManager.move) await src.delete()
+  if (copyManager.move && !copyManager.cancelled) await src.delete()
 
   copyManager.progressUpdateAfterFileCopied(sz)
   return copiedFile
 }
+
+export default copyFile

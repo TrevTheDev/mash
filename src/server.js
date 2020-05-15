@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 import ShellHarnessM from '@trevthedev/shell-harness'
@@ -95,9 +96,9 @@ export default class Server {
   /**
    *
    *
-   * @param {*} path
-   * @returns locationHandler
-   * @memberof Server
+   * @param {Array<String>|String|Array<Path>|Path} paths | path
+   * @param {ShellHarness} shellHarness - optional
+   * @returns {FsObject}
    */
   u(paths, shellHarness) {
     const executionContext = shellHarness
@@ -114,8 +115,8 @@ export default class Server {
     return this.executionContext.pwd
   }
 
-  close() {
-    if (this.shell) this.shell.close()
+  async close() {
+    if (this.shell) await this.shell.close()
     delete Server.instance
     return true
   }
@@ -128,7 +129,10 @@ process.on('uncaughtException', error => {
       `There was an uncaught error: ${error}`,
       'uncaughtException'
     )
-  if (Server.instance) Server.instance.close()
+  if (Server.instance)
+    (async () => {
+      await Server.instance.close()
+    })()
   process.exit(1) // mandatory (as per the Node docs)
 })
 
@@ -139,7 +143,10 @@ process.on('unhandledRejection', error => {
       `There was an unhandled rejections: ${error}`,
       'unhandledRejection'
     )
-  if (Server.instance) Server.instance.close()
+  if (Server.instance)
+    (async () => {
+      await Server.instance.close()
+    })()
   throw error
 })
 

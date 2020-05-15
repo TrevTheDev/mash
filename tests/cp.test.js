@@ -6,6 +6,7 @@ import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
 import Server, {sh, ShellHarness, u} from '../src/server.js'
 import {CP_TYPE} from '../src/util/globals.js'
+import Rate from '../src/formatters/rate.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
@@ -129,7 +130,9 @@ describe('copy, move, rename and trash', () => {
           `percentageCompleted: ${progressTracker.percentageCompleted}`
         )
         console.log(
-          `deltaRateOfCompletion: ${progressTracker.deltaRateOfCompletion}`
+          `deltaRateOfCompletion: ${new Rate(
+            progressTracker.deltaRateOfCompletion
+          )}`
         )
         console.log(`rateOfCompletion: ${progressTracker.rateOfCompletion}`)
         console.log(`deltaETC: ${progressTracker.deltaETC}`)
@@ -347,7 +350,7 @@ describe('copy, move, rename and trash', () => {
       expect(await u(`${tstDir}/moveAFileC`).exists).to.be.false
     })
 
-    it.skip('moves a large file', async () => {
+    it('moves a large file', async () => {
       await u(`${tstDir}/moveDirD`).delete(true, undefined, true)
       await u(`${tstDir}/moveAFileD.iso`).delete(true, undefined, true)
 

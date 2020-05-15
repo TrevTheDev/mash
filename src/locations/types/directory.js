@@ -6,11 +6,13 @@ import {FILE_TYPE_ENUMS} from '../../util/globals.js'
  * Also, check out {@link http://www.google.com|Google}
  *
  * @class Directory
- * @classdesc This is a description of the MyClass class.
- * @property {string} path - the sanatised path displayed back to the user
+ * @property {string} path - the sanitised path displayed back to the user
  */
 
 export default class Directory extends FsObject {
+  loadedContent = false
+  content
+
   constructor(u, path, createAutomationFunctions) {
     super(u, path, createAutomationFunctions)
     delete this.type
