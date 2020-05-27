@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/base-srvr.iml" filepath="$PROJECT_DIR$/.idea/base-srvr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/mash.iml" filepath="$PROJECT_DIR$/.idea/mash.iml" />
     </modules>
   </component>
 </project>

@@ -57,13 +57,13 @@ const mParts = Object.getOwnPropertyDescriptors({
       loadedGio: this.loadedGio,
       loadedStat: this.loadedStat,
       loadedLsattr: this.loadedLsattr,
-      permissions: this.permissions.toJSON()
+      permissions: this.permissions.toJSON(),
     }
     if (this.lsattr) json.lsattr = this.lsattr.toJSON()
     if (expandContent && this._content)
       json.content = this._content.toJSON(pathOnly, expandContent)
     return json
-  }
+  },
 })
 
 export const loadedMixin = {
@@ -74,20 +74,20 @@ export const loadedMixin = {
   CharacterDevice: {...loadableMixins.CharacterDevice, ...mParts},
   BlockDevice: {...loadableMixins.BlockDevice, ...mParts},
   LocalSocket: {...loadableMixins.LocalSocket, ...mParts},
-  NamedPipe: {...loadableMixins.NamedPipe, ...mParts}
+  NamedPipe: {...loadableMixins.NamedPipe, ...mParts},
 }
 
 export default {
   allowedEnterStates: ['loading'],
   enter(target) {
     Object.defineProperties(target, loadedMixin[target.constructor.name])
-    Object.keys(target._props).forEach(key => {
+    Object.keys(target._props).forEach((key) => {
       if (!(key in loadedMixin[target.constructor.name])) {
         Object.defineProperty(target, key, {
           configurable: true,
           enumerable: true,
           value: target._props[key],
-          writable: false
+          writable: false,
         })
       }
     })
@@ -99,5 +99,5 @@ export default {
     //   key => delete target[key]
     // )
     // Object.keys(target._props).forEach(key => delete target[key])
-  }
+  },
 }

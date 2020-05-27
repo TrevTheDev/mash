@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-// const fsPromises = require('fs').promises
 // import {promises as fsPromises} from 'fs'
+// const initScript = await fsPromises.readFile('../parsers/init.sh', 'utf8')
 import initScript from '../parsers/init.js'
 /* REGIONALIZATION
  ******************************************************************************************************
@@ -29,7 +29,7 @@ export const LOCAL = Object.freeze({
   unexpectedError: 'an expected error has occurred',
   pathTypeNotSupported: 'path type not supported',
   symlinkBroken: 'symlink broken',
-  destNotADir: 'destinationDirectory is not a directory'
+  destNotADir: 'destinationDirectory is not a directory',
 })
 
 /* ENUMS - START
@@ -56,14 +56,14 @@ export const FILE_TYPE_ENUMS = Object.freeze({
   characterDevice: 'characterDevice',
   blockDevice: 'blockDevice',
   localSocket: 'localSocket',
-  namedPipe: 'namedPipe'
+  namedPipe: 'namedPipe',
 })
 
 export const CP_TYPE = Object.freeze({
   overwrite: 'overwrite',
   overwriteOlder: 'overwriteOlder',
   askBeforeOverwrite: 'askBeforeOverwrite',
-  doNotOverwrite: 'doNotOverwrite'
+  doNotOverwrite: 'doNotOverwrite',
 })
 
 /* globalOptions
@@ -73,30 +73,30 @@ export const DEFAULT_CONFIG = {
   server: {
     cmdDivider: '___EOC___',
     fileDivider: '___EOG___',
-    log: true
+    log: true,
   },
 
   executionContext: {
-    createAutomationFunctions: true
+    createAutomationFunctions: true,
   },
 
   shell: {
     initScript,
-    sudoWait: 50
+    sudoWait: 50,
   },
 
   logger: {
     console: {
       info: false,
       debug: false,
-      error: false
+      error: false,
     },
     file: {
       info: './logs/info.log',
       debug: './logs/debug.log',
-      error: './logs/error.log'
-    }
-  }
+      error: './logs/error.log',
+    },
+  },
 }
 
 export const glob = {}

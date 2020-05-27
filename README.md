@@ -4,6 +4,10 @@ Mash provides a simple interface to interact with the file system and shell comm
 
 Ultimately this will become a complete JavaScript shell or ssh replacement. At the moment it is in early alpha and supports basic functionality.
 
+# Contents
+
+[TOC]
+
 # Installation
 
 ```shell
@@ -22,7 +26,7 @@ To:
 
 - [x] provide a clean and consistent interface for the posix file system ( similar to node fs / shell.js )
 - [x] use shell commands
-- [x] run all shell commands in long running Child Processes vs. a new process for each command
+- [x] run all shell commands in long-running Child Processes vs. a new process for each command
 - [x] provide progress information on copy and move
 
 Lofty goals:
@@ -49,7 +53,7 @@ u(['./path/to/dir', '/another/path']) // return an array of locations
 u('./path/to/fileName.txt').path.name // returns 'fileName'
 ```
 
-All of the following are asynchronous and return a promise. They must be preceded by `await` excluded for brevity:
+All the following are asynchronous and return a promise. They must be preceded by `await` excluded for brevity:
 
 ```javascript
 u('./path/to/dir').content // read directory content returns FSObjectArray
@@ -376,7 +380,7 @@ Tracks `copyTo` or `moveTo` progress.
   - `destinationDirectory` \<fsObject\>
   - `currentSourcePath` \<path\>
   - `currentDestinationDirectoryPath` \<path\>
-  - `startedAt` \<date-fns formated date\>
+  - `startedAt` \<date-fns formatted date\>
   - `cancel()` - cancels copy
 - Returns \<promise→fsObject\> promise that will ultimately evaluate to destination `fsObject` object
 
@@ -444,15 +448,15 @@ Creates a symbolic link `fsObject` to destination using `ln`.
 
 - `destination` \<path\> | \<string\> destination to be symlinked to
 - `overwrite` \<boolean\> remove any existing file or directory. Default: false
-- returns <promise→symlink> newly created symlink
+- returns \<promise→symlink\> newly created symlink
 
 ### fsObject.linkTarget
 
-- returns <promise→fsObject> the target of a symlink
+- returns \<promise→fsObject\> the target of a symlink
 
 ### fsObject.linkEndTarget
 
-- returns <promise→fsObject>` the ultimate target of a symlink or chain of symlinks
+- returns \<promise→fsObject\>` the ultimate target of a symlink or chain of symlinks
 
 ### fsObject.touch()
 
@@ -518,6 +522,12 @@ changes group using `chgrp`
 
 - returns \<promise→string\> of file contents using `cat`
 
+### fsObject.readStream(options)
+
+- `options` \<object\> see [here](https://nodejs.org/api/fs.html#fs_fs_createreadstream_path_options)
+
+- returns \<readStream\> of file contents
+
 ### fsObject.write(content, overwrite)
 
 writes content to a file
@@ -526,7 +536,17 @@ writes content to a file
 - `overwrite` \<boolean\> overwrite the file if it already exists. Default: `false`
 - returns \<promise→fsObject\> new or overwritten file
 
-Requires both the user who launched mash and the shell user to have access to `os.tmpdir()`
+Requires both the user who launched mash, and the shell user to have access to `os.tmpdir()`
+
+### fsObject.writeStream(readStream, overwrite)
+
+Writes readable Stream to a file
+
+- `readableStream` \<readableStream\> stream to write to file
+- `overwrite` \<boolean\> overwrite the file if it already exists. Default: `false`
+- returns \<promise→fsObject\> new or overwritten file
+
+Uses Node's File System module to write the file.
 
 ### fsObject.append(content, encoding, mode)
 

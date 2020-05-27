@@ -41,10 +41,10 @@ export default class CopyManager {
       this.success = resolve
       this.fail = cancel
       copy(this)
-        .then(results => {
+        .then((results) => {
           resolve(results)
         })
-        .catch(error => {
+        .catch((error) => {
           cancel(error)
         })
     })
@@ -118,7 +118,7 @@ export default class CopyManager {
       progressUpdates: [],
       baselinedAt: Date.now(),
       progressLastProvidedAt: this.progressLastProvidedAt,
-      deltaRateOfCompletion: this.deltaRateOfCompletion
+      deltaRateOfCompletion: this.deltaRateOfCompletion,
     }
     this.currentBaseline = baseline
   }
@@ -143,7 +143,7 @@ export default class CopyManager {
     const res = await this.confirmOverwriteCallBack({
       progressReport: this.progressTracker.toJSON(),
       sourceFSObject: srcFSObject.toJSON(),
-      destFSObject: destFSObject.toJSON()
+      destFSObject: destFSObject.toJSON(),
     })
     outstandingPromptCounter -= 1
     if (outstandingPromptCounter === 0) {

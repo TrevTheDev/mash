@@ -1,13 +1,11 @@
 /* eslint-disable no-param-reassign */
-// import deasync from 'deasync'
+
 import CopyManager from '../../parsers/copy/copy manager.js'
-import FindBuilder from './find builder.js'
-// import {LOCAL} from '../../util/globals'
-// import {ChainablePromise} from '../../util/utils'
+import FindBuilder from '../find builder.js'
 
 const ftpParts = {
   directory: ['addDirectory', 'addFile', 'dir', 'cd'],
-  file: ['read', 'write', 'append', 'readChunk', 'writeChunk', 'writeStream'],
+  file: ['read', 'readStream', 'write', 'writeStream', 'append', 'readChunk', 'writeChunk'],
   symlink: ['linkTo'],
   shared: [
     'u',
@@ -19,15 +17,15 @@ const ftpParts = {
     'trash',
     'setPermissions',
     'setUser',
-    'setGroup'
-  ]
+    'setGroup',
+  ],
 }
 const functionsThatRequirePath = {
   FsObject: [
     ...ftpParts.directory,
     ...ftpParts.file,
     ...ftpParts.symlink,
-    ...ftpParts.shared
+    ...ftpParts.shared,
   ],
   Directory: [...ftpParts.directory, ...ftpParts.shared],
   File: [...ftpParts.file, ...ftpParts.shared],
@@ -35,12 +33,12 @@ const functionsThatRequirePath = {
     ...ftpParts.directory,
     ...ftpParts.file,
     ...ftpParts.symlink,
-    ...ftpParts.shared
+    ...ftpParts.shared,
   ],
   CharacterDevice: [...ftpParts.file, ...ftpParts.shared],
   BlockDevice: [...ftpParts.file, ...ftpParts.shared],
   LocalSocket: [...ftpParts.file, ...ftpParts.shared],
-  NamedPipe: [...ftpParts.file, ...ftpParts.shared]
+  NamedPipe: [...ftpParts.file, ...ftpParts.shared],
 }
 // 'copyTo',
 // 'moveTo',
@@ -48,7 +46,7 @@ const functionsThatRequirePath = {
 
 const ptpParts = {
   shared: ['parent', 'size'],
-  directory: ['content']
+  directory: ['content'],
 }
 
 const propertiesThatRequirePath = {
@@ -59,7 +57,7 @@ const propertiesThatRequirePath = {
   CharacterDevice: [...ptpParts.shared],
   BlockDevice: [...ptpParts.shared],
   LocalSocket: [...ptpParts.shared],
-  NamedPipe: [...ptpParts.shared]
+  NamedPipe: [...ptpParts.shared],
 }
 
 const prsParts = {
@@ -90,9 +88,9 @@ const prsParts = {
     'mode',
     'rdev',
     'lsattr',
-    'permissions'
+    'permissions',
   ],
-  symlink: ['linkTarget', 'linkEndTarget']
+  symlink: ['linkTarget', 'linkEndTarget'],
 }
 export const propertiesThatRequireStat = {
   FsObject: [...prsParts.symlink, ...prsParts.shared, 'type'],
@@ -102,7 +100,7 @@ export const propertiesThatRequireStat = {
   CharacterDevice: [...prsParts.shared],
   BlockDevice: [...prsParts.shared],
   LocalSocket: [...prsParts.shared],
-  NamedPipe: [...prsParts.shared]
+  NamedPipe: [...prsParts.shared],
 }
 // 'path',
 // 'canRead',
@@ -119,7 +117,7 @@ const mixin = {
       this,
       destinationDirectory,
       copyType,
-      confirmOverwriteCallBack
+      confirmOverwriteCallBack,
     )
   },
 
@@ -129,7 +127,7 @@ const mixin = {
       destinationDirectory,
       copyType,
       confirmOverwriteCallBack,
-      true
+      true,
     )
   },
 
@@ -137,37 +135,19 @@ const mixin = {
     return new FindBuilder(this)
   },
 
-  async then(resolve, reject) {
+  then(...thenArgs) {
     if (this.state === 'init') {
-      this._canonizePromise = this._canonizePromise
-        ? this._canonizePromise
-        : this._paths.canonize()
-      const path = await this._canonizePromise
-      if (path) {
-        this._transitionState('loadable')
-        delete this._canonizePromise
-        resolve(this)
-      } else reject('path not found') // should never hit
-    } else resolve(this)
-  }
-  // eslint-disable-next-line consistent-return
-  // then(onFulfilled, onRejected) {
-  //   if (this.state !== 'init') return this
-  //   onFulfilled(
-  //     new Promise(results => {
-  //       this._canonizePromise = this._canonizePromise
-  //         ? this._canonizePromise
-  //         : this._paths.canonize()
-
-  //       this._canonizePromise.then(path => {
-  //         if (!path) throw new Error(LOCAL.pathNotFound)
-  //         this._transitionState('loadable')
-  //         // delete this._canonizePromise
-  //         results(this)
-  //       })
-  //     })
-  //   )
-  // }
+      this._canonizePromise = this._canonizePromise || this._paths.canonize()
+      this._canonizePromise.then((path) => {
+        if (path) {
+          this._transitionState('loadable')
+          delete this._canonizePromise
+          thenArgs[0](this)
+        } else thenArgs[1]('path not found')
+      })
+      // should never hit
+    } else thenArgs[0](this)
+  },
 }
 
 export default {
@@ -175,44 +155,36 @@ export default {
   enter(target) {
     Object.defineProperties(target, Object.getOwnPropertyDescriptors(mixin))
     if (target._createAutomationFunctions) {
-      functionsThatRequirePath[target.constructor.name].forEach(prop => {
+      functionsThatRequirePath[target.constructor.name].forEach((prop) => {
         target[prop] = async (...theArgs) => {
           await target
           return target[prop](...theArgs)
         }
       })
-      const defineProperty = prop => {
+      const defineProperty = (prop) => {
         Object.defineProperty(target, prop, {
           configurable: true,
           enumerable: true,
-          get: () => {
-            return new Promise(resolve =>
-              target.then(result => resolve(result[prop]))
-            )
-          }
+          get: () => new Promise((resolve) => target.then((result) => resolve(result[prop]))),
         })
       }
-      propertiesThatRequirePath[target.constructor.name].forEach(prop =>
-        defineProperty(prop)
-      )
-      propertiesThatRequireStat[target.constructor.name].forEach(prop =>
-        defineProperty(prop)
-      )
+      propertiesThatRequirePath[target.constructor.name].forEach((prop) => defineProperty(prop))
+      propertiesThatRequireStat[target.constructor.name].forEach((prop) => defineProperty(prop))
     }
     return true
   },
   exit(target) {
-    Object.keys(mixin).forEach(key => delete target[key])
+    Object.keys(mixin).forEach((key) => delete target[key])
     if (target._createAutomationFunctions) {
       functionsThatRequirePath[target.constructor.name].forEach(
-        prop => delete target[prop]
+        (prop) => delete target[prop],
       )
       propertiesThatRequirePath[target.constructor.name].forEach(
-        prop => delete target[prop]
+        (prop) => delete target[prop],
       )
       propertiesThatRequireStat[target.constructor.name].forEach(
-        prop => delete target[prop]
+        (prop) => delete target[prop],
       )
     }
-  }
+  },
 }

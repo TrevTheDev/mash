@@ -105,3 +105,12 @@ user_info()
   GROUPSN=$(id -Gn "$GETUID");
   printf "%s" "$GROUPSN";
 };
+
+#saveFile(){
+#  rm -f "$1"
+#  while read -r <&3 line; do
+#    echo "$line" >> "$1"
+#  done
+#  cat "$1"
+#  # exec 3<&-
+#};

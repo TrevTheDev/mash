@@ -4,9 +4,8 @@
 /node_modules
 /test
 /x_cruf
-/dist
 /npm-debug.log
 **/node_modules/**
 .DS_Store
 *.iso
-coverage/**
+/package-lock.json

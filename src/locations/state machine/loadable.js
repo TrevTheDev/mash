@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
-import fs, {promises as fsPromises} from 'fs'
+import fs, { promises as fsPromises } from 'fs'
 // import deasync from 'deasync'
-import {propertiesThatRequireStat} from './init.js'
+import { propertiesThatRequireStat } from './init.js'
 import chmod from '../../parsers/chmod.js'
 import chown from '../../parsers/chown.js'
 import rm from '../../parsers/rm.js'
@@ -16,10 +16,11 @@ import ln from '../../parsers/ln.js'
 import cat from '../../parsers/cat.js'
 import write from '../../parsers/write.js'
 import gioTrash from '../../parsers/gio trash.js'
-import {Path} from '../path.js'
+import { Path } from '../path.js'
 import CopyManager from '../../parsers/copy/copy manager.js'
 import cd from '../../parsers/cd.js'
-import FindBuilder from './find builder.js'
+import FindBuilder from '../find builder.js'
+import writeStream from '../../parsers/writeStream.js'
 // import {ChainablePromise} from '../../util/utils'
 
 const shared = Object.getOwnPropertyDescriptors({
@@ -29,7 +30,7 @@ const shared = Object.getOwnPropertyDescriptors({
 
   get parent() {
     if (this._pvt.parent) return this._pvt.parent
-    const {parentPath} = this.path
+    const { parentPath } = this.path
     return this.path.isRoot || !parentPath
       ? undefined
       : this.executionContext.getDirectoryFromPath(parentPath)
@@ -37,7 +38,7 @@ const shared = Object.getOwnPropertyDescriptors({
 
   u(path) {
     return this.executionContext.getFsObjectFromPath(
-      `${this.path.addSegment(path)}`
+      `${this.path.addSegment(path)}`,
     )
   },
 
@@ -46,7 +47,7 @@ const shared = Object.getOwnPropertyDescriptors({
       this,
       destinationDirectory,
       copyType,
-      confirmOverwriteCallBack
+      confirmOverwriteCallBack,
     )
   },
 
@@ -56,7 +57,7 @@ const shared = Object.getOwnPropertyDescriptors({
       destinationDirectory,
       copyType,
       confirmOverwriteCallBack,
-      true
+      true,
     )
   },
 
@@ -78,11 +79,11 @@ const shared = Object.getOwnPropertyDescriptors({
 
   get size() {
     // TODO: Test
-    return new Promise(async resolve => {
+    return new Promise(async (resolve) => {
       await this.stat(this.loadedGio || true, this.loadedLsattr || true, true)
       resolve(this.size)
     })
-  }
+  },
 })
 const directory = Object.getOwnPropertyDescriptors({
   /**
@@ -103,11 +104,9 @@ const directory = Object.getOwnPropertyDescriptors({
    */
   async addDirectory(nameArr, ignoreAnyExistingDirectories = false) {
     let nameArrMod
-    if (nameArr.constructor.name === 'String')
-      nameArrMod = new Path(nameArr).toArray()
+    if (nameArr.constructor.name === 'String') nameArrMod = new Path(nameArr).toArray()
     else if (nameArr.constructor.name === 'Path') nameArrMod = nameArr.toArray()
-    else if (nameArr.constructor.name !== 'Array')
-      throw new Error('invalid directory name(s)')
+    else if (nameArr.constructor.name !== 'Array') throw new Error('invalid directory name(s)')
     else nameArrMod = nameArr
 
     const newDirs = await mkdir(this, nameArrMod, ignoreAnyExistingDirectories)
@@ -132,7 +131,7 @@ const directory = Object.getOwnPropertyDescriptors({
   delete(
     recursive = false,
     limitToThisDirsFileSystem = false,
-    onlyIfExists = false
+    onlyIfExists = false,
   ) {
     return rm(this, recursive, limitToThisDirsFileSystem, onlyIfExists)
   },
@@ -167,7 +166,7 @@ const directory = Object.getOwnPropertyDescriptors({
 
   setGroup(group, applyRecursively = false) {
     return chgrp(this, `${group}`, applyRecursively)
-  }
+  },
 })
 
 const file = Object.getOwnPropertyDescriptors({
@@ -175,16 +174,40 @@ const file = Object.getOwnPropertyDescriptors({
     return rm(this, false, false, onlyIfExists)
   },
 
+  /**
+   * @returns {Promise.<String>} content of file
+   */
   read() {
     return cat(this)
   },
 
+  /**
+   * @returns {ReadStream} content of file
+   */
+  readStream(options) {
+    return fs.createReadStream(`${this}`, options)
+  },
+
+  /**
+   * @param {String} content
+   * @param {Boolean} overwrite
+   * @returns {Promise.<FsObject>}
+   */
   write(content, overwrite = false) {
     return write(this, content, overwrite)
   },
 
+  /**
+   * @param {Stream.Readable} readableStream - stream to write to fs
+   * @param {Boolean} overwrite
+   * @returns {Promise}
+   */
+  writeStream(readableStream, overwrite = false) {
+    return writeStream(this, readableStream, overwrite)
+  },
+
   append(content, encoding = 'utf8', mode) {
-    return fsPromises.appendFile(`${this}`, content, {encoding, mode})
+    return fsPromises.appendFile(`${this}`, content, { encoding, mode })
   },
 
   readChunk(startPosition, numberOfBytes, encoding = 'utf8') {
@@ -201,7 +224,7 @@ const file = Object.getOwnPropertyDescriptors({
           (readError, bytesRead, readBuffer) => {
             if (readError) reject(readError)
             resolve(readBuffer.toString(encoding))
-          }
+          },
         )
       })
     })
@@ -212,7 +235,7 @@ const file = Object.getOwnPropertyDescriptors({
       fs.open(`${this}`, 'r+', (error, fd) => {
         if (error) throw error
         fs.write(fd, chunk, startPosition, encoding, (
-          writeError /* , bytesWritten, string */
+          writeError, /* , bytesWritten, string */
         ) => {
           if (writeError) reject(writeError)
           resolve(true)
@@ -232,24 +255,28 @@ const file = Object.getOwnPropertyDescriptors({
 
   setGroup(group) {
     return chgrp(this, `${group}`)
-  }
+  },
 })
 
 const symlink = Object.getOwnPropertyDescriptors({
   linkTo(destination) {
     return ln(this, new Path(`${destination}`))
-  }
+  },
 })
 
 export const loadableMixins = {
-  FsObject: {...shared, ...file, ...directory, ...symlink},
-  Directory: {...shared, ...directory},
-  File: {...shared, ...file},
-  Symlink: {...shared, ...file, ...directory, ...symlink},
-  CharacterDevice: {...shared, ...file},
-  BlockDevice: {...shared, ...file},
-  LocalSocket: {...shared, ...file},
-  NamedPipe: {...shared, ...file}
+  FsObject: {
+    ...shared, ...file, ...directory, ...symlink,
+  },
+  Directory: { ...shared, ...directory },
+  File: { ...shared, ...file },
+  Symlink: {
+    ...shared, ...file, ...directory, ...symlink,
+  },
+  CharacterDevice: { ...shared, ...file },
+  BlockDevice: { ...shared, ...file },
+  LocalSocket: { ...shared, ...file },
+  NamedPipe: { ...shared, ...file },
 }
 
 export default {
@@ -266,39 +293,36 @@ export default {
         i -= 1
         if (i === 0) target._statPromise = undefined
       }
-      propertiesThatRequireStat[target.constructor.name].forEach(prop => {
+      propertiesThatRequireStat[target.constructor.name].forEach((prop) => {
         Object.defineProperty(target, prop, {
           configurable: true,
           enumerable: true,
-          get: () => {
-            // let obj
-            // let y = 0
-            // try {
-            //   const pms = new Promise(async resolve => {
-            //     const bj = await target.stat()
-            //     resolve(bj)
-            //   })
-            //   pms.then(outcome => {
-            //     obj = outcome
-            //   })
-            // } catch (e) {
-            //   obj = false
-            // }
-            // deasync.loopWhile(() => {
-            //   y += 1
-            //   console.log(`load - ${prop} - ${i}:${target}: ${target.state}`)
-            //   return obj === undefined && target.state === 'loadable' && y < 10
-            // })
-            // return target[prop]
+          get: () =>
+          // let obj
+          // let y = 0
+          // try {
+          //   const pms = new Promise(async resolve => {
+          //     const bj = await target.stat()
+          //     resolve(bj)
+          //   })
+          //   pms.then(outcome => {
+          //     obj = outcome
+          //   })
+          // } catch (e) {
+          //   obj = false
+          // }
+          // deasync.loopWhile(() => {
+          //   y += 1
+          //   console.log(`load - ${prop} - ${i}:${target}: ${target.state}`)
+          //   return obj === undefined && target.state === 'loadable' && y < 10
+          // })
+          // return target[prop]
 
-            return new Promise(resolve => {
+            new Promise((resolve) => {
               // console.log(`loadable: stat: ${target}: ${target.state}: ${prop}`)
-              ;(async () => {
-                await stat()
-                resolve(target[prop])
-              })()
+              stat().then(() => resolve(target[prop]))
             })
-          }
+          ,
         })
       })
     }
@@ -306,11 +330,12 @@ export default {
   },
   exit(target) {
     Object.keys(loadableMixins[target.constructor.name]).forEach(
-      key => delete target[key]
+      (key) => delete target[key],
     )
-    if (target._createAutomationFunctions)
+    if (target._createAutomationFunctions) {
       propertiesThatRequireStat[target.constructor.name].forEach(
-        prop => delete target[prop]
+        (prop) => delete target[prop],
       )
-  }
+    }
+  },
 }

@@ -21,17 +21,16 @@ export default {
         i -= 1
         if (i === 0) target._statPromise = undefined
       }
-      propertiesThatRequireStat[target.constructor.name].forEach(prop => {
+      propertiesThatRequireStat[target.constructor.name].forEach((prop) => {
         Object.defineProperty(target, prop, {
           configurable: true,
           enumerable: true,
           get: () => {
-            return new Promise(async resolve => {
+            return new Promise((resolve) => {
               // console.log(`outdated: stat: ${target}: ${target.state}: ${prop}`)
-              await stat()
-              resolve(target[prop])
+              stat().then(() => resolve(target[prop]))
             })
-          }
+          },
         })
       })
     }
@@ -40,11 +39,11 @@ export default {
   exit(target) {
     if (target._createAutomationFunctions)
       propertiesThatRequireStat[target.constructor.name].forEach(
-        key => delete target[key]
+        (key) => delete target[key]
       )
     Object.keys(loadedMixin[target.constructor.name]).forEach(
-      key => delete target[key]
+      (key) => delete target[key]
     )
-    Object.keys(target._props).forEach(key => delete target[key])
-  }
+    Object.keys(target._props).forEach((key) => delete target[key])
+  },
 }

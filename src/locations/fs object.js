@@ -1,13 +1,13 @@
 import EventEmitter from 'events'
 import stateMachine from './state machine/state machine.js'
-import {PathContainer} from './path.js'
-import {glob, FILE_TYPE_ENUMS} from '../util/globals.js'
+import { PathContainer } from './path.js'
+import { glob, FILE_TYPE_ENUMS } from '../util/globals.js'
 
 export default class FsObject extends EventEmitter {
-  state
-  deleted
-  _props
-  _permissions
+  // state
+  // deleted
+  // _props
+  // _permissions
   constructor(executionContext, path, createAutomationFunctions = true) {
     super()
     this._createAutomationFunctions = createAutomationFunctions
@@ -22,7 +22,7 @@ export default class FsObject extends EventEmitter {
       command,
       doneCBPayload,
       doneCallback,
-      sendToEveryShell
+      sendToEveryShell,
     )
   }
 
@@ -47,7 +47,7 @@ export default class FsObject extends EventEmitter {
   }
 
   toJSON() {
-    return {path: `${this.path}`}
+    return { path: `${this.path}` }
   }
 
   toSh() {
@@ -59,8 +59,7 @@ export default class FsObject extends EventEmitter {
   }
 
   _changeToType(type) {
-    if (![undefined, 'loading'].includes(this.state))
-      throw new Error('wrong state')
+    if (![undefined, 'loading'].includes(this.state)) throw new Error('wrong state')
     let nType
     switch (type) {
       case FILE_TYPE_ENUMS.symbolicLink:
@@ -76,7 +75,7 @@ export default class FsObject extends EventEmitter {
         nType = new glob.CharacterDevice(
           this.executionContext,
           this.path,
-          false
+          false,
         )
         break
       case FILE_TYPE_ENUMS.blockDevice:

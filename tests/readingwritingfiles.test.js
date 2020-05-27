@@ -2,11 +2,12 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Server, {u, ShellHarness} from '../src/server.js'
+import Server, { u, ShellHarness, sh } from '../src/server.js'
+
 
 chai.use(chaiAsPromised)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('read/write files', () => {
   let cwd
@@ -51,7 +52,7 @@ describe('read/write files', () => {
   it('Preserves permissions', async () => {
     const testusrShell = new ShellHarness({
       user: 'testusr',
-      rootPassword: process.env.RPASSWORD
+      rootPassword: process.env.RPASSWORD,
     })
     await u(`${tstDir}/rwfileDir`).delete(true, undefined, true)
     const rwfileDir = await tstDir.addDirectory('rwfileDir', true)
@@ -63,5 +64,17 @@ describe('read/write files', () => {
     expect(`${file.user}`).to.equal('testusr')
     await RL1.delete(true)
     testusrShell.close()
+  })
+
+  it('streams files', async () => {
+    await u(`${tstDir}/readLargeFile.iso`).delete(true, undefined, true)
+    await u(`${tstDir}/writeLargeFile.iso`).delete(true, undefined, true)
+    await sh(
+      `dd if=/dev/zero of=${tstDir}/readLargeFile.iso count=1024 bs=148576;`,
+    )
+    const readStream = await u(`${tstDir}/readLargeFile.iso`).readStream()
+    const result = await u(`${tstDir}/writeLargeFile.iso`).writeStream(readStream)
+    expect(`${result}`).to.equal(`${u(`${tstDir}/writeLargeFile.iso`)}`)
+    expect(await u(`${tstDir}/writeLargeFile.iso`).exists).to.be.true
   })
 })

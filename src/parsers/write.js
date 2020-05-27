@@ -1,35 +1,34 @@
-import {promises as fsPromises} from 'fs'
+import { promises as fsPromises } from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import os from 'os'
-import {LOCAL, glob} from '../util/globals.js'
+import { LOCAL, glob } from '../util/globals.js'
 
-export default async (FSObject, content, overwrite) => {
-  if ((await FSObject.exists) && !overwrite)
-    throw new Error(`write: ${LOCAL.fsObjAlreadyExists}: ${FSObject}`)
+const write = async (fsObject, content, overwrite) => {
+  if ((await fsObject.exists) && !overwrite) throw new Error(`write: ${LOCAL.fsObjAlreadyExists}: ${fsObject}`)
   const tmpPath = path.join(
     os.tmpdir(),
-    `.mash.tmp.${Date.now()}.${crypto.randomBytes(8).toString('hex')}`
+    `.mash.tmp.${Date.now()}.${crypto.randomBytes(8).toString('hex')}`,
   )
 
   await fsPromises.writeFile(tmpPath, content)
 
-  const write = await FSObject.sh(
+  const writeSh = await fsObject.sh(
     `cp --no-preserve=mode,ownership${
       overwrite ? '' : ' -n'
-    } ${tmpPath} ${FSObject.toSh()};`
+    } ${tmpPath} ${fsObject.toSh()};`,
   )
   await fsPromises.unlink(tmpPath)
 
-  if (write.error) {
+  if (writeSh.error) {
     let msg
-    if (write.output.includes('Permission denied'))
-      msg = `write: ${LOCAL.permissionDenied}: ${FSObject}`
-    else msg = `write: ${write.output}: ${FSObject}`
+    if (writeSh.output.includes('Permission denied')) msg = `write: ${LOCAL.permissionDenied}: ${fsObject}`
+    else msg = `write: ${writeSh.output}: ${fsObject}`
     if (glob.logger) glob.logger.error(msg, 'write')
     throw new Error(msg)
   }
-  if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
+  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
 
-  return FSObject.executionContext.getFileFromPath(`${FSObject}`)
+  return fsObject.executionContext.getFileFromPath(`${fsObject}`)
 }
+export default write

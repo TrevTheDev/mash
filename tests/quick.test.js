@@ -5,13 +5,13 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
 import ShellHarness from '@trevthedev/shell-harness'
-import Server, {u, sh} from '../src/server.js'
-import {CP_TYPE} from '../src/util/globals.js'
+import Server, { u, sh } from '../src/server.js'
+import { CP_TYPE } from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('quick tests', () => {
   let server
@@ -212,7 +212,7 @@ describe('quick tests', () => {
     await u(`${tstDir}/simlnkTargetB.txt`).delete(true, undefined, true)
     await tstDir.addFile('simlnkTargetB.txt', '')
     const sym = await expect(
-      u(`${tstDir}/simlnkB.txt`).linkTo(`${tstDir}/simlnkTargetB.txt`)
+      u(`${tstDir}/simlnkB.txt`).linkTo(`${tstDir}/simlnkTargetB.txt`),
     ).to.be.fulfilled
     expect(`${await sym.linkTarget}`).to.equal(`${tstDir}/simlnkTargetB.txt`)
   })
@@ -226,7 +226,7 @@ describe('quick tests', () => {
     await u(`${tstDir}/simlnkX2.txt`).linkTo(`${tstDir}/simlnkX1.txt`)
 
     expect(`${await u(`${tstDir}/simlnkX2.txt`).linkEndTarget}`).to.equal(
-      `${tstDir}/simSourceX1.txt`
+      `${tstDir}/simSourceX1.txt`,
     )
   })
   it("u('./path/to/dir').size", async () => {

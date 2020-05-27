@@ -2,7 +2,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 import ShellHarnessM from '@trevthedev/shell-harness'
-import {DEFAULT_CONFIG, glob, FILE_TYPE_ENUMS, CP_TYPE} from './util/globals.js'
+import {
+  DEFAULT_CONFIG, glob, FILE_TYPE_ENUMS, CP_TYPE,
+} from './util/globals.js'
 import ExecutionContext from './locations/execution context.js'
 import FsObject from './locations/fs object.js'
 import Directory from './locations/types/directory.js'
@@ -16,29 +18,30 @@ import Users from './user/users.js'
 import FSObjectArray from './locations/fs object array.js'
 import Logger from './logger.js'
 
-export {FILE_TYPE_ENUMS, CP_TYPE}
+export { FILE_TYPE_ENUMS, CP_TYPE }
 
 export class ShellHarness extends ShellHarnessM {
   constructor(config) {
-    const log = glob.logger ? {logger: glob.logger} : {}
-    super({...DEFAULT_CONFIG.shell, ...log, ...config})
+    const log = glob.logger ? { logger: glob.logger } : {}
+    super({ ...DEFAULT_CONFIG.shell, ...log, ...config })
   }
 }
 
 export default class Server {
   constructor(config = {}) {
-    if (Server.instance)
+    if (Server.instance) {
       throw new Error(
-        'server already started - multiple servers are not supported'
+        'server already started - multiple servers are not supported',
       )
+    }
     Server.instance = this
 
-    this._config = {...DEFAULT_CONFIG.server, ...config.server}
+    this._config = { ...DEFAULT_CONFIG.server, ...config.server }
     this._config.shell = {
       ...DEFAULT_CONFIG.shell,
-      ...config.shell
+      ...config.shell,
     }
-    this._config.logger = {...DEFAULT_CONFIG.logger, ...config.logger}
+    this._config.logger = { ...DEFAULT_CONFIG.logger, ...config.logger }
 
     if (this.config.log) {
       glob.logger = new Logger(this.config.logger)
@@ -54,16 +57,16 @@ export default class Server {
       CharacterDevice,
       LocalSocket,
       NamedPipe,
-      FSObjectArray
+      FSObjectArray,
     })
 
     this._executionContext = new ExecutionContext(
       this,
-      new ShellHarness({...this.config.shell}),
+      new ShellHarness({ ...this.config.shell }),
       {
         ...DEFAULT_CONFIG.executionContext,
-        ...config.executionContext
-      }
+        ...config.executionContext,
+      },
     )
     this._users = new Users(this.executionContext)
   }
@@ -81,7 +84,7 @@ export default class Server {
       command,
       doneCBPayload,
       doneCallback,
-      sendToEveryShell
+      sendToEveryShell,
     )
   }
 
@@ -122,35 +125,39 @@ export default class Server {
   }
 }
 
-process.on('uncaughtException', error => {
+process.on('uncaughtException', (error) => {
   console.error(`There was an uncaught error: ${error}`)
-  if (glob.logger)
+  if (glob.logger) {
     glob.logger.error(
       `There was an uncaught error: ${error}`,
-      'uncaughtException'
+      'uncaughtException',
     )
-  if (Server.instance)
+  }
+  if (Server.instance) {
     (async () => {
       await Server.instance.close()
     })()
+  }
   process.exit(1) // mandatory (as per the Node docs)
 })
 
-process.on('unhandledRejection', error => {
+process.on('unhandledRejection', (error) => {
   console.log(`There was an unhandled rejections: ${error}`)
-  if (glob.logger)
+  if (glob.logger) {
     glob.logger.error(
       `There was an unhandled rejections: ${error}`,
-      'unhandledRejection'
+      'unhandledRejection',
     )
-  if (Server.instance)
+  }
+  if (Server.instance) {
     (async () => {
       await Server.instance.close()
     })()
+  }
   throw error
 })
 
-process.on('warning', error => {
+process.on('warning', (error) => {
   console.warn(error.stack)
 })
 

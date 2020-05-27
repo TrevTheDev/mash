@@ -24,6 +24,7 @@ export default class ExecutionContext {
   get server() {
     return this._server
   }
+
   /**
    * @returns {ShellHarness}
    */
@@ -78,7 +79,7 @@ export default class ExecutionContext {
 
   getFSObjArrayFromPaths(paths) {
     return new glob.FSObjectArray(
-      ...paths.map(path => this.getFSObjFromPath(path))
+      ...paths.map((path) => this.getFSObjFromPath(path))
     )
   }
 

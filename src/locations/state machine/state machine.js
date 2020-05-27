@@ -7,11 +7,9 @@ import outdated from './outdated.js'
 
 export default {
   transition(target, toState) {
-    if (!this[toState].allowedEnterStates.includes(target.state))
-      throw new Error('invalid state transition')
+    if (!this[toState].allowedEnterStates.includes(target.state)) throw new Error('invalid state transition')
 
-    if (this[target.state] && this[target.state].exit)
-      this[target.state].exit(target)
+    if (this[target.state] && this[target.state].exit) this[target.state].exit(target)
     const didTransition = this[toState].enter(target)
     if (didTransition) target.state = toState
     return didTransition ? target : false
@@ -20,5 +18,5 @@ export default {
   loadable,
   loading,
   loaded,
-  outdated
+  outdated,
 }

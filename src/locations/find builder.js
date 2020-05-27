@@ -1,10 +1,10 @@
-import stringToSize from '../../formatters/string to size.js'
-import Size from '../../formatters/size.js'
-import find from '../../parsers/find.js'
-import {FILE_TYPE_ENUMS} from '../../util/globals.js'
-import {isNumber} from '../../util/utils.js'
+import stringToSize from '../formatters/string to size.js'
+import Size from '../formatters/size.js'
+import find from '../parsers/find.js'
+import {FILE_TYPE_ENUMS} from '../util/globals.js'
+import {isNumber} from '../util/utils.js'
 
-const convertFileEnumToType = fileEnum =>
+const convertFileEnumToType = (fileEnum) =>
   ['f', 'd', 'l', 'c', 'b', 's', 'p'][fileEnum.index]
 
 const DEFAULT_OPTIONS = {
@@ -36,7 +36,7 @@ const DEFAULT_OPTIONS = {
   atLeastMatchPermissions: undefined,
   isExecutable: false,
   isReadable: false,
-  isWritable: false
+  isWritable: false,
 }
 
 export default class FindBuilder {
