@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable func-names */
 const initScript = `
 CMDDIVIDER='___EOC___';
 GRPDIVIDER='___EOG___';

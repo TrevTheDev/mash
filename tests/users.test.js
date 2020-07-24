@@ -6,14 +6,14 @@ import Server from '../src/server.js'
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('users', () => {
   let server
   let users
   before(async () => {
-    server = Server.instance || new Server()
-    ;({users} = server)
+    server = Server.instance || new Server();
+    ({ users } = server)
   })
 
   after(() => {
@@ -35,7 +35,7 @@ describe('users', () => {
   })
   it('returns throws if user does not exist', async () => {
     await expect(users.getUser('doesNotExist')).to.be.rejectedWith(
-      'user not found: id: doesNotExist'
+      'user not found: id: doesNotExist',
     )
   })
 })

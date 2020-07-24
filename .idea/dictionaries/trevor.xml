@@ -6,6 +6,8 @@
       <w>baselining</w>
       <w>chainable</w>
       <w>chgrp</w>
+      <w>clsname</w>
+      <w>clstype</w>
       <w>cmddivider</w>
       <w>cmin</w>
       <w>datefns</w>
@@ -32,6 +34,7 @@
       <w>mmin</w>
       <w>nogroup</w>
       <w>nouser</w>
+      <w>pathed</w>
       <w>pbit</w>
       <w>pibit</w>
       <w>printf</w>
@@ -43,6 +46,7 @@
       <w>tibit</w>
       <w>uname</w>
       <w>usec</w>
+      <w>xxxxxxxxxx</w>
     </words>
   </dictionary>
 </component>

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { LOCAL } from '../util/globals.js'
 
-const writeStream = async (fsObject, readableStream, overwrite) => {
+export const writeStream = async (fsObject, readableStream, overwrite) => {
   if ((await fsObject.exists) && !overwrite) throw new Error(`write: ${LOCAL.fsObjAlreadyExists}: ${fsObject}`)
 
   const wStream = fs.createWriteStream(`${fsObject}`)
@@ -9,10 +9,9 @@ const writeStream = async (fsObject, readableStream, overwrite) => {
 
   return new Promise((success, fail) => {
     readableStream.once('end', () => {
-      if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
-      success(fsObject.executionContext.getFileFromPath(`${fsObject}`))
+      fsObject.markAsInvalid()
+      success(fsObject.executionContext.getFilePathed(`${fsObject}`))
     })
     wStream.once('error', (err) => fail(err))
   })
 }
-export default writeStream

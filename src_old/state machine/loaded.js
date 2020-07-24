@@ -1,4 +1,4 @@
-import {loadableMixins} from './loadable.js'
+import { loadableMixins } from './loadable.js'
 
 /* eslint-disable no-param-reassign */
 const mParts = Object.getOwnPropertyDescriptors({
@@ -60,21 +60,20 @@ const mParts = Object.getOwnPropertyDescriptors({
       permissions: this.permissions.toJSON(),
     }
     if (this.lsattr) json.lsattr = this.lsattr.toJSON()
-    if (expandContent && this._content)
-      json.content = this._content.toJSON(pathOnly, expandContent)
+    if (expandContent && this._content) json.content = this._content.toJSON(pathOnly, expandContent)
     return json
   },
 })
 
 export const loadedMixin = {
-  FsObject: {...loadableMixins.FsObject, ...mParts},
-  Directory: {...loadableMixins.Directory, ...mParts},
-  File: {...loadableMixins.File, ...mParts},
-  Symlink: {...loadableMixins.Symlink, ...mParts},
-  CharacterDevice: {...loadableMixins.CharacterDevice, ...mParts},
-  BlockDevice: {...loadableMixins.BlockDevice, ...mParts},
-  LocalSocket: {...loadableMixins.LocalSocket, ...mParts},
-  NamedPipe: {...loadableMixins.NamedPipe, ...mParts},
+  FsObject: { ...loadableMixins.FsObject, ...mParts },
+  Directory: { ...loadableMixins.Directory, ...mParts },
+  File: { ...loadableMixins.File, ...mParts },
+  Symlink: { ...loadableMixins.Symlink, ...mParts },
+  CharacterDevice: { ...loadableMixins.CharacterDevice, ...mParts },
+  BlockDevice: { ...loadableMixins.BlockDevice, ...mParts },
+  LocalSocket: { ...loadableMixins.LocalSocket, ...mParts },
+  NamedPipe: { ...loadableMixins.NamedPipe, ...mParts },
 }
 
 export default {

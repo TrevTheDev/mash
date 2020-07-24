@@ -5,13 +5,13 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {u, sh, ShellHarness} from '../src/server.js'
-import {FILE_TYPE_ENUMS} from '../src/util/globals.js'
+import Server, { u, sh, ShellHarness } from '../src/server.js'
+import { FILE_TYPE_ENUMS } from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('posix fs object', () => {
   let server
@@ -39,15 +39,15 @@ describe('posix fs object', () => {
     it('promise rejects if path does not exist', async () => {
       const dne = u('/does/not/exist')
       await expect(dne.stat()).to.be.rejectedWith(
-        'path not found: /does/not/exist'
+        'path not found: /does/not/exist',
       )
       await expect(dne.content).to.be.rejectedWith(
-        'stat: directory not found: /does/not/exist'
+        'stat: directory not found: /does/not/exist',
       )
     })
     it('supports base64 encoded file urls', async () => {
       await expect(
-        u('file%3A%2F%2Fdoes%2Fnot%2Fexist').stat()
+        u('file%3A%2F%2Fdoes%2Fnot%2Fexist').stat(),
       ).to.be.rejectedWith('path not found: /does/not/exist')
     })
     it('supports relative urls', async () => {
@@ -71,14 +71,14 @@ describe('posix fs object', () => {
       expect(`${cwd}`).to.equal(process.cwd())
     })
     it('supports relative dots in path', async () => {
-      const home = await expect(u(`/home/../home`).stat()).to.be.fulfilled
+      const home = await expect(u('/home/../home').stat()).to.be.fulfilled
       expect(`${home}`).to.equal('/home')
     })
 
     it('can run intermediate', async () => {
       await u().addDirectory('test', true)
       const runIntermediate = await expect(
-        u('./test').addDirectory('runIntermediate', true)
+        u('./test').addDirectory('runIntermediate', true),
       ).to.be.fulfilled
       await expect(runIntermediate.delete(true)).to.be.fulfilled
     })
@@ -131,12 +131,12 @@ describe('posix fs object', () => {
       const newDirs = await tstDir.addDirectory([
         ['arr1', 'xArr1', 'xArr2'],
         ['arr2'],
-        ['arr3']
+        ['arr3'],
       ])
       expect(`${newDirs[0][0]}`).to.equal(`${process.cwd()}/test/arr1`)
       expect(`${newDirs[0][1]}`).to.equal(`${process.cwd()}/test/arr1/xArr1`)
       expect(`${newDirs[0][2]}`).to.equal(
-        `${process.cwd()}/test/arr1/xArr1/xArr2`
+        `${process.cwd()}/test/arr1/xArr1/xArr2`,
       )
       expect(`${newDirs[1][0]}`).to.equal(`${process.cwd()}/test/arr2`)
       expect(`${newDirs[2][0]}`).to.equal(`${process.cwd()}/test/arr3`)
@@ -194,7 +194,7 @@ describe('posix fs object', () => {
     })
     it('can cd and pwd with multiple shells', async () => {
       const multiShell = new ShellHarness({
-        numberOfProcesses: 5
+        numberOfProcesses: 5,
       })
       const ms = u('', multiShell)
       expect(`${await ms.executionContext.pwd}`).to.equal(`${cwd}`)
@@ -220,20 +220,18 @@ describe('posix fs object', () => {
     it('parallel run', async () => {
       await u(`${cwd}/test/many`).delete(true, undefined, true)
       const manyDir = await tstDir.addDirectory('many', true)
-      const pms = [...Array(50).keys()].map(number => {
-        return new Promise(resolve => {
-          ;(async () => {
-            const d = await manyDir.addDirectory(`D${number}`)
-            // console.log(`D${number}`)
-            const f = await d.addFile(`F${number}`, `F${number}`)
-            // console.log(`F${number}`)
-            await f.delete()
-            await d.delete()
-            // console.log(`P${number}`)
-            resolve(true)
-          })()
-        })
-      })
+      const pms = [...Array(50).keys()].map((number) => new Promise((resolve) => {
+        (async () => {
+          const d = await manyDir.addDirectory(`D${number}`)
+          // console.log(`D${number}`)
+          const f = await d.addFile(`F${number}`, `F${number}`)
+          // console.log(`F${number}`)
+          await f.delete()
+          await d.delete()
+          // console.log(`P${number}`)
+          resolve(true)
+        })()
+      }))
       await expect(Promise.all(pms)).to.be.fulfilled
     })
     it('lsattr,gio,size tests', async () => {
@@ -263,7 +261,7 @@ describe('posix fs object', () => {
       await tstDir.addDirectory(['badIdeaPathNames', 'D1', 'D2'], true)
       const wd = u(`${tstDir}/badIdeaPathNames`)
       const all = [...Array(31).keys()]
-        .map(number => String.fromCharCode(number + 1))
+        .map((number) => String.fromCharCode(number + 1))
         .join('')
       const badPaths = [
         'name with spaces',
@@ -274,7 +272,7 @@ describe('posix fs object', () => {
         '.invisible',
         'meta(*,?[(\\)])&<>"*?:[]"<>|(){}&\'!;$',
         'as$as',
-        all
+        all,
       ]
       // eslint-disable-next-line no-restricted-syntax
       for (const badPath of badPaths) {
@@ -325,7 +323,7 @@ describe('posix fs object', () => {
       expect(dir.state).to.equal('loaded')
     })
 
-    it('works with most posix file types', async () => {
+    it('works with most posix file oldtypes', async () => {
       // TODO Block file(b) Character device file(c)
       await u(`${tstDir}/posixTypes`).delete(true, undefined, true)
       const dir = await tstDir.addDirectory('posixTypes')
@@ -334,7 +332,7 @@ describe('posix fs object', () => {
       await u(`${dir}/directory/symlink`).linkTo(file)
       await sh('mkfifo test/posixTypes/fifo;')
       const pid = await sh(
-        'nc -lkU ./test/posixTypes/aSocket.sock & printf $!;'
+        'nc -lkU ./test/posixTypes/aSocket.sock & printf $!;',
       )
 
       await dir.content

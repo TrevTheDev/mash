@@ -1,23 +1,20 @@
-import {LOCAL, glob} from '../util/globals.js'
-import pwd from './pwd.js'
+import { LOCAL, glob } from '../util/globals.js'
+import { pwd } from './cmds.js'
 
-const cd = async FSObject => {
-  const cd = await FSObject.sh(
-    `cd -- ${FSObject.toSh()};`,
+export const cd = async (fsObject) => {
+  const cmd = await fsObject.sh(
+    `cd -- ${fsObject.toSh()};`,
     undefined,
     undefined,
-    true
+    true,
   )
-  if (cd.error) {
+  if (cmd.error) {
     let msg
-    if (cd.output.includes('Permission denied'))
-      msg = `${LOCAL.permissionDenied}: cd: ${FSObject}`
-    else if (cd.output.includes('no such file or directory'))
-      msg = `${LOCAL.directoryNotFound}: cd: ${FSObject}`
-    else msg = `cd: ${cd.output}`
+    if (cmd.output.includes('Permission denied')) msg = `${LOCAL.permissionDenied}: cd: ${fsObject}`
+    else if (cmd.output.includes('no such file or directory')) msg = `${LOCAL.directoryNotFound}: cd: ${fsObject}`
+    else msg = `cd: ${cmd.output}`
     if (glob.logger) glob.logger.error(msg, 'cd')
     throw new Error(msg)
   }
-  return pwd(FSObject.executionContext)
+  return pwd(fsObject.executionContext)
 }
-export default cd

@@ -26,7 +26,7 @@ export default class DirectorySize {
       bytes: this.bytes,
       diskUsageBytes: this.diskUsageBytes,
       directoryCount: this.directoryCount,
-      fileCount: this.fileCount
+      fileCount: this.fileCount,
     }
   }
 }

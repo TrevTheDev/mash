@@ -1,11 +1,10 @@
-import stringToSize from '../formatters/string to size.js'
-import Size from '../formatters/size.js'
-import find from '../parsers/find.js'
-import {FILE_TYPE_ENUMS} from '../util/globals.js'
-import {isNumber} from '../util/utils.js'
+import stringToSize from '../../formatters/string to size.js'
+import Size from '../../formatters/size.js'
+import find from './find.js'
+import { FILE_TYPE_ENUMS } from '../../util/globals.js'
+import { isNumber } from '../../util/utils.js'
 
-const convertFileEnumToType = (fileEnum) =>
-  ['f', 'd', 'l', 'c', 'b', 's', 'p'][fileEnum.index]
+const convertFileEnumToType = (fileEnum) => ['f', 'd', 'l', 'c', 'b', 's', 'p'][fileEnum.index]
 
 const DEFAULT_OPTIONS = {
   maxDepthToSearch: undefined,
@@ -39,13 +38,13 @@ const DEFAULT_OPTIONS = {
   isWritable: false,
 }
 
-export default class FindBuilder {
+export class FindBuilder {
   constructor(fsObject) {
     this._fsObject = fsObject
     this._setOptions()
   }
 
-  _setOptions(options = {...DEFAULT_OPTIONS}) {
+  _setOptions(options = { ...DEFAULT_OPTIONS }) {
     this._options = options
   }
 
@@ -98,8 +97,7 @@ export default class FindBuilder {
     let sz = size
     if (size.constructor.name === 'String') sz = stringToSize(size)
     else if (isNumber(size)) sz = new Size(size)
-    if (sz.constructor.name !== 'Size')
-      throw new Error('biggerThan: invalid size')
+    if (sz.constructor.name !== 'Size') throw new Error('biggerThan: invalid size')
     this._options.biggerThan = sz
     return this
   }
@@ -108,8 +106,7 @@ export default class FindBuilder {
     let sz = size
     if (size.constructor.name === 'String') sz = stringToSize(size)
     else if (isNumber(size)) sz = new Size(size)
-    if (sz.constructor.name !== 'Size')
-      throw new Error('smallerThan: invalid size')
+    if (sz.constructor.name !== 'Size') throw new Error('smallerThan: invalid size')
     this._options.smallerThan = sz
     return this
   }
@@ -205,7 +202,7 @@ export default class FindBuilder {
   }
 
   options(options) {
-    this._setOptions({...this._options, ...options})
+    this._setOptions({ ...this._options, ...options })
     return this
   }
 
@@ -217,46 +214,41 @@ export default class FindBuilder {
     const search = this._options
     let findStr = `find ${this._fsObject.toSh()}`
     let nameSearchString = ''
-    if (search.maxDepthToSearch)
-      findStr += ` -maxdepth ${search.maxDepthToSearch}`
+    if (search.maxDepthToSearch) findStr += ` -maxdepth ${search.maxDepthToSearch}`
     if (search.name) nameSearchString = `*${search.name}*`
     if (search.ext) {
       nameSearchString += search.name ? '' : '*'
       nameSearchString += `.${search.ext.split('.').join('')}`
     }
-    if (nameSearchString !== '')
+    if (nameSearchString !== '') {
       findStr += ` -${
         search.caseInsensitive ? 'i' : ''
       }name '${nameSearchString}'`
-    if (search.regex)
-      findStr += ` -${search.caseInsensitive ? 'i' : ''}regex '${search.regex}'`
+    }
+    if (search.regex) findStr += ` -${search.caseInsensitive ? 'i' : ''}regex '${search.regex}'`
     if (search.inodeNumber) findStr += ` -inum ${search.inodeNumber}`
 
     if (search.type) findStr += ` -type ${convertFileEnumToType(search.type)}`
 
     if (search.biggerThan) findStr += ` -size +${search.biggerThan * 1}c` // TODO: sizes
     if (search.smallerThan) findStr += ` -size -${search.smallerThan * 1}c`
-    if (search.onlyIfEmptyFileOrDir) findStr += ` -empty`
+    if (search.onlyIfEmptyFileOrDir) findStr += ' -empty'
 
-    if (search.lastAccessedMinutesAgo)
-      findStr += ` -amin ${search.lastAccessedMinutesAgo}`
-    if (search.metaDataLastModifiedMinutesAgo)
-      findStr += ` -cmin ${search.metaDataLastModifiedMinutesAgo}`
-    if (search.contentLastModifiedMinutesAgo)
-      findStr += ` -mmin ${search.contentLastModifiedMinutesAgo}`
+    if (search.lastAccessedMinutesAgo) findStr += ` -amin ${search.lastAccessedMinutesAgo}`
+    if (search.metaDataLastModifiedMinutesAgo) findStr += ` -cmin ${search.metaDataLastModifiedMinutesAgo}`
+    if (search.contentLastModifiedMinutesAgo) findStr += ` -mmin ${search.contentLastModifiedMinutesAgo}`
 
     if (search.group) findStr += ` -group '${search.group}'`
     if (search.gid) findStr += ` -gid ${search.gid}`
-    if (search.hasNoGroup) findStr += ` -nogroup`
+    if (search.hasNoGroup) findStr += ' -nogroup'
     if (search.user) findStr += ` -user '${search.user}'`
     if (search.uid) findStr += ` -uid ${search.uid}`
-    if (search.hasNoUser) findStr += ` -nouser`
+    if (search.hasNoUser) findStr += ' -nouser'
 
-    if (search.isExecutable) findStr += ` -executable`
-    if (search.isReadable) findStr += ` -readable`
-    if (search.isWritable) findStr += ` -writable`
-    if (search.atLeastMatchPermissions)
-      findStr += ` -perm -${search.atLeastMatchPermissions}`
+    if (search.isExecutable) findStr += ' -executable'
+    if (search.isReadable) findStr += ' -readable'
+    if (search.isWritable) findStr += ' -writable'
+    if (search.atLeastMatchPermissions) findStr += ` -perm -${search.atLeastMatchPermissions}`
 
     return `${findStr} -print0;`
   }

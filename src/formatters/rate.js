@@ -1,11 +1,11 @@
 import NumberWithCommas from './number with commas.js'
 import {
-  DECIMAL_BYTE_SCALE // ,
+  DECIMAL_BYTE_SCALE, // ,
   // BINARY_BYTE_SCALE,
   // DECIMAL_BIT_SCALE,
   // BINARY_BIT_SCALE
 } from './size.js'
-import {isNumber} from '../util/utils.js'
+import { isNumber } from '../util/utils.js'
 
 export default class Rate {
   constructor(rateInBytesPerSecond, fixedScale, scales = DECIMAL_BYTE_SCALE) {
@@ -19,7 +19,7 @@ export default class Rate {
     this._scalesArray = Object.entries(scales.scale).map(([key, value]) => [
       key,
       `${key}/s`,
-      value
+      value,
     ])
   }
 
@@ -32,8 +32,8 @@ export default class Rate {
   }
 
   set scale(scale) {
-    this._scale = scale > 6 ? 6 : scale
-    ;[, this._scaledNumber.suffix] = this._scalesArray[this._scale]
+    this._scale = scale > 6 ? 6 : scale;
+    [, this._scaledNumber.suffix] = this._scalesArray[this._scale]
   }
 
   get number() {
@@ -48,10 +48,9 @@ export default class Rate {
   toString() {
     if (!isNumber(this._number)) return undefined
     if (!this._fixedScale) {
-      this.scale =
-        this._number === 0
-          ? 0
-          : Math.floor(Math.log(this._number) / this._scales.ScaleFactor)
+      this.scale = this._number === 0
+        ? 0
+        : Math.floor(Math.log(this._number) / this._scales.ScaleFactor)
     }
 
     return `${this.scaledNumber}`

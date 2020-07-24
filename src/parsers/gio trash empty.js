@@ -1,11 +1,15 @@
-import {glob} from '../util/globals.js'
+import { glob } from '../util/globals.js'
 
-export default async server => {
-  const gioTrashEmpty = await server.sh('gio trash --empty;')
+/**
+ * @param { ExecutionContext } executionContext
+ * @returns { Promise<boolean> }
+ */
+export const gioTrashEmpty = async (executionContext) => {
+  const cmd = await executionContext.sh('gio trash --empty;')
 
-  if (!gioTrashEmpty.error) return true
+  if (!cmd.error) return true
 
-  const msg = `gio trash empty: ${gioTrashEmpty.output}`
+  const msg = `gio trash empty: ${cmd.output}`
   if (glob.logger) glob.logger.error(msg, 'gio trash')
   throw new Error(msg)
 }

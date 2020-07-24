@@ -5,13 +5,16 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/temp" />
-      <excludeFolder url="file://$MODULE_DIR$/test" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/src_old" />
+      <excludeFolder url="file://$MODULE_DIR$/test" />
       <excludeFolder url="file://$MODULE_DIR$/x_cruf" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="@types/chai" level="application" />
+    <orderEntry type="library" name="@types/mocha" level="application" />
+    <orderEntry type="library" name="@types/7zip-min" level="application" />
     <orderEntry type="library" name="@types/mocha" level="application" />
   </component>
 </module>

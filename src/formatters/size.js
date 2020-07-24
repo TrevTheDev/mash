@@ -8,10 +8,10 @@ export const DECIMAL_BYTE_SCALE = {
     GB: 1000000000,
     TB: 1000000000000,
     PB: 1000000000000000,
-    EB: 1000000000000000000
+    EB: 1000000000000000000,
   },
   ScaleFactor: Math.log(1000),
-  fudgeFactor: 0.24
+  fudgeFactor: 0.24,
 }
 export const BINARY_BYTE_SCALE = {
   scale: {
@@ -21,10 +21,10 @@ export const BINARY_BYTE_SCALE = {
     GiB: 1073741824,
     TiB: 1099511627776,
     PiB: 1125899906842624,
-    EiB: 1152921504606847000
+    EiB: 1152921504606847000,
   },
   ScaleFactor: Math.log(1024),
-  fudgeFactor: 0.245
+  fudgeFactor: 0.245,
 }
 export const DECIMAL_BIT_SCALE = {
   scale: {
@@ -34,10 +34,10 @@ export const DECIMAL_BIT_SCALE = {
     Gbit: 125000000,
     Tbit: 125000000000,
     Pbit: 125000000000000,
-    Ebit: 125000000000000000
+    Ebit: 125000000000000000,
   },
   ScaleFactor: Math.log(1000),
-  fudgeFactor: 0.27
+  fudgeFactor: 0.27,
 }
 export const BINARY_BIT_SCALE = {
   scale: {
@@ -47,10 +47,10 @@ export const BINARY_BIT_SCALE = {
     Gibit: 134217728,
     Tibit: 137438953472,
     Pibit: 140737488355328,
-    Eibit: 144115188075855872
+    Eibit: 144115188075855872,
   },
   ScaleFactor: Math.log(1024),
-  fudgeFactor: 0.275
+  fudgeFactor: 0.275,
 }
 
 const SCALE = DECIMAL_BYTE_SCALE
@@ -79,10 +79,11 @@ export default class Size {
     let unitOfMeasure
     if (this._fixedUnitOfMeasure) unitOfMeasure = this._fixedUnitOfMeasure
     else if (this.bytes === 0) unitOfMeasure = 0
-    else
+    else {
       unitOfMeasure = Math.floor(
-        Math.log(Math.abs(this.bytes)) / SCALE.ScaleFactor - SCALE.fudgeFactor
+        Math.log(Math.abs(this.bytes)) / SCALE.ScaleFactor - SCALE.fudgeFactor,
       )
+    }
     return UnitsOfMeasure[unitOfMeasure]
   }
 
@@ -91,7 +92,7 @@ export default class Size {
   }
 
   toString() {
-    const {unitOfMeasure} = this
+    const { unitOfMeasure } = this
     numberWithComma.suffix = unitOfMeasure
     numberWithComma.number = this.scaledValue(unitOfMeasure)
     return `${numberWithComma}`
@@ -101,7 +102,7 @@ export default class Size {
     return {
       sizeString: this.toString(),
       bytes: this.bytes,
-      unitOfMeasure: this.unitOfMeasure
+      unitOfMeasure: this.unitOfMeasure,
     }
   }
 

@@ -2,11 +2,12 @@
 /**
  * takes raw gio output, parses it, and updates `fsObj`
  * @param {string} gioOutput - raw string output from gio
- * @param {FsObject} fsObj - obj to imbue with gio information
+ * @param {FsObjectCommon} fsObject - obj to imbue with gio information
  * @returns updated `fsObj`
  */
-export default (gioOutput, fsObj) => {
-  const obj = fsObj._props
+export default (gioOutput, fsObject) => {
+  const obj = fsObject._props
+  const { permissions } = obj
   if (gioOutput.includes('GIOFAILED')) {
     obj.loadedGio = false
     obj.gioOutput = gioOutput
@@ -16,7 +17,7 @@ export default (gioOutput, fsObj) => {
   const output = gioOutput.split('\n').slice(0, -1)
   const gioTmp = {}
 
-  output.forEach(line => {
+  output.forEach((line) => {
     const x = line.split(': ')
     // eslint-disable-next-line prefer-destructuring
     gioTmp[x[0].trim()] = x[1]
@@ -28,8 +29,7 @@ export default (gioOutput, fsObj) => {
   // gio.copyName = gioTmp['standard::copy-name']
   // gio.type = gioTmp.type
   // if (gioTmp['standard::is-symlink']) obj.isSymlink = true
-  if (gioTmp['standard::symlink-target'])
-    obj.symlinkTarget = gioTmp['standard::symlink-target']
+  if (gioTmp['standard::symlink-target']) obj.symlinkTarget = gioTmp['standard::symlink-target']
   obj.contentType = gioTmp['standard::content-type']
   obj.fastContentType = gioTmp['standard::fast-content-type']
   // gio.size = parseInt( gioTmp['size'] )
@@ -45,23 +45,23 @@ export default (gioOutput, fsObj) => {
   obj.etagValue = gioTmp['etag::value']
   obj.fileId = gioTmp['id::file']
   // gio.filesystem = parseInt( gioTmp['id::filesystem'] )
-  fsObj._permissions.canRead = gioTmp['access::can-read'] === 'TRUE'
-  fsObj._permissions.canWrite = gioTmp['access::can-write'] === 'TRUE'
-  fsObj._permissions.canExecute = gioTmp['access::can-execute'] === 'TRUE'
-  fsObj._permissions.canDelete = gioTmp['access::can-delete'] === 'TRUE'
-  fsObj._permissions.canTrash = gioTmp['access::can-trash'] === 'TRUE'
-  fsObj._permissions.canRename = gioTmp['access::can-rename'] === 'TRUE'
+  permissions.canRead = gioTmp['access::can-read'] === 'TRUE'
+  permissions.canWrite = gioTmp['access::can-write'] === 'TRUE'
+  permissions.canExecute = gioTmp['access::can-execute'] === 'TRUE'
+  permissions.canDelete = gioTmp['access::can-delete'] === 'TRUE'
+  permissions.canTrash = gioTmp['access::can-trash'] === 'TRUE'
+  permissions.canRename = gioTmp['access::can-rename'] === 'TRUE'
   // obj.dateModified2 = new Date(parseInt(gioTmp['time::modified']) * 1000)
   obj.timeOfLastModificationMicroSec = parseInt(
     gioTmp['time::modified-usec'],
-    10
+    10,
   )
   // gio.dateAccessed = new Date( parseInt( gioTmp['time::access'] ) * 1000 )
   obj.timeOfLastAccessMicroSec = parseInt(gioTmp['time::access-usec'], 10)
   // gio.dateChanged = new Date( parseInt( gioTmp['time::changed'] ) * 1000 )
   obj.timeOfLastMetaDataChangeMicroSec = parseInt(
     gioTmp['time::changed-usec'],
-    10
+    10,
   )
   // gio.device = parseInt( gioTmp['unix::device'] )
   // gio.inode = parseInt( gioTmp['unix::inode'] )
@@ -73,7 +73,7 @@ export default (gioOutput, fsObj) => {
   // gio.blockSize = parseInt( gioTmp['unix::block-size'] )
   // gio.blocks = parseInt( gioTmp['unix::blocks'] )
   // gio.user = gioTmp['owner::user']
-  fsObj._permissions.userReal = gioTmp['owner::user-real']
+  permissions.userReal = gioTmp['owner::user-real']
   // gio.group = gioTmp['owner::group']
   // gio._command = `gio info '${filename}'`
   obj.loadedGio = true

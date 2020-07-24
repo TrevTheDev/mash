@@ -17,19 +17,19 @@ const lsattrTrans = {
   E: ['compressionError', true],
   I: ['indexedDirectory', true],
   X: ['compressionRawAccess', true],
-  Z: ['compressedDirtyFile false]', true]
+  Z: ['compressedDirtyFile false]', true],
 }
 
 class Lsattr {
   constructor(flags) {
     this._array = []
-    flags.forEach(attr => {
+    flags.forEach((attr) => {
       this._array.push(attr)
       Object.defineProperty(this, lsattrTrans[attr][0], {
         configurable: true,
         enumerable: true,
         value: true,
-        writable: false
+        writable: false,
       })
     })
   }
@@ -40,9 +40,7 @@ class Lsattr {
 
   get toClone() {
     return this.array
-      .filter(attr => {
-        return !['I', 'E', 'h', 'N', 'X', 'z'].includes(attr)
-      })
+      .filter((attr) => !['I', 'E', 'h', 'N', 'X', 'z'].includes(attr))
       .join('')
   }
 
@@ -51,8 +49,8 @@ class Lsattr {
   }
 
   toJSON() {
-    const obj = {lsattr: this.toString()}
-    this.array.forEach(attr => {
+    const obj = { lsattr: this.toString() }
+    this.array.forEach((attr) => {
       obj[`${lsattrTrans[attr][0]}`] = true
     })
     return obj
@@ -61,7 +59,7 @@ class Lsattr {
 /**
  * takes raw lsattr output, parses it, and updates `fsObj`
  * @param {string} lsattrOutput - raw string output from lsattr
- * @param {FsObject} fsObj - obj to imbue with lsattr information
+ * @param {FsObjectCommon} fsObj - obj to imbue with lsattr information
  * @returns updated `fsObj`
  */
 const lsattr = (lsattrOutput, fsObj) => {
@@ -75,7 +73,7 @@ const lsattr = (lsattrOutput, fsObj) => {
     lsattrOutput
       .split(' ')[0]
       .replace(/-/g, '')
-      .split('')
+      .split(''),
   )
   obj.loadedLsattr = true
 }

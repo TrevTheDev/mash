@@ -1,27 +1,25 @@
-import {LOCAL, glob} from '../util/globals.js'
+import { LOCAL, glob } from '../util/globals.js'
 /**
  * chmod - modifies fsObject permissions
  * TODO: check what happens if person tries to delete /
  * TODO: check what happens if insufficient permissions
- * @param {FsObject} fsObject
+ * @param {DirectoryBase|FileBase} fsObject
  * @param {boolean} permissions - string of permission '777' or 'a+w'
  * @param {boolean} recursive - apply permissions recursively
  * @returns fsObject - but state will be outdated
  */
-const chmod = async (fsObject, permissions, recursive) => {
+export const chmod = async (fsObject, permissions, recursive) => {
   const chmodSh = await fsObject.sh(
     `chmod ${permissions} ${recursive ? '-R ' : ''}-- ${fsObject.toSh()};`,
-    'chmod'
+    'chmod',
   )
   if (chmodSh.error) {
     let msg
-    if (chmodSh.output.includes('Permission denied'))
-      msg = `${LOCAL.permissionDenied}: chmod: ${fsObject}`
+    if (chmodSh.output.includes('Permission denied')) msg = `${LOCAL.permissionDenied}: chmod: ${fsObject}`
     else msg = `chmod: ${chmodSh.output}`
     if (glob.logger) glob.logger.error(msg, 'chmod')
     throw new Error(msg)
   }
-  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
+  fsObject.markAsInvalid()
   return fsObject
 }
-export default chmod

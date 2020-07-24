@@ -1,19 +1,21 @@
-/* eslint-disable no-param-reassign */
+/* eslint-disable no-param-reassign, max-classes-per-file */
 import path from 'path'
-import {pathExists, canonisePath, symlinkTarget} from '../parsers/realpath.js'
-import {LOCAL} from '../util/globals.js'
+import { pathExists, canonisePath, symlinkTarget } from '../parsers/realpath.js'
+import { LOCAL } from '../util/globals.js'
 
-const uriToPathString = uri => {
-  if (!/^file:\/\/(\w|\/|\.|-| )+/.test(uri) || /\.\.|\/\./.test(uri)) {
-    throw new Error(`${LOCAL.invalidFileURI}: ${path}`)
-  }
+/**
+ * @param {string} uri
+ * @return {string}
+ */
+const uriToPathString = (uri) => {
+  if (!/^file:\/\/(\w|\/|\.|-| )+/.test(uri) || /\.\.|\/\./.test(uri)) throw new Error(`${LOCAL.invalidFileURI}: ${path}`)
+
   const rest = decodeURI(uri.substring(7))
   const firstSlash = rest.indexOf('/')
   let host = rest.substring(0, firstSlash)
   let tmpPath = rest.substring(firstSlash + 1)
   // remove any 'localhost'.
-  if (['localhost', '127.0.0.1', '0.0.0.0'].includes(host.toLowerCase()))
-    host = path.sep
+  if (['localhost', '127.0.0.1', '0.0.0.0'].includes(host.toLowerCase())) host = path.sep
   if (host !== path.sep) host = `${path.sep}${path.sep}${host}`
   tmpPath = tmpPath.replace(/^(.+)\|/, '$1:')
   if (path.sep === '\\') tmpPath = tmpPath.replace(/\//g, '\\') // for Windows: invert the path separators
@@ -23,64 +25,99 @@ const uriToPathString = uri => {
 }
 
 export class Path {
+  /**
+   * @param {string} pathString
+   */
   constructor(pathString) {
-    if (!pathString)
-      throw new Error(
-        'pathString must be defined and may not be an empty string'
-      )
+    if (!pathString) throw new Error('pathString must be defined and may not be an empty string')
+
     this._inputPath = pathString
     const dUri = decodeURIComponent(pathString)
-    if (/^file:\/\/(\w|\/|\.|-| )+/.test(dUri))
-      pathString = uriToPathString(dUri)
+    if (/^file:\/\/(\w|\/|\.|-| )+/.test(dUri)) pathString = uriToPathString(dUri)
     this._path = path.parse(path.normalize(pathString))
   }
 
+  /**
+   * @return {Path|undefined}
+   */
   get root() {
     return this._path.root ? new Path(this._path.root) : undefined
   }
 
+  /**
+   * @return {boolean}
+   */
   get isRoot() {
     return this.isAbsolute ? this.root.pathString === this.pathString : false
   }
 
+  /**
+   * @return {string}
+   */
   get ext() {
     return this._path.ext
   }
 
+  /**
+   * @return {string}
+   */
   get base() {
     return this._path.base
   }
 
+  /**
+   * @return {string}
+   */
   get name() {
     return this._path.name
   }
 
+  /**
+   * @return {string}
+   */
   get pathString() {
     return `${this.isAbsolute ? '' : ''}${path.format(this._path)}`
   }
 
+  /**
+   * @return {boolean}
+   */
   get isAbsolute() {
     return this._path.root !== ''
   }
 
+  /**
+   * @return {Path|undefined}
+   */
   get parentPath() {
     return this._path.dir === '' ? undefined : new Path(this._path.dir)
   }
 
+  /**
+   * @param {Path|string} segment
+   * @return {Path}
+   */
   addSegment(segment) {
     return new Path(path.join(`${this}`, `${segment}`))
   }
 
+  /**
+   * @return {boolean}
+   */
   get isValid() {
-    return this.toArray().every(name => {
-      return /^[\w\-. ]+$/.test(name)
-    })
+    return this.toArray().every((name) => /^[\w\-. ]+$/.test(name))
   }
 
+  /**
+   * @return {string}
+   */
   toString() {
     return this.pathString
   }
 
+  /**
+   * @return {Object}
+   */
   toJSON() {
     return {
       path: this.pathString,
@@ -89,102 +126,127 @@ export class Path {
       root: this.root.pathString,
       // isValid: this.isValid,
       parentPath: this.parentPath.pathString,
-      ext: this.ext
+      ext: this.ext,
     }
   }
 
+  /**
+   * @return {string}
+   */
   toSh() {
     return `"$(cat<<'+++EOF+++'\n${this}\n+++EOF+++\n)"`
   }
 
+  /**
+   * @return {Array}
+   */
   toArray() {
-    return this.pathString.split(path.sep).filter(name => name !== '')
+    return this.pathString.split(path.sep).filter((name) => name !== '')
   }
 }
 export class PathContainer {
-  constructor(fsObject, requestedPath, statPath) {
-    this._fsObject = fsObject
-    if (requestedPath) this._setRequestedPath(requestedPath)
+  /**
+   * @param {ExecutionContext} executionContext
+   * @param {string} requestedPath
+   * @param {string} statPath
+   */
+  constructor(executionContext, requestedPath = undefined, statPath = undefined) {
+    this._executionContext = executionContext
+    if (requestedPath) this._requestedPath = new Path(requestedPath)
     if (statPath) this._setStatPath(statPath)
   }
 
+  /**
+   * @return {Path}
+   */
   get requestedPath() {
     return this._requestedPath
   }
 
-  _setRequestedPath(value) {
-    this._requestedPath = new Path(value)
-  }
-
+  /**
+   * @return {Path}
+   */
   get canonizedPath() {
     return this._canonizedPath
   }
 
-  _setCanonizedPath(value) {
-    this._canonizedPath = new Path(value)
-  }
-
-  async canonize(checkExistence = false) {
-    this._exists = undefined
-    const res = checkExistence
-      ? await pathExists(this._fsObject.executionContext, this.requestedPath)
-      : await canonisePath(this._fsObject.executionContext, this.requestedPath)
-
-    if (res !== false) this._setCanonizedPath(res)
-    if (checkExistence) this._exists = res !== false
-    return this.canonizedPath
-  }
-
+  /**
+   * @return {Path}
+   */
   get statPath() {
     return this._statPath
   }
 
+  /**
+   * @return {Promise}
+   */
+  async canonizeRequestPath() {
+    this._canonizedPath = new Path(await canonisePath(this._executionContext, this.requestedPath))
+    return this.canonizedPath
+  }
+
+  /**
+   * @return {Promise}
+   */
+  async exists() {
+    const result = await pathExists(this._executionContext, this.path)
+    return !(result === false)
+  }
+
+  /**
+   * @param {string} value
+   */
   _setStatPath(value) {
     this._statPath = new Path(value)
   }
 
+  /**
+   * @return {Path}
+   */
   get symlinkTargetPath() {
     return this._symlinkTargetPath
   }
 
+  /**
+   * @return {Path}
+   */
   _setSymlinkTargetPath(value) {
     this._symlinkTargetPath = new Path(value)
   }
 
+  /**
+   * @return {Promise}
+   */
   async getSymlinkTargetPath() {
-    // this._linkExists = undefined
     this._symlinkTargetPath = undefined
-    const res = await symlinkTarget(this._fsObject.executionContext, this.path)
+    const res = await symlinkTarget(this._executionContext, this.path)
     if (res !== false) this._setSymlinkTargetPath(res)
-    // this._linkExists = res !== false
     return this.symlinkTargetPath
   }
 
-  // get linkExists() {
-  //   return this._symlinkTargetPath ? this._linkExists : undefined
-  // }
-
+  /**
+   * @return {Path}
+   */
   get path() {
     return (
-      this.statPath ||
-      this.canonizedPath ||
-      this.requestedPath ||
-      new Error('path not found')
+      this.statPath
+      || this.canonizedPath
+      || this.requestedPath
+      || new Error('path not found')
     )
   }
 
-  async exists(force = true) {
-    if (force || this._exists === undefined) await this.canonize(true)
-    return this._exists
-  }
-
+  /**
+   * @return {string}
+   */
   toString() {
-    return `${this.path}`
+    return this.path.toString()
   }
 }
-
-export const pathNormaliser = pathToNormalise => {
-  return pathToNormalise.constructor.name !== 'Path'
-    ? new Path(`${pathToNormalise}`)
-    : pathToNormalise
-}
+/**
+ * @param {string|Path} pathToNormalise
+ * @return {Path}
+ */
+export const pathNormaliser = (pathToNormalise) => (pathToNormalise.constructor.name !== 'Path'
+  ? new Path(`${pathToNormalise}`)
+  : pathToNormalise)

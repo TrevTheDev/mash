@@ -1,19 +1,17 @@
-import {LOCAL, glob} from '../util/globals.js'
+import { LOCAL, glob } from '../util/globals.js'
 
-const chgrp = async (FSObject, group, recursive) => {
-  const chgrpSh = await FSObject.sh(
-    `chgrp ${recursive ? '-R' : ''} ${group} -- ${FSObject.toSh()};`,
-    'chgrp'
+export const chgrp = async (fsObject, group, recursive) => {
+  const chgrpSh = await fsObject.sh(
+    `chgrp ${recursive ? '-R' : ''} ${group} -- ${fsObject.toSh()};`,
+    'chgrp',
   )
   if (chgrpSh.error) {
     let msg
-    if (chgrpSh.output.includes('Operation not permitted'))
-      msg = `${LOCAL.permissionDenied}: chgrp: ${FSObject}`
+    if (chgrpSh.output.includes('Operation not permitted')) msg = `${LOCAL.permissionDenied}: chgrp: ${fsObject}`
     else msg = `chgrp: ${chgrpSh.output}`
     if (glob.logger) glob.logger.error(msg, 'chgrp')
     throw new Error(msg)
   }
-  if (FSObject.state === 'loaded') FSObject._transitionState('outdated')
-  return FSObject
+  fsObject.markAsInvalid()
+  return fsObject
 }
-export default chgrp

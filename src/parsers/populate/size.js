@@ -15,7 +15,7 @@ const size = (sizeOutput, fsObj) => {
     parseInt(detailedArray[0], 10),
     parseInt(sizeArray[0].split(/\t/)[0], 10),
     dirCount,
-    objCount - dirCount
+    objCount - dirCount,
   )
   obj.loadedSize = true
 }

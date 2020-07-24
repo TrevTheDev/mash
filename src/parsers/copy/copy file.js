@@ -1,16 +1,13 @@
-import {CP_TYPE, glob, LOCAL} from '../../util/globals.js'
+import { CP_TYPE, glob, LOCAL } from '../../util/globals.js'
 
 const handleDirtyPath = async (isNewTree, copyManager, src, dstP) => {
   if (isNewTree) return true
-  const dst = await src.executionContext.getFsObjectFromPath(
-    dstP.path.addSegment(src.path.base)
-  )
+  let dst = await src.executionContext.getFsObjectPromisePathed(dstP.path.addSegment(src.path.base).toString())
 
   if (!(await dst.exists)) return true
 
-  await dst.stat(false, false, false)
-  if (dst.type !== src.type)
-    throw new Error(`${LOCAL.fileExpected}: ${dst.type}: ${dst}`) // TODO: Test
+  dst = await dst.stat(false, false, false)
+  if (dst.type !== src.type) throw new Error(`${LOCAL.fileExpected}: ${dst.type}: ${dst}`) // TODO: Test
 
   switch (copyManager.copyType) {
     case CP_TYPE.overwrite:
@@ -32,7 +29,7 @@ const rsyncProgressParser = (copyManager, stdout) => {
   const arr = stdout
     .replace(/,/g, '')
     .split(/(\s+)/)
-    .filter(e => e.trim().length > 0)
+    .filter((e) => e.trim().length > 0)
   const bytesCopied = /^\d+$/.test(arr[0]) ? parseInt(arr[0], 10) : undefined
   // const percentageCopied = /^\d+%$/.test(arr[1])
   //    new Size(parseInt(arr[1].replace('%', ''), 10))
@@ -41,7 +38,7 @@ const rsyncProgressParser = (copyManager, stdout) => {
 }
 
 const copyFile = async (copyManager, src, dstP, isNewTree = false) => {
-  if (copyManager.cancelled) return {cancelled: true}
+  if (copyManager.cancelled) return { cancelled: true }
 
   const newFilePath = dstP.path.addSegment(src.path.base)
 
@@ -51,22 +48,21 @@ const copyFile = async (copyManager, src, dstP, isNewTree = false) => {
 
   const rsyncCmd = src.sh(
     `rsync -Il --info=progress2  ${src.toSh()} ${dstP.toSh()};`,
-    'rsync'
+    'rsync',
   )
-  rsyncCmd.on('data', stdout => rsyncProgressParser(copyManager, stdout))
+  rsyncCmd.on('data', (stdout) => rsyncProgressParser(copyManager, stdout))
 
   const rsync = await rsyncCmd
 
   if (rsync.error) {
     let errMsg
-    if (rsync.output.includes('Permission denied'))
-      errMsg = `copyFile: ${LOCAL.permissionDenied}: ${src}: ${dstP}`
+    if (rsync.output.includes('Permission denied')) errMsg = `copyFile: ${LOCAL.permissionDenied}: ${src}: ${dstP}`
     else errMsg = `copyFile: ${rsync.output}: ${src}: ${dstP}`
     if (glob.logger) glob.logger.error(errMsg, 'copyFile')
     throw new Error(errMsg)
   }
 
-  const copiedFile = src.executionContext.getFileFromPath(newFilePath)
+  const copiedFile = src.executionContext.getFilePathed(newFilePath.toString())
   const sz = src.size
 
   if (copyManager.move && !copyManager.cancelled) await src.delete()

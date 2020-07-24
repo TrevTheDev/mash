@@ -1,46 +1,42 @@
-/* eslint-disable no-param-reassign */
-import {FILE_TYPE_ENUMS, LOCAL} from '../../util/globals.js'
-import updateObjWithStatOutput from './stat.js'
+/* eslint-disable no-param-reassign, no-tabs */
+import { FILE_TYPE_ENUMS } from '../../util/globals.js'
+import createStatObject from './stat.js'
 import updateObjWithGioOutput from './gio.js'
 import updateObjWithLsattrOutput from './lsattr.js'
 import updateObjWithSizeOutput from './size.js'
-import Permissions from '../../locations/permission.js'
 
-export default async (fsObj, gio, lsattr, size, fsObjString) => {
-  fsObj._transitionState('loading')
-  const [statOutput, gioOutput, lsattrOutput, sizeOutput] = fsObjString.split(
-    `${fsObj.executionContext.server.config.cmdDivider}`
-  )
+/**
+ * reads `directory` content and the returns stat'ed | gio'ed | lsattr'ed `FSObjectArray`
+ * @param {ExecutionContext} executionContext - `directory` that should be read
+ * @param {boolean} gio
+ * @param {boolean} lsattr
+ * @param {boolean} size
+ * @param {string} fsObjString
+ * @returns {File|Directory|Symlink}
+ */
+export default async (executionContext, gio, lsattr, size, fsObjString) => {
+  // fsObj._transitionState('loading')
+  const { server } = executionContext
+  const [statOutput, gioOutput, lsattrOutput, sizeOutput] = fsObjString.split(server.config.cmdDivider)
 
-  fsObj._props = {}
-  fsObj._permissions = new Permissions()
-
-  updateObjWithStatOutput(statOutput, fsObj)
-  if (gio) updateObjWithGioOutput(gioOutput, fsObj)
-  if (lsattr) updateObjWithLsattrOutput(lsattrOutput, fsObj)
-  if (fsObj._props.type === FILE_TYPE_ENUMS.symbolicLink) {
-    const pth = await fsObj.paths.getSymlinkTargetPath()
-    const linkTarget = fsObj.executionContext.getFSObjFromPath(pth)
+  const newFsObject = createStatObject(statOutput, executionContext)
+  if (gio) updateObjWithGioOutput(gioOutput, newFsObject)
+  if (lsattr) updateObjWithLsattrOutput(lsattrOutput, newFsObject)
+  if (newFsObject.type === FILE_TYPE_ENUMS.symbolicLink) {
+    const pth = await newFsObject.paths.getSymlinkTargetPath()
+    let linkTarget = newFsObject.executionContext.getFsObjectPromisePathed(`${pth}`)
     if (await linkTarget.exists) {
-      await linkTarget.stat(gio, lsattr, size)
-      if (linkTarget.type !== FILE_TYPE_ENUMS.symbolicLink)
-        fsObj._props.linkEndTarget = linkTarget
-      else fsObj._props.linkEndTarget = linkTarget._props.linkEndTarget
-      fsObj._props.linkTarget = linkTarget
-      // fsObj._props.size = fsObj._props.linkTarget.size
+      linkTarget = await linkTarget.stat(gio, lsattr, size)
+      if (linkTarget.type !== FILE_TYPE_ENUMS.symbolicLink) newFsObject._props.linkEndTarget = linkTarget
+      else newFsObject._props.linkEndTarget = linkTarget._props.linkEndTarget
+      newFsObject._props.linkTarget = linkTarget
     } else {
-      fsObj._props.linkEndTarget = undefined
-      fsObj._props.linkTarget = pth
-      // fsObj._props.size = undefined
-      if (size) throw new Error(`stat: ${LOCAL.symlinkBroken}: ${fsObj}`)
+      newFsObject._props.linkEndTarget = undefined
+      newFsObject._props.linkTarget = pth
     }
   }
-  if (size && fsObj._props.type === FILE_TYPE_ENUMS.directory)
-    updateObjWithSizeOutput(sizeOutput, fsObj)
-
-  fsObj._changeToType(fsObj._props.type)
-  fsObj._transitionState('loaded')
-  return fsObj
+  if (size && newFsObject.type === FILE_TYPE_ENUMS.directory) updateObjWithSizeOutput(sizeOutput, newFsObject)
+  return newFsObject
 }
 
 /*
@@ -53,11 +49,11 @@ export default async (fsObj, gio, lsattr, size, fsObjString) => {
 %h Number of hard links	%n
 %i Inode number	%i
 %s Total size, in bytes 	%s
-%t Major device type in hex 	
-%T Minor device type in hex 	
+%t Major device type in hex
+%T Minor device type in hex
 %u User ID of owner 	%U
 %U User name of owner 	%u
-%W Time of file birth as seconds since Epoch, or ‘0’ 	
+%W Time of file birth as seconds since Epoch, or ‘0’
 %X Time of last access as seconds since Epoch 	%a
 %Y Time of last data modification as seconds since Epoch 	%t
 %Z Time of last status change as seconds since Epoch 	%c
