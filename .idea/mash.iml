@@ -5,8 +5,9 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/temp" />
-      <excludeFolder url="file://$MODULE_DIR$/test" />
       <excludeFolder url="file://$MODULE_DIR$/../base-srvr/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/src_old" />
+      <excludeFolder url="file://$MODULE_DIR$/test" />
       <excludeFolder url="file://$MODULE_DIR$/x_cruf" />
     </content>
     <orderEntry type="inheritedJdk" />

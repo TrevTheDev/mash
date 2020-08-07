@@ -9,3 +9,4 @@
 .DS_Store
 *.iso
 /package-lock.json
+/src_old/
