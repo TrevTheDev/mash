@@ -1,7 +1,6 @@
 {
   "extends": [
     "airbnb-base",
-    //"eslint:recommended",
     "plugin:mocha/recommended"
   ],
   "env": {
@@ -13,24 +12,35 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
+  "parser": "babel-eslint",
   "root": true,
   "plugins": ["import", "node", "mocha", "chai-expect"],
   "rules": {
-    "no-console": "off",
-    "no-param-reassign": "warn",
-    "import/extensions": ["error", "ignorePackages"],
-    "no-underscore-dangle": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages"
+    ],
+    "import/prefer-default-export": "off",
+    "max-len":  ["error", { "code": 120, "ignoreComments": true, "ignoreTemplateLiterals": true }],
+    "curly": ["error", "multi-or-nest"],
     "mocha/no-exclusive-tests": "error",
     "mocha/no-mocha-arrows": "off",
-    "semi": [2,"never"],
+    "no-console": "off",
+    "no-param-reassign": "warn",
+    "no-underscore-dangle": "off",
     "no-unused-vars": [
       "error",
       {
         "varsIgnorePattern": "should|expect"
       }
+    ],
+    "semi": [
+      2,
+      "never"
     ]
   },
   "globals": {
     "step": true
   }
 }
+

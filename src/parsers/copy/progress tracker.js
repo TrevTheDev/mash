@@ -1,9 +1,9 @@
-import {EventEmitter} from 'events'
+import { EventEmitter } from 'events'
 import * as datefns from 'date-fns'
 // import * as format from 'date-fns/format/index.js'
 // import * as formatDistance from 'date-fns/esm/formatDistance/index.js'
 
-const {format, formatDistance} = datefns.default || datefns
+const { format, formatDistance } = datefns.default || datefns
 
 export default class ProgressTracker extends EventEmitter {
   constructor(copyManager) {
@@ -54,7 +54,7 @@ export default class ProgressTracker extends EventEmitter {
     if (roc === 0 || Number.isNaN(roc)) return Infinity
     return formatDistance(
       timeNow,
-      new Date(timeNow.valueOf() + this.bytesRemaining / roc)
+      new Date(timeNow.valueOf() + this.bytesRemaining / roc),
     )
   }
 
@@ -65,7 +65,7 @@ export default class ProgressTracker extends EventEmitter {
     if (roc === 0 || Number.isNaN(roc)) return Infinity
     return formatDistance(
       timeNow,
-      new Date(timeNow.valueOf() + this.bytesRemaining / roc)
+      new Date(timeNow.valueOf() + this.bytesRemaining / roc),
     )
   }
 
@@ -110,6 +110,7 @@ export default class ProgressTracker extends EventEmitter {
   }
 
   then(...thenArgs) {
+    // noinspection JSCheckFunctionSignatures
     return this._copyManager.promise.then(...thenArgs)
   }
 
@@ -134,7 +135,7 @@ export default class ProgressTracker extends EventEmitter {
       destinationDirectory: `${this.destinationDirectory}`,
       currentSourcePath: `${this.currentSourcePath}`,
       currentDestinationDirectoryPath: `${this.currentDestinationDirectoryPath}`,
-      startedAt: this.startedAt
+      startedAt: this.startedAt,
     }
   }
 }

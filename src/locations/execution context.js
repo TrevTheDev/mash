@@ -1,8 +1,14 @@
 /* eslint-disable no-param-reassign */
-import {glob} from '../util/globals.js'
-import pwd from '../parsers/pwd.js'
-import gioTrashEmpty from '../parsers/gio trash empty.js'
-import {pathNormaliser} from './path.js'
+import { pwd, gioTrashEmpty } from '../parsers/cmds.js'
+
+import {
+  DirectoryPromise,
+  FilePromise,
+  SymlinkPromise,
+  FsObject,
+  FsObjectArray,
+} from './fs objects.js'
+import { PathContainer } from './path.js'
 
 export default class ExecutionContext {
   /**
@@ -17,10 +23,16 @@ export default class ExecutionContext {
     this._shell = shell
   }
 
+  /**
+   * @returns {Object}
+   */
   get options() {
     return this._options
   }
 
+  /**
+   * @returns {Server}
+   */
   get server() {
     return this._server
   }
@@ -32,76 +44,85 @@ export default class ExecutionContext {
     return this._shell
   }
 
-  getFSObjFromPath(path) {
-    return new glob.FsObject(
-      this,
-      pathNormaliser(path || process.cwd()),
-      undefined,
-      this.options.createAutomationFunctions
-    )
+  /**
+   * @param {string|Path} path
+   * @returns {FsObject}
+   */
+  getFsObject(path = process.cwd()) {
+    return new FsObject(this, new PathContainer(this, `${path}`))
   }
 
-  getFsObjectFromPath(path) {
-    return new glob.FsObject(
-      this,
-      path,
-      undefined,
-      this.options.createAutomationFunctions
-    )
+  /**
+   * @param {string} path
+   * @returns {FsObject}
+   */
+  getFsObjectPathed(path) {
+    return new FsObject(this, new PathContainer(this, undefined, path))
   }
 
-  getFileFromPath(path) {
-    return new glob.File(
-      this,
-      path,
-      undefined,
-      this.options.createAutomationFunctions
-    )
+  /**
+   * @param {string} path
+   * @returns {FilePromise}
+   */
+  getFilePromise(path) {
+    return new FilePromise(this, new PathContainer(this, undefined, path))
   }
 
-  getDirectoryFromPath(path) {
-    return new glob.Directory(
-      this,
-      path,
-      undefined,
-      this.options.createAutomationFunctions
-    )
+  /**
+   * @param {string} path
+   * @returns {DirectoryPromise}
+   */
+  getDirectoryPromise(path) {
+    return new DirectoryPromise(this, new PathContainer(this, undefined, path))
   }
 
-  getSymlinkFromPath(path) {
-    return new glob.Symlink(
-      this,
-      path,
-      undefined,
-      this.options.createAutomationFunctions
-    )
+  /**
+   * @param {string} path
+   * @returns {SymlinkPromise}
+   */
+  getSymlinkPromise(path) {
+    return new SymlinkPromise(this, new PathContainer(this, undefined, path))
   }
 
+  /**
+   * @param {Array} paths
+   * @returns {FsObjectArray}
+   */
   getFSObjArrayFromPaths(paths) {
-    return new glob.FSObjectArray(
-      ...paths.map((path) => this.getFSObjFromPath(path))
-    )
+    return new FsObjectArray(...paths.map((path) => this.getFsObject(path)))
   }
 
+  /**
+   * @param {Array<string|Path>|string|Path} paths
+   * @returns {FsObjectArray|FsObject}
+   */
   u(paths) {
     return Array.isArray(paths)
       ? this.getFSObjArrayFromPaths(paths)
-      : this.getFSObjFromPath(paths)
+      : this.getFsObject(paths)
   }
 
-  sh(command, elevateCmdType, progressCallback, sendToEveryShell) {
-    return this.shell.createCommand(
-      command,
-      elevateCmdType,
-      progressCallback,
-      sendToEveryShell
-    )
+  /**
+   * @param {string} command
+   * @param {Object} doneCBPayload
+   * @param {function} doneCallback
+   * @param {boolean} sendToEveryShell
+   * @returns {CommandIFace}
+   */
+  sh(command, doneCBPayload = undefined, doneCallback = undefined, sendToEveryShell = undefined) {
+    return this.shell.createCommand(command, doneCBPayload, doneCallback, sendToEveryShell)
   }
 
+  /**
+   * @returns {Promise<boolean>}
+   */
   emptyTrash() {
     return gioTrashEmpty(this)
   }
 
+  /**
+   * @returns {DirectoryPromise}
+   */
   get pwd() {
     return pwd(this)
   }

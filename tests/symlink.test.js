@@ -3,11 +3,11 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Server, {u} from '../src/server.js'
+import Server, { u } from '../src/server.js'
 
 chai.use(chaiAsPromised)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('symlinks', () => {
   let tstDir
@@ -15,8 +15,6 @@ describe('symlinks', () => {
   before(async () => {
     cwd = u()
     tstDir = await cwd.addDirectory('test', true)
-    // await tstDir.delete(true)
-    // tstDir = await cwd.addDirectory('test', true)
   })
   after(() => {
     Server.instance.close()
@@ -28,13 +26,12 @@ describe('symlinks', () => {
     const DirSource = await tstDir.addDirectory('DirSource')
     const symLink = u(`${tstDir}/symlinkS1`)
     const res = await expect(symLink.linkTo(DirSource)).to.be.fulfilled
-    expect(res.constructor.name).to.equal('Symlink')
-    expect(res.state).to.equal('loadable')
-    await expect(res.stat()).to.be.fulfilled
-    expect(res.constructor.name).to.equal('Symlink')
-    expect(`${res}`).to.equal(`${symLink}`)
-    expect(`${await res.linkTarget}`).to.equal(`${DirSource}`)
-    expect(`${res.paths.symlinkTargetPath}`).to.equal(`${DirSource}`)
+    expect(res.constructor.name).to.equal('SymlinkPromise')
+    const res2 = await expect(res.stat()).to.be.fulfilled
+    expect(res2.constructor.name).to.equal('Symlink')
+    expect(`${res2}`).to.equal(`${symLink}`)
+    expect(`${res2.linkTarget}`).to.equal(`${DirSource}`)
+    expect(`${res2.paths.symlinkTargetPath}`).to.equal(`${DirSource}`)
   })
 
   it('can stat a symlink', async () => {
@@ -44,20 +41,18 @@ describe('symlinks', () => {
     const symLink = u(`${tstDir}/symlinkS2`)
     await symLink.linkTo(DirSource2)
 
-    await symLink.stat()
-
     const anotherSymLink = u(`${tstDir}/symlinkS2`)
 
     await anotherSymLink.stat(true, true, true)
 
     expect(`${anotherSymLink.paths.requestedPath}`).to.equal(
-      `${tstDir}/symlinkS2`
+      `${tstDir}/symlinkS2`,
     )
 
-    await expect(anotherSymLink.stat(true, true, true)).to.be.fulfilled
-    expect(anotherSymLink.constructor.name).to.equal('Symlink')
-    expect(`${anotherSymLink}`).to.equal(`${tstDir}/symlinkS2`)
-    expect(`${anotherSymLink.linkTarget}`).to.equal(`${DirSource2}`)
+    const anotherSymLink2 = await expect(anotherSymLink.stat(true, true, true)).to.be.fulfilled
+    expect(anotherSymLink2.constructor.name).to.equal('Symlink')
+    expect(`${anotherSymLink2}`).to.equal(`${tstDir}/symlinkS2`)
+    expect(`${anotherSymLink2.linkTarget}`).to.equal(`${DirSource2}`)
   })
   it('can delete a symlink', async () => {
     await u(`${tstDir}/symlinkS3`).delete(true, undefined, true)
@@ -85,8 +80,7 @@ describe('symlinks', () => {
     // await expect(symlinkS5.linkTo(DirSource5)).to.be.rejected
     await expect(symlinkS5.linkTo(DirSource5)).to.be.fulfilled
 
-    const anotherSymLink = u(`${tstDir}/symlinkS5`)
-    await anotherSymLink.stat(true, false, false)
+    const anotherSymLink = await u(`${tstDir}/symlinkS5`).stat(true, false, false)
     expect(`${anotherSymLink}`).to.equal(`${tstDir}/symlinkS5`)
     expect(`${anotherSymLink.linkTarget}`).to.equal(`${DirSource5}`)
   })
@@ -103,13 +97,13 @@ describe('symlinks', () => {
     const FileSource6 = await tstDir.addFile('FileSource6')
     const FileSource7 = await tstDir.addFile('FileSource7')
     const noFile = u(`${tstDir}/noFile`)
-    const tmp = noFile.linkTo(FileSource6)
-    let noFileSymLink = await tmp
+
+    let noFileSymLink = await noFile.linkTo(FileSource6)
     expect(await u(`${tstDir}/noFile`).exists).to.be.true
-    expect(noFileSymLink.constructor.name).to.equal('Symlink')
-    expect(noFileSymLink.state).to.equal('loadable')
+    expect(noFileSymLink.constructor.name).to.equal('SymlinkPromise')
+
     let target = await noFile.linkTarget
-    // await target.stat(true, false, false)
+    target = await target.stat(true, false, false)
     expect(target.constructor.name).to.equal('File')
     expect(`${target}`).to.equal(`${tstDir}/FileSource6`)
 
@@ -123,6 +117,7 @@ describe('symlinks', () => {
     expect(target.constructor.name).to.equal('Directory')
     expect(`${target}`).to.equal(`${tstDir}/DirSource6`)
 
+    expect(await noFileSymLink.exists).to.be.true
     await noFileSymLink.delete()
 
     await expect(FileSource7.linkTo(DirSource6)).to.be.rejected
@@ -133,7 +128,7 @@ describe('symlinks', () => {
     await expect(SymSource7.linkTo(DirSource6)).to.be.fulfilled
     expect(await SymSource7.exists).to.be.true
     target = await SymSource7.linkTarget
-    await target.stat(true, false, false)
+    target = await target.stat(true, false, false)
     expect(target.constructor.name).to.equal('Directory')
     expect(`${target}`).to.equal(`${tstDir}/DirSource6`)
 
@@ -145,17 +140,17 @@ describe('symlinks', () => {
     await expect(SymDirSource7.linkTo(FileSource6, true)).to.be.fulfilled
     expect(await SymSource7.exists).to.be.true
     target = await SymDirSource7.linkTarget
-    await target.stat(true, false, false)
-    expect(target.constructor.name).to.equal('File')
-    expect(`${target}`).to.equal(`${tstDir}/FileSource6`)
-
-    // await expect(SymDirSource7.linkTo(SymSource7)).to.be.rejected
-    // await u(`${tstDir}/DirSource7`).delete()
-
+    const target2 = await target.stat(true, false, false)
+    expect(target2.constructor.name).to.equal('File')
+    expect(`${target2}`).to.equal(`${tstDir}/FileSource6`)
+    //
+    // // await expect(SymDirSource7.linkTo(SymSource7)).to.be.rejected
+    // // await u(`${tstDir}/DirSource7`).delete()
+    //
     await expect(SymDirSource7.linkTo(SymSource7)).to.be.fulfilled
     expect(await SymSource7.exists).to.be.true
     target = await SymSource7.linkTarget
-    await target.stat(true, false, false)
+    target = await target.stat(true, false, false)
     expect(target.constructor.name).to.equal('Directory')
     expect(`${target}`).to.equal(`${tstDir}/DirSource6`)
   })
@@ -191,21 +186,22 @@ describe('symlinks', () => {
     await ChainLink3.addFile('HELLO', 'HELLO')
     expect(await u(`${tstDir}/ChainSource/HELLO`).exists).to.be.true
 
-    await ChainLink3.stat(true, true, true)
+    const ChainLink3n = await ChainLink3.stat(true, true, true)
 
-    expect(`${ChainLink3.linkTarget}`).to.equal(`${ChainLink2}`)
-    expect(`${ChainLink3.linkEndTarget}`).to.equal(`${ChainSource}`)
-    expect(`${ChainLink3.linkTarget.linkTarget}`).to.equal(`${ChainLink1}`)
-    expect(`${ChainLink3.linkTarget.linkTarget.linkTarget}`).to.equal(
-      `${ChainSource}`
+    expect(`${ChainLink3n.linkTarget}`).to.equal(`${ChainLink2}`)
+    expect(`${ChainLink3n.linkEndTarget}`).to.equal(`${ChainSource}`)
+    expect(`${ChainLink3n.linkTarget.linkTarget}`).to.equal(`${ChainLink1}`)
+    expect(`${ChainLink3n.linkTarget.linkTarget.linkTarget}`).to.equal(
+      `${ChainSource}`,
     )
-    expect(ChainLink3.linkTarget.linkTarget.linkTarget.linkTarget).to.be
+    expect(ChainLink3n.linkTarget.linkTarget.linkTarget.linkTarget).to.be
       .undefined
 
     await u(`${tstDir}/ChainLink2`).delete()
-    await expect(ChainLink3.stat(true, true, true)).to.be.rejected
-    await expect(ChainLink3.stat(true, true, false)).to.be.fulfilled
-    expect(`${ChainLink3.linkTarget}`).to.equal(`${ChainLink2}`)
-    expect(ChainLink3.linkEndTarget).to.be.undefined
+    const ChainLink3m = await expect(ChainLink3n.stat(true, true, true)).to.be.fulfilled
+    expect(ChainLink3m.loadedLsattr).to.be.false
+    // const ChainLink3m = await expect(ChainLink3n.stat(true, true, false)).to.be.fulfilled
+    expect(`${ChainLink3m.linkTarget}`).to.equal(`${ChainLink2}`)
+    expect(ChainLink3m.linkEndTarget).to.be.undefined
   })
 })

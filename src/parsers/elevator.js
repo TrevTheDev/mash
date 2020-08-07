@@ -1,11 +1,11 @@
-import {ShellHarness} from '../server.js'
+import { ShellHarness } from '../server.js'
 
 export default class Elevator {
   constructor(
     passwordFunction,
     shellPoolConfig = {
-      user: 'root'
-    }
+      user: 'root',
+    },
   ) {
     this.shellPoolConfig = shellPoolConfig
     this.passwordFunction = passwordFunction
@@ -21,28 +21,39 @@ export default class Elevator {
       rsync: [/Permission denied/g],
       'gio trash': [/Permission denied/g],
       touch: [/Permission denied/g],
-      matchAttrs: [/Permission denied/g]
+      matchAttrs: [/Permission denied/g],
     }
     return this
   }
 
   async elevateIfRequired(cmd, elevatorCmdType) {
-    if (!elevatorCmdType) return cmd
-    const match = this.regexs[elevatorCmdType].find(regex =>
-      cmd.output.match(regex)
-    )
+    if (!elevatorCmdType) {
+      return {
+        error: cmd.error,
+        command: cmd.command,
+        output: cmd.output,
+      }
+    }
+    const match = this.regexs[elevatorCmdType].find((regex) => cmd.output.match(regex))
 
-    if (!match) return cmd
+    if (!match) {
+      return {
+        error: cmd.error,
+        command: cmd.command,
+        output: cmd.output,
+      }
+    }
 
     const shell = await this.shell()
     const finalCommand = await shell.createCommand(cmd.command)
     if (shell.runningCommands === 0) {
-      shell.close()
+      await shell.close()
       this._shell = undefined
     }
 
     return finalCommand
   }
+
   /**
    * @returns {ShellHarness}
    */
@@ -53,8 +64,8 @@ export default class Elevator {
     return this._shell
   }
 
-  close() {
-    if (this._shell) this._shell.close()
+  async close() {
+    if (this._shell) await this._shell.close()
     this._shell = undefined
   }
 }

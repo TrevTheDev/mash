@@ -1,5 +1,5 @@
-import FsObject from '../fs object.js'
-import { FILE_TYPE_ENUMS } from '../../util/globals.js'
+import FsObject from './fs object.js'
+import { FILE_TYPE_ENUMS } from '../../src/util/globals.js'
 
 /**
  *
@@ -22,9 +22,8 @@ export default class Directory extends FsObject {
 
   toJSON(listing = false) {
     const json = super.toJSON()
-    if (listing) {
-      json.content = this.content.toJSON()
-    }
+    if (listing) json.content = this.content.toJSON()
+
     return super.toJSON()
   }
 

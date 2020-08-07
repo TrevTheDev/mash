@@ -22,12 +22,12 @@ describe('quick tests', () => {
     cwd = u()
     tstDir = await cwd.addDirectory('test', true)
   })
-  after(() => {
-    //    if (Server.instance) Server.instance.close()
+  after(async () => {
+    if (Server.instance) await Server.instance.close()
   })
   it("u('./path/to/dir').content", async () => {
     const content = await u(`${cwd}`).content
-    expect(content.constructor.name).to.equal('FSObjectArray')
+    expect(content.length > 0).to.be.true
   })
   it("u(['./path/to/dir', '/another/path'])", async () => {
     const arr = u([`${cwd}`, `${tstDir}`])
@@ -49,7 +49,7 @@ describe('quick tests', () => {
     expect(`${u(`${tstDir}`).path.name}`).to.equal('test')
   })
   it("u('./path/to/fileOrDir').parent", async () => {
-    const parent = await u(`${tstDir}`).parent
+    const { parent } = u(`${tstDir}`)
     expect(`${parent}`).to.equal(`${cwd}`)
   })
 
@@ -171,8 +171,8 @@ describe('quick tests', () => {
     expect(await u(`${tstDir}`).accessRights).to.match(/\d\d\d\d/)
   })
   it("u('./path/to/source').permissions.symbol", async () => {
-    await tstDir.stat()
-    expect(tstDir.permissions.symbol).to.match(/[-rwx]{12}/)
+    const newDir = await tstDir.stat()
+    expect(newDir.permissions.symbol).to.match(/[-rwx]{12}/)
   })
   it("u('./path/to/source').setPermissions('a+rwx')", async () => {
     await u(`${tstDir}/setPerm`).delete(true, undefined, true)
@@ -180,9 +180,9 @@ describe('quick tests', () => {
     await expect(N1.setPermissions('a+rwx')).to.be.fulfilled
   })
   it("u('./path/to/source').user", async () => {
-    await tstDir.stat()
-    expect(`${tstDir.user}`).to.equal(process.env.USER)
-    expect(tstDir.user.name).to.equal(process.env.USER)
+    const newDir = await tstDir.stat()
+    expect(`${newDir.user}`).to.equal(process.env.USER)
+    expect(newDir.user.name).to.equal(process.env.USER)
   })
   it("u('./path/to/source').setUser('bob')", async () => {
     await u(`${tstDir}/userDir`).delete(true, undefined, true)
@@ -261,11 +261,11 @@ describe('quick tests', () => {
     expect(content).to.equal('ContentOfFileMORE')
   })
   it("u('./path/to/dir').find.byName('match')", async () => {
-    await u(`${tstDir}/match`).delete(true, undefined, true)
-    await u(`${tstDir}/unMatch`).delete(true, undefined, true)
-    await tstDir.addFile('match')
-    await tstDir.addFile('unMatch')
-    const find = await u(`${tstDir}`).find.byName('match')
+    await u(`${tstDir}/finder`).delete(true, true, true)
+    const findDir = await tstDir.addDirectory('finder')
+    await findDir.addFile('match')
+    await findDir.addFile('unMatch')
+    const find = await u(`${findDir}`).find.byName('match')
     expect(find.length).to.equal(1)
     expect(find[0].path.base).to.equal('match')
   })

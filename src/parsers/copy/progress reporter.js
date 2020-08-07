@@ -18,18 +18,15 @@ export default class ProgressReporter {
 
         cM.percentageCompleted = cM.bytesCompletedInFlight / cM.targetBytes
 
-        cM.progressReportingElapsedTime =
-          cM.progressLastProvidedAt - cM.baseline.progressLastProvidedAt
+        cM.progressReportingElapsedTime = cM.progressLastProvidedAt - cM.baseline.progressLastProvidedAt
 
         cM.elapsedTime = cM.progressLastProvidedAt - cM.init.baselinedAt
 
-        cM.rateOfCompletion =
-          cM.elapsedTime !== 0
-            ? cM.bytesCompletedInFlight / cM.elapsedTime
-            : undefined
+        cM.rateOfCompletion = cM.elapsedTime !== 0
+          ? cM.bytesCompletedInFlight / cM.elapsedTime
+          : undefined
 
-        cM.deltaElapsedTime =
-          cM.progressLastProvidedAt - cM.baseline.progressLastProvidedAt
+        cM.deltaElapsedTime = cM.progressLastProvidedAt - cM.baseline.progressLastProvidedAt
         cM.deltaRateOfCompletion = cM.rateOfCompletion
         cM.progressTracker.emit('progressUpdate', cM.progressTracker)
       }, this.interval)

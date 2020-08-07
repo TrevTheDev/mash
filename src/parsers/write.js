@@ -4,7 +4,13 @@ import crypto from 'crypto'
 import os from 'os'
 import { LOCAL, glob } from '../util/globals.js'
 
-const write = async (fsObject, content, overwrite) => {
+/**
+ * @param {FsObject|FilePromise|File} fsObject
+ * @param {string} content
+ * @param {boolean} overwrite
+ * @returns {Promise<FilePromise>}
+ */
+export const write = async (fsObject, content, overwrite) => {
   if ((await fsObject.exists) && !overwrite) throw new Error(`write: ${LOCAL.fsObjAlreadyExists}: ${fsObject}`)
   const tmpPath = path.join(
     os.tmpdir(),
@@ -27,8 +33,7 @@ const write = async (fsObject, content, overwrite) => {
     if (glob.logger) glob.logger.error(msg, 'write')
     throw new Error(msg)
   }
-  if (fsObject.state === 'loaded') fsObject._transitionState('outdated')
+  fsObject.markAsInvalid()
 
-  return fsObject.executionContext.getFileFromPath(`${fsObject}`)
+  return fsObject.executionContext.getFilePromise(`${fsObject}`)
 }
-export default write

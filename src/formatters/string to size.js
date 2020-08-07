@@ -2,14 +2,14 @@ import Size, {
   DECIMAL_BYTE_SCALE,
   BINARY_BYTE_SCALE,
   DECIMAL_BIT_SCALE,
-  BINARY_BIT_SCALE
+  BINARY_BIT_SCALE,
 } from './size.js'
 
 const SCALE = {
   ...DECIMAL_BYTE_SCALE.scale,
   ...BINARY_BYTE_SCALE.scale,
   ...DECIMAL_BIT_SCALE.scale,
-  ...BINARY_BIT_SCALE.scale
+  ...BINARY_BIT_SCALE.scale,
 }
 
 const numberFromLocaleString = (stringValue, locale) => {
@@ -18,17 +18,16 @@ const numberFromLocaleString = (stringValue, locale) => {
     .replace(/\d+/g, '')
     .split('')
   if (stringValue === null) return null
-  if (parts.length === 1) {
-    parts.unshift('')
-  }
+  if (parts.length === 1) parts.unshift('')
+
   return Number(
     String(stringValue)
       .replace(new RegExp(parts[0].replace(/\s/g, ' '), 'g'), '')
-      .replace(parts[1], '.')
+      .replace(parts[1], '.'),
   )
 }
 
-const splitString = str => {
+const splitString = (str) => {
   const arr = []
   const numRegEx = /([^0-9,.]+)?([0-9,.]+)?/y // (\D+)?(\d+)?/y
   let match
@@ -40,7 +39,7 @@ const splitString = str => {
   return arr
 }
 
-export default sizeString => {
+export default (sizeString) => {
   const split = splitString(sizeString.replace(/\s+/g, ''))
   const res = split[0] * SCALE[split[1]]
   return new Size(res)

@@ -1,18 +1,21 @@
-import {LOCAL, glob} from '../util/globals.js'
+import { LOCAL, glob } from '../util/globals.js'
 
-export default async ExecutionContext => {
-  let pwd = await ExecutionContext.sh(`pwd;`, undefined, undefined, true)
-  if (pwd.error) {
+/**
+ * @param { ExecutionContext } executionContext
+ * @returns { DirectoryPromise }
+ */
+export const pwd = async (executionContext) => {
+  let cmd = await executionContext.sh('pwd;', undefined, undefined, true)
+  if (cmd.error) {
     let msg
-    if (pwd.output.includes('Permission denied'))
-      msg = `${LOCAL.permissionDenied}: pwd`
-    else msg = `pwd: ${pwd.output}`
+    if (cmd.output.includes('Permission denied')) msg = `${LOCAL.permissionDenied}: pwd`
+    else msg = `pwd: ${cmd.output}`
     if (glob.logger) glob.logger.error(msg, 'pwd')
     throw new Error(msg)
   }
-  pwd = [].concat(pwd)
-  const paths = pwd.map(obj => obj.output)
+  cmd = [].concat(cmd)
+  const paths = cmd.map((obj) => obj.output)
   const unique = [...new Set(paths)]
   if (unique.length !== 1) throw new Error(`pwd: ${LOCAL.unexpectedError}`)
-  return ExecutionContext.getDirectoryFromPath(unique[0].slice(0, -1))
+  return executionContext.getDirectoryPromise(unique[0].slice(0, -1))
 }

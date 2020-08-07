@@ -4,11 +4,12 @@ export default class Logger {
   constructor(config) {
     this._config = config
     this._writeStreams = {}
-    Object.keys(config.file).forEach(key => {
-      if (config.file[key])
+    Object.keys(config.file).forEach((key) => {
+      if (config.file[key]) {
         this._writeStreams[key] = fs.createWriteStream(config.file[key], {
-          flags: 'w'
+          flags: 'w',
         })
+      }
     })
   }
 
@@ -29,14 +30,16 @@ export default class Logger {
   }
 
   log(level, message, source) {
-    if (this.config.console[level])
+    if (this.config.console[level]) {
       console.log(
-        `${new Date().toLocaleTimeString()}: ${level}: ${source}: ${message}\n`
+        `${new Date().toLocaleTimeString()}: ${level}: ${source}: ${message}\n`,
       )
-    if (this.writeStreams[level])
+    }
+    if (this.writeStreams[level]) {
       this.writeStreams[level].write(
-        `${new Date().toLocaleString()}: ${level}: ${source}: ${message}\n`
+        `${new Date().toLocaleString()}: ${level}: ${source}: ${message}\n`,
       )
+    }
   }
 
   error(message, source) {

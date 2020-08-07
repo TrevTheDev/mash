@@ -6,6 +6,8 @@
       <w>baselining</w>
       <w>chainable</w>
       <w>chgrp</w>
+      <w>clsname</w>
+      <w>clstype</w>
       <w>cmddivider</w>
       <w>cmin</w>
       <w>datefns</w>
@@ -15,6 +17,7 @@
       <w>gbit</w>
       <w>gibit</w>
       <w>gio</w>
+      <w>gio'ed</w>
       <w>giofailed</w>
       <w>groupids</w>
       <w>groupsn</w>
@@ -25,6 +28,7 @@
       <w>kbit</w>
       <w>kibit</w>
       <w>lsattr</w>
+      <w>lsattr'ed</w>
       <w>lsattrfailed</w>
       <w>maxdepth</w>
       <w>mbit</w>
@@ -32,17 +36,21 @@
       <w>mmin</w>
       <w>nogroup</w>
       <w>nouser</w>
+      <w>pathed</w>
       <w>pbit</w>
       <w>pibit</w>
       <w>printf</w>
       <w>readlinks</w>
+      <w>simlink</w>
       <w>sizefailed</w>
+      <w>stat'ed</w>
       <w>statfailed</w>
       <w>tbit</w>
       <w>tfsn</w>
       <w>tibit</w>
       <w>uname</w>
       <w>usec</w>
+      <w>xxxxxxxxxx</w>
     </words>
   </dictionary>
 </component>

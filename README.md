@@ -56,7 +56,7 @@ u('./path/to/fileName.txt').path.name // returns 'fileName'
 All the following are asynchronous and return a promise. They must be preceded by `await` excluded for brevity:
 
 ```javascript
-u('./path/to/dir').content // read directory content returns FSObjectArray
+u('./path/to/dir').content // read directory content returns FsObjectArray
 u('/path/to/dir').u('sub/dir') // returns FSObject '/path/to/dir/sub/dir'
 u('./path/to/fileordir').parent // returns containing Directory
 u('./path/to/fileordir').exists // confirms existence (returns boolean)
@@ -92,7 +92,7 @@ u('./path/to/source').group // returns group object
 u('./path/to/source').setGroup('users') // sets group to 'users'
 
 u('./path').cloneAttrs('./path/to/clone') // clones permissions, attributes,                                                           timestamps from fsObect to ./path
-u('./path/to/dir').size // directory size [size, file count etc.]
+u('./path/to/dir').size // directory size object [size, file count etc.]
 
 u('./path/to/file').read() // reads content of file
 u('./path/to/file').write(content) // writes content to file
@@ -129,8 +129,8 @@ console.log(`${cwd}`) // /path/to/current/working/directory
 // creates a newFile in `some/dir` with content 'ABC'
 const newFile = await u('some/dir').addFile('newFile.txt', 'ABC')
 
-await newFile.stat() // stat, gio, lsattr newFile
-console.log(`${newFile.user}`) // someuser
+const statFile = await newFile.stat() // stat, gio, lsattr newFile
+console.log(`${statFile.user}`) // someuser
 
 const content = await newFile.read() // returns 'ABC'
 
@@ -201,8 +201,8 @@ Calling u or sh will create a new Server instance using default [config](#config
 ### server.u(paths, shell)
 
 - `paths` \<array of strings\> | \<array of paths\> | \<string\> | \<path\> the path(s) to return
-- `shell` \<shellharness\> optional shell for all child commands
-- returns \<fsObject\> | \<fSObjArray\>
+- `shell` \<shellHarness\> optional shell for all child commands
+- returns \<fsObject\> | \<fsObjArray\>
 
 ### server.sh(command, doneCBPayload, doneCallback, sendToEveryShell)
 
@@ -244,22 +244,22 @@ shortcut to `server.shell.createCommand()`
 `const fsObject = u( paths, shell)` | `server.u( paths, shell)`
 
 - `paths` \<array of strings\> | \<paths\> | \<string\> | \<path\> the path(s) to return
-- `shell` \<shellharness\> optional default shell for all child commands
-- returns \<fsObject\>| \<fSObjArray\>
+- `shell` \<shellHarness\> optional default shell for all child commands
+- returns \<fsObject\>| \<fsObjArray\>
 
 ### fsObject.stat(gio, lsattr, size)
 
-Queries fsObject's properties using `stat`, `gio`, `lsattr` and `find`
+Returns a  `Directory`|`File`|`BlockDevice`|`CharacterDevice`|`LocalSocket`|`NamedPipe`|`Symlink` populated with the output of`stat`, `gio`, `lsattr` and `find`
 
 - `gio` \<boolean\> include `gio` results. Default is `true`
 - `lsattr` \<boolean\> include `lsattr` results. Default is `true`
 - `size` \<boolean\> include comprehensive size results for directories. Default is `false`
 
-After `await fsObject.stat()` the `fsObject` transitions to a `loaded` [state](#fsObject.state) and the following properties may be populated:
+`Directory`|`File`|`BlockDevice`|`CharacterDevice`|`LocalSocket`|`NamedPipe`|`Symlink` will have the following properties populated:
 
 - `permissions` \<object\>
   - `accessRights` \<string\> octal string of permissions
-  - `octal` \<sting\>octal string of permissions
+  - `octal` \<sting\> octal string of permissions
   - `symbol` \<string\> sting of permissions
   - `boolArray` \<array\> boolean array of permissions
   - `user` \<user\>
@@ -317,7 +317,6 @@ After `await fsObject.stat()` the `fsObject` transitions to a `loaded` [state](#
 - `loadedLsattr` \<boolean\> true if `fsObject` `lsattr`'ed
 - `loadedContent` \<boolean\> true if Directory content loaded
 - `loadedSize` \<boolean\> true if Directory size queried
-- `createAutomationFunctions` \<boolean\>
 - `lsattr` booleans
   - `appendOnly`
   - `compressed`
@@ -398,6 +397,8 @@ copyCmd.on('progressUpdate', progressTracker => {
   console.log(`percentageCompleted: ${progressTracker.percentageCompleted}`)
   console.log(`rateOfCompletion: ${progressTracker.rateOfCompletion}`)
   console.log(`ETC: ${progressTracker.ETC}`)
+    
+  progressTracker.cancel() // cancels copyTo
 })
 await copyCmd
 ```
@@ -413,9 +414,9 @@ Uses `mv` to rename files or directories
 - `newName` \<path\> | \<string\> new name
 - returns \<promise→fsObject\> renamed file or directory
 
-### fsObject.cloneAttrs(sourceFSObject)
+### fsObject.cloneAttrs(sourceFsObject)
 
-- `sourceFSObject` \<fsObject\> source file system object whose attributes should be copied
+- `sourceFsObject` \<fsObject\> source file system object whose attributes should be copied
 - returns \<fsObject\> matches owner (`chown`), permissions (`chmod`), attributes (`chattr`) and timestamps (`touch`)
 
 ### fsObject.addDirectory(nameArr, ignoreAnyExistingDirectories)
@@ -469,7 +470,7 @@ deletes `fsObject` from file system using `rm`
 - `recursive` \<boolean\> delete recursively if directory. Default: `false`
 - `limitToThisDirsFileSystem` \<boolean\> when removing a hierarchy recursively, skip any directory that is on a file system different from that of the corresponding `destination` argument . Default: `false`
 - `onlyIfExists` \<boolean\> only deletes the file system object if it already exists, else returns false. Default: `false`
-- returns \<promise→object\> { deleted: true}
+- returns \<promise→boolean\> true
 
 ### fsObject.trash()
 
@@ -487,19 +488,19 @@ sets `fsObject` file system permissions using `chmod`
 
 ### fsObject.content
 
-returns a \<fSObjectArray\> populated with a directories contents if it is already loaded, otherwise returns a promise that loads it first
+returns a \<fsObjectArray\> populated with a directories contents if it is already loaded, otherwise returns a promise that loads it first
 
 - returns \<promise | fsObjectArray\> directory's contents | \<Promise\> resolves to directory's contents
 
 ### fsObject.dir(gio, lsattr, size, recursively)
 
-returns a \<fSObjectArray\> populated with a directories contents if it is already loaded, otherwise returns a promise that loads it first
+returns a \<fsObjectArray\> populated with a directories contents if it is already loaded, otherwise returns a promise that loads it first
 
 - `gio` \<boolean\> gio each item in directory's contents. Default: `true`
 - `lsattr` \<boolean\> lsattr each item in directory's contents. Default: `true`
 - `size` \<boolean\> query each directory's size. Default: `false`
 - `applyRecursively` \<boolean\> recursively populate all child directories. Default: `false`
-- returns \<promise→fSObjectArray\> resolves to directory's contents
+- returns \<promise→fsObjectArray\> resolves to directory's contents
 
 ### fsObject.setUser(user, group, applyRecursively)
 
@@ -588,15 +589,6 @@ Writes `chunk` from `startPosition` and returns \<boolean\> if successful. Note 
 - path \<path\> | \<string\> relative child path
 - returns \<fsObject\> if `fsObject` path is `/home` `fsObject.u('user/path')` will reference `/home/user/path`
 
-### fsObject.state
-
-- returns \<string\> state of `fsObject`:
-  - `init` - state when object first created
-  - `loadable` - state after path has been confirmed by `realpath`
-  - `loading` - state during `stat()`
-  - `loaded` - state after `stat()`
-  - `outdated` - state after some action which may have invalidated `stat()` results
-
 ### fsObject.executionContext
 
 - returns \<executionContext\> `executionContext` used by `fsObject`
@@ -627,19 +619,19 @@ provides access to the fsObject's referenced shell instance.
 
 - returns \<JSON\> path string if not loaded, otherwise JSON of all properties
 
-### fsObject.toJSON(pathOnly, expandContent)
-
-Only applicable if `fsObject` state is `loaded`
-
-- `pathOnly` \<boolean\> if true returns only the path string. Default: false
-- `expandContent` \<boolean\> if true includes a directories contents in the returned JSON. It doesn't `stat` the content, only includes it if it has previously been `stat`'ed. It recursively includes sub directories. Default: true
-- returns \<object\> json of fsObject
-
 ## Directory
 
 extents `FsObject`
 
 excludes: `linkTo`, `linkTarget`, `linkEndTarget`,`read`, `write`, `append`, `readChunk`, `writeChunk`, `writeStream`
+
+modifies
+
+### Directory.toJSON(pathOnly, expandContent)
+
+- `pathOnly` \<boolean\> if true returns only the path string. Default: false
+- `expandContent` \<boolean\> if true includes a directories contents in the returned JSON. It doesn't `stat` the content, only includes it if it has previously been `stat`'ed. It recursively includes sub directories. Default: true
+- returns \<object\> json of Directory
 
 ## File
 
@@ -671,13 +663,13 @@ modifies:
 - `setUser(user, group)`
 - `setGroup(group)`
 
-## FSObjectArray
+## FsObjectArray
 
-### fSObjectArray.directories
+### fsObjectArray.directories
 
 - returns \<array\> all the directories in the array
 
-### fSObjectArray.files
+### fsObjectArray.files
 
 - returns \<array\> all the files in the array
 
@@ -685,21 +677,21 @@ modifies:
 
 - `requestedPath`
   - returns \<path\> path originally requested
-- `canonizedPath`
+- `canonisedPath`
   - returns \<path\> path returned via `realpath`
+- `canonised`
+  - returns \<boolean\> if path has been canonised via the shell
 - `statPath`
   - returns \<path\> path returned after `await fsObject.stat()`
 - `symlinkTargetPath`
-  - returns \<path\> symlink target if symlink via `realpath`
+  - returns \<path\> symlink target if symlink via `readlink`
 - `path`
-  - returns \<path\> `statPath` || `canonizedPath` || `requestedPath`
-- `canonize`(checkExistence)
-  - `checkExistence` \<boolean\> confirm file exists on disk. Default: `false`
-  - returns `<promise→path>` path canonize'ed by `realpath`
+  - returns \<path\> `statPath` || `canonisedPath` || `requestedPath`
+- `canoniseRequestPath`()
+  - returns `<promise→path>` path canonise'ed by `realpath`
 - `getSymlinkTargetPath()`
   - returns \<promise→path\> symlink target path
-- `exists`(force)
-  - `force` \<boolean\> force recheck if file exists. Default: `true`
+- `exists`()
   - returns \<promise→boolean\> path exists on disk
 
 ## Path
@@ -926,7 +918,7 @@ const cb = (cmd, cbData) => {
   return true
 }
 console.log(await sh('printf HELLO ;', 'HIT', cb)) // true
-Server.instance.close() // clean up
+await Server.instance.close() // clean up
 ```
 
 or
@@ -939,7 +931,7 @@ const callBackServer = new Server({
 })
 // now all commands will use doneCallback - note only one server can run at a time
 console.log(await sh('printf HELLO ;', 'HIT')) // true
-Server.instance.close()
+await Server.instance.close()
 ```
 
 ##### Receive data via IPC

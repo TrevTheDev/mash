@@ -1,18 +1,17 @@
 /* eslint-disable no-param-reassign */
-import {LOCAL, glob} from '../util/globals.js'
+import { LOCAL, glob } from '../util/globals.js'
 /**
  * @param {Users} users
  * @param {String} uidOrName - default = ''
  * @returns
  */
-const id = async (users, uidOrName = '') => {
+export const id = async (users, uidOrName = '') => {
   const idSh = await users.executionContext.shell.createCommand(
-    `user_info ${uidOrName};`
+    `user_info ${uidOrName};`,
   )
   if (idSh.error) {
     let msg
-    if (idSh.output.includes('no such user'))
-      msg = `${LOCAL.noSuchUser}: id: ${uidOrName}`
+    if (idSh.output.includes('no such user')) msg = `${LOCAL.noSuchUser}: id: ${uidOrName}`
     else msg = `id: ${idSh.output}`
     if (glob.logger) glob.logger.error(msg, 'id')
     throw new Error(msg)
@@ -29,10 +28,8 @@ const id = async (users, uidOrName = '') => {
     user._addGroup(
       parseInt(groupIds[i], 10),
       groupNames[i],
-      effectiveGroupId === parseInt(groupIds[i], 10)
+      effectiveGroupId === parseInt(groupIds[i], 10),
     )
   }
   return user
 }
-
-export default id

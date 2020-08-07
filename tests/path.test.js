@@ -2,11 +2,11 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import {Path} from '../src/locations/path.js'
+import { Path } from '../src/locations/path.js'
 
 chai.use(chaiAsPromised)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('path', () => {
   it('encodes a posix url correctly', () => {
