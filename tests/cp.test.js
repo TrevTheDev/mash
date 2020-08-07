@@ -4,14 +4,14 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {sh, ShellHarness, u} from '../src/server.js'
-import {CP_TYPE} from '../src/util/globals.js'
+import Server, { sh, ShellHarness, u } from '../src/server.js'
+import { CP_TYPE } from '../src/util/globals.js'
 import Rate from '../src/formatters/rate.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('copy, move, rename and trash', () => {
   let server
@@ -33,13 +33,11 @@ describe('copy, move, rename and trash', () => {
       await u(`${tstDir}/cpL2`).delete(true, undefined, true)
 
       await tstDir.addDirectory(['cpL1', 'cpL2', 'L3'], true)
-      const L2 = u(`${tstDir}/cpL1/cpL2`)
+      let L2 = u(`${tstDir}/cpL1/cpL2`)
       const L2C = await expect(L2.copyTo(tstDir)).to.be.fulfilled
-      await L2.stat()
+      L2 = await L2.stat()
       expect(`${L2}`).to.equal(`${tstDir}/cpL1/cpL2`)
-      expect(L2.state).to.equal(`loaded`)
       expect(`${L2C}`).to.equal(`${tstDir}/cpL2`)
-      expect(L2C.state).to.equal(`loadable`)
       expect(await L2C.exists).to.be.true
       expect(await u(`${tstDir}/cpL1/cpL2/L3`).exists).to.be.true
       expect(await u(`${tstDir}/cpL2/L3`).exists).to.be.true
@@ -56,21 +54,17 @@ describe('copy, move, rename and trash', () => {
       const Dest = u(`${tstDir}/ocpL2`)
 
       await expect(L2.copyTo(tstDir)).rejectedWith(
-        `copyTo: path already exists: ${Dest}`
+        `copyTo: path already exists: ${Dest}`,
       )
-      expect(L2.state).to.equal(`loaded`)
 
       await expect(L2.copyTo(tstDir, 'dummy')).to.be.rejectedWith(
-        'copyTo: invalid argument: copyType'
+        'copyTo: invalid argument: copyType',
       )
-      expect(L2.state).to.equal(`loaded`)
 
       await expect(
-        L2.copyTo(tstDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('cancel')
-        )
-      ).to.be.rejectedWith(`cancelled by user`)
-      expect(L2.state).to.equal(`loaded`)
+        L2.copyTo(tstDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('cancel')),
+      ).to.be.rejectedWith('cancelled by user')
+
       let DestL3 = u(`${Dest}/L3`)
       expect(await DestL3.exists).to.be.false
 
@@ -82,9 +76,7 @@ describe('copy, move, rename and trash', () => {
       await DestL3.delete(true)
 
       res = await expect(
-        L2.copyTo(tstDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('yes')
-        )
+        L2.copyTo(tstDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('yes')),
       ).to.be.fulfilled
       expect(`${res}`).to.equal(`${Dest}`)
       DestL3 = await u(`${Dest}/L3`)
@@ -113,26 +105,20 @@ describe('copy, move, rename and trash', () => {
       await u(`${tstDir}/cpyLargeFile.iso`).delete(true, undefined, true)
 
       const cpyLF = await tstDir.addDirectory('cpyLF')
-      await sh(
-        `dd if=/dev/zero of=${tstDir}/cpyLargeFile.iso count=1024 bs=1048576;`
-      )
+      await sh(`dd if=/dev/zero of=${tstDir}/cpyLargeFile.iso count=1024 bs=1048576;`)
       const largeFile = u(`${tstDir}/cpyLargeFile.iso`)
       const copyCmd = largeFile.copyTo(cpyLF)
-      copyCmd.on('progressUpdate', progressTracker => {
+      copyCmd.on('progressUpdate', (progressTracker) => {
         console.log(`targetBytes: ${progressTracker.targetBytes}`)
         console.log(`bytesCompleted: ${progressTracker.bytesCompleted}`)
         console.log(`bytesRemaining: ${progressTracker.bytesRemaining}`)
         console.log(`progressFileCount: ${progressTracker.progressFileCount}`)
-        console.log(
-          `progressDirectoryCount: ${progressTracker.progressDirectoryCount}`
-        )
-        console.log(
-          `percentageCompleted: ${progressTracker.percentageCompleted}`
-        )
+        console.log(`progressDirectoryCount: ${progressTracker.progressDirectoryCount}`)
+        console.log(`percentageCompleted: ${progressTracker.percentageCompleted}`)
         console.log(
           `deltaRateOfCompletion: ${new Rate(
-            progressTracker.deltaRateOfCompletion
-          )}`
+            progressTracker.deltaRateOfCompletion,
+          )}`,
         )
         console.log(`rateOfCompletion: ${progressTracker.rateOfCompletion}`)
         console.log(`deltaETC: ${progressTracker.deltaETC}`)
@@ -153,7 +139,7 @@ describe('copy, move, rename and trash', () => {
       const file2 = u(`${orDir}/orTestFile.txt`)
       await file2.write('345')
       await expect(file1.copyTo(orDir)).to.be.rejectedWith(
-        `copyTo: path already exists: ${file2}`
+        `copyTo: path already exists: ${file2}`,
       )
       expect(await file1.read()).to.equal('123')
       expect(await file2.read()).to.equal('345')
@@ -164,51 +150,41 @@ describe('copy, move, rename and trash', () => {
       await file2.write('345', true)
 
       await expect(
-        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, copyManager => {
-          expect(`${copyManager.currentSourcePath}`).to.equal(`${file1}`)
-          expect(`${copyManager.currentDestinationDirectoryPath}`).to.equal(
-            `${orDir}`
+        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, (copyManager) => {
+          expect(`${copyManager.progressReport.currentSourcePath}`).to.equal(`${file1}`)
+          expect(`${copyManager.progressReport.currentDestinationDirectoryPath}`).to.equal(
+            `${orDir}`,
           )
-          return new Promise(resolve => {
-            setTimeout(() => {
-              resolve('no')
-            }, 20)
+          return new Promise((resolve) => {
+            setTimeout(() => resolve('no'), 20)
           })
-        })
+        }),
       ).to.be.fulfilled
 
       expect(await file2.read()).to.equal('345')
 
       await expect(
-        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('none')
-        )
+        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('none')),
       ).to.be.fulfilled
 
       expect(await file2.read()).to.equal('345')
 
       await expect(
-        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('yes')
-        )
+        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('yes')),
       ).to.be.fulfilled
 
       expect(await file2.read()).to.equal('123')
       await file2.write('345', true)
 
       await expect(
-        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('all')
-        )
+        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('all')),
       ).to.be.fulfilled
 
       expect(await file2.read()).to.equal('123')
       await file2.write('345', true)
 
       await expect(
-        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('cancel')
-        )
+        file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('cancel')),
       ).to.be.rejectedWith('cancelled by user')
 
       expect(await file2.read()).to.equal('345')
@@ -223,27 +199,28 @@ describe('copy, move, rename and trash', () => {
       expect(await file2.read()).to.equal('678')
     })
 
-    it.skip('copies a node folder', async () => {
+    it('copies a node folder', async () => {
+      await u(`${tstDir}/node_modules`).delete(true, true, true)
       const nm = await cwd.u('node_modules')
       const copyCmd = nm.copyTo(tstDir)
-      copyCmd.on('progressUpdate', progressTracker => {
+      copyCmd.on('progressUpdate', (progressTracker) => {
         console.log(
-          `targetBytes: ${progressTracker.targetBytes} bytesCompleted: ${progressTracker.bytesCompleted} bytesRemaining: ${progressTracker.bytesRemaining}`
+          `targetBytes: ${progressTracker.targetBytes} bytesCompleted: ${progressTracker.bytesCompleted} bytesRemaining: ${progressTracker.bytesRemaining}`,
         )
         console.log(
-          `targetDirectoryCount: ${progressTracker.targetDirectoryCount} progressDirectoryCount: ${progressTracker.progressDirectoryCount}`
+          `targetDirectoryCount: ${progressTracker.targetDirectoryCount} progressDirectoryCount: ${progressTracker.progressDirectoryCount}`,
         )
         console.log(
-          `targetFileCount: ${progressTracker.targetFileCount} progressFileCount: ${progressTracker.progressFileCount}`
+          `targetFileCount: ${progressTracker.targetFileCount} progressFileCount: ${progressTracker.progressFileCount}`,
         )
         console.log(
-          `percentageCompleted: ${progressTracker.percentageCompleted}`
+          `percentageCompleted: ${progressTracker.percentageCompleted}`,
         )
         console.log(
-          `deltaRateOfCompletion: ${progressTracker.deltaRateOfCompletion} rateOfCompletion: ${progressTracker.rateOfCompletion}`
+          `deltaRateOfCompletion: ${progressTracker.deltaRateOfCompletion} rateOfCompletion: ${progressTracker.rateOfCompletion}`,
         )
         console.log(
-          `deltaETC: ${progressTracker.deltaETC} ETC: ${progressTracker.ETC}`
+          `deltaETC: ${progressTracker.deltaETC} ETC: ${progressTracker.ETC}`,
         )
         console.log(`source: ${progressTracker.currentSourcePath}`)
       })
@@ -259,7 +236,7 @@ describe('copy, move, rename and trash', () => {
       await tstDir.addDirectory(['mergeL2', ['B1', 'B2'], ['B3']])
 
       await expect(
-        u(`${tstDir}/mergeL1/mergeL2`).copyTo(tstDir, CP_TYPE.overwrite)
+        u(`${tstDir}/mergeL1/mergeL2`).copyTo(tstDir, CP_TYPE.overwrite),
       ).to.be.fulfilled
 
       await expect(u(`${tstDir}/mergeL1/mergeL2/A1`).stat()).to.be.fulfilled
@@ -276,9 +253,9 @@ describe('copy, move, rename and trash', () => {
       await tstDir.addDirectory(['moveL1', 'moveL2', 'L3'], true)
       const L2 = u(`${tstDir}/moveL1/moveL2`)
       const L2C = await expect(L2.moveTo(tstDir)).to.be.fulfilled
-      expect(L2.deleted).to.be.true
+      expect(await L2.exists).to.be.false
       expect(`${L2C}`).to.equal(`${tstDir}/moveL2`)
-      expect(L2C.state).to.equal(`loadable`)
+      expect(await L2C.exists).to.be.true
       await expect(L2C.stat(false, false)).to.be.fulfilled
       expect(await u(`${tstDir}/moveL1/moveL2/L3`).exists).to.be.false
       expect(await u(`${tstDir}/moveL2/L3`).exists).to.be.true
@@ -296,21 +273,19 @@ describe('copy, move, rename and trash', () => {
       const Dest = u(`${tstDir}/move2L2`)
 
       await expect(L2.moveTo(tstDir)).rejectedWith(
-        `moveTo: path already exists: ${Dest}`
+        `moveTo: path already exists: ${Dest}`,
       )
-      expect(L2.state).to.equal(`loaded`)
+      expect(await L2.exists).to.be.true
 
       await expect(L2.moveTo(tstDir, 'dummy')).to.be.rejectedWith(
-        'moveTo: invalid argument: copyType'
+        'moveTo: invalid argument: copyType',
       )
-      expect(L2.state).to.equal(`loaded`)
+      expect(await L2.exists).to.be.true
 
       await expect(
-        L2.moveTo(tstDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('cancel')
-        )
-      ).to.be.rejectedWith(`cancelled by user`)
-      expect(L2.state).to.equal(`loaded`)
+        L2.moveTo(tstDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('cancel')),
+      ).to.be.rejectedWith('cancelled by user')
+      expect(await L2.exists).to.be.true
 
       const DestL3 = u(`${Dest}/L3`)
       expect(await DestL3.exists).to.be.false
@@ -327,9 +302,7 @@ describe('copy, move, rename and trash', () => {
       await L1.addDirectory(['move2L2', 'L3', 'L4'], true)
 
       res = await expect(
-        L2.moveTo(tstDir, CP_TYPE.askBeforeOverwrite, () =>
-          Promise.resolve('yes')
-        )
+        L2.moveTo(tstDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('yes')),
       ).to.be.fulfilled
       expect(`${res}`).to.equal(`${Dest}`)
       expect(await u(`${Dest}/L3`).exists).to.be.true
@@ -346,7 +319,7 @@ describe('copy, move, rename and trash', () => {
       const nFile = await expect(file.moveTo(L1)).to.be.fulfilled
       expect(`${nFile}`).to.equal(`${tstDir}/moveDirC/moveAFileC`)
       expect(await nFile.exists).to.be.true
-      expect(file.deleted).to.be.true
+      expect(await file.exists).to.be.false
       expect(await u(`${tstDir}/moveAFileC`).exists).to.be.false
     })
 
@@ -356,23 +329,23 @@ describe('copy, move, rename and trash', () => {
 
       const L1 = await tstDir.addDirectory('moveDirD')
       await sh(
-        `dd if=/dev/zero of=${tstDir}/moveAFileD.iso count=1024 bs=5048576;`
+        `dd if=/dev/zero of=${tstDir}/moveAFileD.iso count=1024 bs=5048576;`,
       )
       const largeFile = u(`${tstDir}/moveAFileD.iso`)
       const copyCmd = largeFile.moveTo(L1)
-      copyCmd.on('progressUpdate', progressTracker => {
+      copyCmd.on('progressUpdate', (progressTracker) => {
         console.log(`targetBytes: ${progressTracker.targetBytes}`)
         console.log(`bytesCompleted: ${progressTracker.bytesCompleted}`)
         console.log(`bytesRemaining: ${progressTracker.bytesRemaining}`)
         console.log(`progressFileCount: ${progressTracker.progressFileCount}`)
         console.log(
-          `progressDirectoryCount: ${progressTracker.progressDirectoryCount}`
+          `progressDirectoryCount: ${progressTracker.progressDirectoryCount}`,
         )
         console.log(
-          `percentageCompleted: ${progressTracker.percentageCompleted}`
+          `percentageCompleted: ${progressTracker.percentageCompleted}`,
         )
         console.log(
-          `deltaRateOfCompletion: ${progressTracker.deltaRateOfCompletion}`
+          `deltaRateOfCompletion: ${progressTracker.deltaRateOfCompletion}`,
         )
         console.log(`rateOfCompletion: ${progressTracker.rateOfCompletion}`)
         console.log(`deltaETC: ${progressTracker.deltaETC}`)
@@ -381,8 +354,7 @@ describe('copy, move, rename and trash', () => {
       const nLargeFile = await expect(copyCmd).to.be.fulfilled
       expect(`${nLargeFile}`).to.equal(`${L1}/moveAFileD.iso`)
       expect(await nLargeFile.exists).to.be.true
-
-      expect(largeFile.deleted).to.be.true
+      expect(await largeFile.exists).to.be.false
       expect(await u(`${tstDir}/moveAFileD.iso`).exists).to.be.false
     })
     it('it can merge move two directories', async () => {
@@ -393,7 +365,7 @@ describe('copy, move, rename and trash', () => {
       await tstDir.addDirectory(['mergeMove2', ['B1', 'B2'], ['B3']])
 
       await expect(
-        u(`${tstDir}/mergeMove1/mergeMove2`).moveTo(tstDir, CP_TYPE.overwrite)
+        u(`${tstDir}/mergeMove1/mergeMove2`).moveTo(tstDir, CP_TYPE.overwrite),
       ).to.be.fulfilled
 
       expect(await u(`${tstDir}/mergeMove1/mergeMove2/A1`).exists).to.be.false
@@ -429,7 +401,7 @@ describe('copy, move, rename and trash', () => {
 
       const file = await tstDir.addFile('validFile.txt')
       await expect(file.rename('x/x')).to.be.rejectedWith(
-        `rename: invalid name or path: 'validFile.txt' to 'x/x'`
+        'rename: invalid name or path: \'validFile.txt\' to \'x/x\'',
       )
     })
     it('fails on overwrite existing file or folder', async () => {
@@ -443,16 +415,16 @@ describe('copy, move, rename and trash', () => {
       await tstDir.addFile('fileToRenameD.txt')
       await tstDir.addDirectory('renameFolderD')
       await expect(file.rename('renameFolderD')).to.be.rejectedWith(
-        `rename failed - name may already be in use: 'fileToRenameC.txt' to 'renameFolderD'`
+        'rename failed - name may already be in use: \'fileToRenameC.txt\' to \'renameFolderD\'',
       )
       await expect(file.rename('fileToRenameD.txt')).to.be.rejectedWith(
-        `rename failed - name may already be in use: 'fileToRenameC.txt' to 'fileToRenameD.txt'`
+        'rename failed - name may already be in use: \'fileToRenameC.txt\' to \'fileToRenameD.txt\'',
       )
       await expect(folder.rename('fileToRenameD.txt')).to.be.rejectedWith(
-        `rename failed - name may already be in use: 'renameFolderC' to 'fileToRenameD.txt'`
+        'rename failed - name may already be in use: \'renameFolderC\' to \'fileToRenameD.txt\'',
       )
       await expect(folder.rename('renameFolderD')).to.be.rejectedWith(
-        `rename failed - name may already be in use: 'renameFolderC' to 'renameFolderD'`
+        'rename failed - name may already be in use: \'renameFolderC\' to \'renameFolderD\'',
       )
       expect(await file.exists).to.be.true
       expect(await folder.exists).to.be.true
@@ -460,23 +432,23 @@ describe('copy, move, rename and trash', () => {
     it('fails gracefully when mv fails', async () => {
       const rootShell = new ShellHarness({
         user: 'root',
-        rootPassword: process.env.RPASSWORD
+        rootPassword: process.env.RPASSWORD,
       })
 
       await u(`${tstDir}/fileToRenameX.txt`).delete(true, undefined, true)
       await u(`${tstDir}/rootOwnedFile.txt`, rootShell).delete(
         true,
         undefined,
-        true
+        true,
       )
 
       const file = await tstDir.addFile('fileToRenameX.txt')
 
       const rootOwnedFile = await u(`${tstDir}`, rootShell).addFile(
-        'rootOwnedFile.txt'
+        'rootOwnedFile.txt',
       )
       await expect(file.rename('rootOwnedFile.txt')).to.be.rejectedWith(
-        `rename failed - name may already be in use: 'fileToRenameX.txt' to 'rootOwnedFile.txt'`
+        'rename failed - name may already be in use: \'fileToRenameX.txt\' to \'rootOwnedFile.txt\'',
       )
       await rootOwnedFile.delete()
       rootShell.close()
@@ -491,16 +463,16 @@ describe('copy, move, rename and trash', () => {
     it('fails to trash an item if permissions insufficient', async () => {
       const rootShell = new ShellHarness({
         user: 'root',
-        rootPassword: process.env.RPASSWORD
+        rootPassword: process.env.RPASSWORD,
       })
       await u(`${tstDir}/rootFolder to trash`, rootShell).delete(
         true,
         undefined,
-        true
+        true,
       )
 
       const toTrashRoot = await u(`${tstDir}`, rootShell).addDirectory(
-        'rootFolder to trash'
+        'rootFolder to trash',
       )
       await expect(u(`${tstDir}/rootFolder to trash`).trash()).to.be.rejected
 
@@ -513,6 +485,7 @@ describe('copy, move, rename and trash', () => {
 
       const toTrash = await tstDir.addDirectory('ToTrash')
       await toTrash.trash()
+      expect(await toTrash.exists).to.be.false
       await expect(server.emptyTrash()).to.be.fulfilled
     })
   })

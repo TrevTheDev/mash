@@ -99,4 +99,6 @@ export const DEFAULT_CONFIG = {
   },
 }
 
-export const glob = {}
+export const glob = {
+  fsObjectsByType: undefined,
+}

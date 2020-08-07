@@ -1,9 +1,7 @@
 // import deasync from 'deasync'
 
 // eslint-disable-next-line import/prefer-default-export
-export const isNumber = value =>
-  // eslint-disable-next-line no-self-compare
-  typeof value === 'number' && value === value && Number.isFinite(value)
+export const isNumber = (value) => typeof value === 'number' && Number.isFinite(value)
 
 // export class ChainablePromise extends SimplePromise {
 //   constructor(executor) {

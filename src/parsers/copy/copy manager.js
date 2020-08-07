@@ -1,4 +1,4 @@
-import {CP_TYPE, LOCAL} from '../../util/globals.js'
+import { CP_TYPE, LOCAL } from '../../util/globals.js'
 // import Size from '../../formatters/size.js'
 import ProgressTracker from './progress tracker.js'
 // import Percentage from '../../formatters/percentage.js'
@@ -7,19 +7,24 @@ import copy from './copy.js'
 
 let outstandingPromptCounter = 0
 
-export default class CopyManager {
+export class CopyManager {
+  /**
+   * @param {FsObjectCommon} sourceFSObj
+   * @param {Directory} destinationDirectory
+   * @param {CP_TYPE} copyType
+   * @param {boolean} confirmOverwriteCallBack
+   * @param {boolean} move
+   * @returns {ProgressTracker}
+   */
   constructor(
     sourceFSObj,
     destinationDirectory,
     copyType = CP_TYPE.doNotOverwrite,
     confirmOverwriteCallBack,
-    move = false
+    move = false,
   ) {
     this.sourceFSObj = sourceFSObj
-
-    this.destinationDirectory = sourceFSObj.executionContext.getDirectoryFromPath(
-      `${destinationDirectory}`
-    )
+    this.destinationDirectory = sourceFSObj.executionContext.getFsObject(`${destinationDirectory}`)
     this.copyType = copyType
     this.confirmOverwriteCallBack = confirmOverwriteCallBack
     this.move = move
@@ -41,12 +46,8 @@ export default class CopyManager {
       this.success = resolve
       this.fail = cancel
       copy(this)
-        .then((results) => {
-          resolve(results)
-        })
-        .catch((error) => {
-          cancel(error)
-        })
+        .then((results) => resolve(results))
+        .catch((error) => cancel(error))
     })
 
     this.overwriteAll = undefined
@@ -58,23 +59,23 @@ export default class CopyManager {
     this.cancelled = true
   }
   /*
-                                                                    888     888               888          888            
-                                                                    888     888               888          888            
-                                                                    888     888               888          888            
-88888b.  888d888 .d88b.   .d88b.  888d888 .d88b.  .d8888b  .d8888b  888     888 88888b.   .d88888  8888b.  888888 .d88b.  
-888 "88b 888P"  d88""88b d88P"88b 888P"  d8P  Y8b 88K      88K      888     888 888 "88b d88" 888     "88b 888   d8P  Y8b 
-888  888 888    888  888 888  888 888    88888888 "Y8888b. "Y8888b. 888     888 888  888 888  888 .d888888 888   88888888 
-888 d88P 888    Y88..88P Y88b 888 888    Y8b.          X88      X88 Y88b. .d88P 888 d88P Y88b 888 888  888 Y88b. Y8b.     
-88888P"  888     "Y88P"   "Y88888 888     "Y8888   88888P'  88888P'  "Y88888P"  88888P"   "Y88888 "Y888888  "Y888 "Y8888  
-888                           888                                               888                                       
-888                      Y8b d88P                                               888                                       
-888                       "Y88P"                                                888                                       
+                                                                    888     888               888          888
+                                                                    888     888               888          888
+                                                                    888     888               888          888
+88888b.  888d888 .d88b.   .d88b.  888d888 .d88b.  .d8888b  .d8888b  888     888 88888b.   .d88888  8888b.  888888 .d88b.
+888 "88b 888P"  d88""88b d88P"88b 888P"  d8P  Y8b 88K      88K      888     888 888 "88b d88" 888     "88b 888   d8P  Y8b
+888  888 888    888  888 888  888 888    88888888 "Y8888b. "Y8888b. 888     888 888  888 888  888 .d888888 888   88888888
+888 d88P 888    Y88..88P Y88b 888 888    Y8b.          X88      X88 Y88b. .d88P 888 d88P Y88b 888 888  888 Y88b. Y8b.
+88888P"  888     "Y88P"   "Y88888 888     "Y8888   88888P'  88888P'  "Y88888P"  88888P"   "Y88888 "Y888888  "Y888 "Y8888
+888                           888                                               888
+888                      Y8b d88P                                               888
+888                       "Y88P"                                                888
 */
 
   startBaselining() {
     this._baselineInterval = setInterval(
       () => this.setBaseline(),
-      this.baselineInterval
+      this.baselineInterval,
     )
   }
 
@@ -106,7 +107,7 @@ export default class CopyManager {
     baseline = '_next',
     targetBytes = this.baseline.targetBytes,
     targetFileCount = this.baseline.targetFileCount,
-    targetDirectoryCount = this.baseline.targetDirectoryCount
+    targetDirectoryCount = this.baseline.targetDirectoryCount,
   ) {
     this[baseline] = {
       targetBytes,
@@ -168,7 +169,7 @@ export default class CopyManager {
     }
 
     throw new Error(
-      "unknown overwrite return value, valid is 'yes', 'no', 'all','none' and 'cancel'"
+      "unknown overwrite return value, valid is 'yes', 'no', 'all','none' and 'cancel'",
     )
   }
 }

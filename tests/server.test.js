@@ -5,13 +5,13 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import chaiArrays from 'chai-arrays'
-import Server, {u, sh, ShellHarness} from '../src/server.js'
-import {FILE_TYPE_ENUMS} from '../src/util/globals.js'
+import Server, { u, sh, ShellHarness } from '../src/server.js'
+import { FILE_TYPE_ENUMS } from '../src/util/globals.js'
 
 chai.use(chaiAsPromised)
 chai.use(chaiArrays)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('posix fs object', () => {
   let server
@@ -28,26 +28,24 @@ describe('posix fs object', () => {
     })
     it('returns cwd if no arguments are supplied', async () => {
       const cwd = u()
-      expect(cwd.state).to.equal('init')
       expect(cwd.constructor.name).to.equal('FsObject')
       expect(`${cwd}`).to.equal(process.cwd())
-      await expect(cwd.stat()).to.be.fulfilled
-      expect(`${cwd}`).to.equal(process.cwd())
-      expect(cwd.constructor.name).to.equal('Directory')
-      expect(cwd.state).to.equal('loaded')
+      const ndir = await expect(cwd.stat()).to.be.fulfilled
+      expect(`${ndir}`).to.equal(process.cwd())
+      expect(ndir.constructor.name).to.equal('Directory')
     })
     it('promise rejects if path does not exist', async () => {
       const dne = u('/does/not/exist')
       await expect(dne.stat()).to.be.rejectedWith(
-        'path not found: /does/not/exist'
+        'path not found: /does/not/exist',
       )
       await expect(dne.content).to.be.rejectedWith(
-        'stat: directory not found: /does/not/exist'
+        'stat: directory not found: /does/not/exist',
       )
     })
     it('supports base64 encoded file urls', async () => {
       await expect(
-        u('file%3A%2F%2Fdoes%2Fnot%2Fexist').stat()
+        u('file%3A%2F%2Fdoes%2Fnot%2Fexist').stat(),
       ).to.be.rejectedWith('path not found: /does/not/exist')
     })
     it('supports relative urls', async () => {
@@ -71,14 +69,14 @@ describe('posix fs object', () => {
       expect(`${cwd}`).to.equal(process.cwd())
     })
     it('supports relative dots in path', async () => {
-      const home = await expect(u(`/home/../home`).stat()).to.be.fulfilled
+      const home = await expect(u('/home/../home').stat()).to.be.fulfilled
       expect(`${home}`).to.equal('/home')
     })
 
     it('can run intermediate', async () => {
       await u().addDirectory('test', true)
       const runIntermediate = await expect(
-        u('./test').addDirectory('runIntermediate', true)
+        u('./test').addDirectory('runIntermediate', true),
       ).to.be.fulfilled
       await expect(runIntermediate.delete(true)).to.be.fulfilled
     })
@@ -89,7 +87,7 @@ describe('posix fs object', () => {
     it('returns an array of all fs objects', async () => {
       const cwd = u()
       const fsArr = u([`${cwd}`, `${cwd}/badfiles`, `${cwd}/test`])
-      expect(fsArr.constructor.name).to.equal('FSObjectArray')
+      expect(fsArr.constructor.name).to.equal('FsObjectArray')
       expect(`${fsArr[0]}`).to.equal(`${cwd}`)
       expect(`${fsArr[1]}`).to.equal(`${cwd}/badfiles`)
       expect(`${fsArr[2]}`).to.equal(`${cwd}/test`)
@@ -111,17 +109,17 @@ describe('posix fs object', () => {
       await u(`${cwd}/test/newDir`).delete(true, undefined, true)
       const newDir = await tstDir.addDirectory('newDir')
       expect(`${newDir}`).to.equal(`${tstDir}/newDir`)
-      expect(newDir.type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await newDir.type).to.equal(FILE_TYPE_ENUMS.directory)
     })
     it('can add directories based on path seg/seg/seg', async () => {
       await u(`${cwd}/test/Seg1`).delete(true, undefined, true)
       const newDirs = await tstDir.addDirectory('Seg1/Seg2/Seg3')
-      expect(newDirs.constructor.name).to.equal('FSObjectArray')
+      expect(newDirs.constructor.name).to.equal('FsObjectArray')
       expect(newDirs.length).to.equal(3)
       expect(`${newDirs[0]}`).to.equal(`${tstDir}/Seg1`)
       expect(`${newDirs[1]}`).to.equal(`${tstDir}/Seg1/Seg2`)
       expect(`${newDirs[2]}`).to.equal(`${tstDir}/Seg1/Seg2/Seg3`)
-      expect(newDirs[2].type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await newDirs[2].type).to.equal(FILE_TYPE_ENUMS.directory)
       await expect(newDirs[2].stat()).to.be.fulfilled
     })
     it('can add array of directories', async () => {
@@ -131,12 +129,12 @@ describe('posix fs object', () => {
       const newDirs = await tstDir.addDirectory([
         ['arr1', 'xArr1', 'xArr2'],
         ['arr2'],
-        ['arr3']
+        ['arr3'],
       ])
       expect(`${newDirs[0][0]}`).to.equal(`${process.cwd()}/test/arr1`)
       expect(`${newDirs[0][1]}`).to.equal(`${process.cwd()}/test/arr1/xArr1`)
       expect(`${newDirs[0][2]}`).to.equal(
-        `${process.cwd()}/test/arr1/xArr1/xArr2`
+        `${process.cwd()}/test/arr1/xArr1/xArr2`,
       )
       expect(`${newDirs[1][0]}`).to.equal(`${process.cwd()}/test/arr2`)
       expect(`${newDirs[2][0]}`).to.equal(`${process.cwd()}/test/arr3`)
@@ -157,7 +155,7 @@ describe('posix fs object', () => {
       await u(`${tstDir}/multiDirF1`).delete(true, undefined, true)
       const fs = await tstDir.addDirectory('multiDirF1', true)
       expect(`${fs}`).to.equal(`${tstDir}/multiDirF1`)
-      expect(fs.type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await fs.type).to.equal(FILE_TYPE_ENUMS.directory)
     })
     it('deletes directories', async () => {
       await u(`${cwd}/test/xG1`).delete(true, undefined, true)
@@ -180,8 +178,6 @@ describe('posix fs object', () => {
     beforeEach(async () => {
       cwd = u()
       tstDir = await cwd.addDirectory('test', true)
-      // await tstDir.delete(true)
-      // tstDir = await cwd.addDirectory('test', true)
     })
     it('can cd and pwd', async () => {
       expect(`${await server.pwd}`).to.equal(`${cwd}`)
@@ -194,7 +190,7 @@ describe('posix fs object', () => {
     })
     it('can cd and pwd with multiple shells', async () => {
       const multiShell = new ShellHarness({
-        numberOfProcesses: 5
+        numberOfProcesses: 5,
       })
       const ms = u('', multiShell)
       expect(`${await ms.executionContext.pwd}`).to.equal(`${cwd}`)
@@ -220,20 +216,18 @@ describe('posix fs object', () => {
     it('parallel run', async () => {
       await u(`${cwd}/test/many`).delete(true, undefined, true)
       const manyDir = await tstDir.addDirectory('many', true)
-      const pms = [...Array(50).keys()].map(number => {
-        return new Promise(resolve => {
-          ;(async () => {
-            const d = await manyDir.addDirectory(`D${number}`)
-            // console.log(`D${number}`)
-            const f = await d.addFile(`F${number}`, `F${number}`)
-            // console.log(`F${number}`)
-            await f.delete()
-            await d.delete()
-            // console.log(`P${number}`)
-            resolve(true)
-          })()
-        })
-      })
+      const pms = [...Array(50).keys()].map((number) => new Promise((resolve) => {
+        (async () => {
+          const d = await manyDir.addDirectory(`D${number}`)
+          // console.log(`D${number}`)
+          const f = await d.addFile(`F${number}`, `F${number}`)
+          // console.log(`F${number}`)
+          await f.delete()
+          await d.delete()
+          // console.log(`P${number}`)
+          resolve(true)
+        })()
+      }))
       await expect(Promise.all(pms)).to.be.fulfilled
     })
     it('lsattr,gio,size tests', async () => {
@@ -244,18 +238,18 @@ describe('posix fs object', () => {
       const file = await pop.addFile('file', 'CONTENT')
       const symD = await u(`${tstDir}/popSym`).linkTo(pop)
       const symF = await u(`${pop}/popF`).linkTo(file)
-      await expect(pop.stat(true, true, true)).to.be.fulfilled
-      expect(pop.size.fileCount.number === 2).to.be.true
-      expect(pop.size.directoryCount.number === 2).to.be.true
-      expect(pop.size.size.bytes > 0).to.be.true
-      await expect(file.stat(true, true)).to.be.fulfilled
-      expect(file.size.bytes > 0).to.be.true
-      await expect(symD.stat(true, true, true)).to.be.fulfilled
-      expect(symD.size.fileCount.number === 2).to.be.true
-      expect(symD.size.directoryCount.number === 2).to.be.true
-      expect(symD.size.size.bytes > 0).to.be.true
-      await expect(symF.stat(true, true, true)).to.be.fulfilled
-      expect(symF.size.bytes > 0).to.be.true
+      const pop2 = await expect(pop.stat(true, true, true)).to.be.fulfilled
+      expect(pop2.size.fileCount === 2).to.be.true
+      expect(pop2.size.directoryCount === 2).to.be.true
+      expect(pop2.size.size > 0).to.be.true
+      const file2 = await expect(file.stat(true, true)).to.be.fulfilled
+      expect(file2.size > 0).to.be.true
+      const symD2 = await expect(symD.stat(true, true, true)).to.be.fulfilled
+      expect(symD2.linkEndTarget.size.fileCount === 2).to.be.true
+      expect(symD2.linkEndTarget.size.directoryCount === 2).to.be.true
+      expect(symD2.linkEndTarget.size.size > 0).to.be.true
+      const symF2 = await expect(symF.stat(true, true, true)).to.be.fulfilled
+      expect(symF2.linkEndTarget.size > 0).to.be.true
     })
     it('bad file names', async () => {
       await u(`${tstDir}/badIdeaPathNames`).delete(true, undefined, true)
@@ -263,7 +257,7 @@ describe('posix fs object', () => {
       await tstDir.addDirectory(['badIdeaPathNames', 'D1', 'D2'], true)
       const wd = u(`${tstDir}/badIdeaPathNames`)
       const all = [...Array(31).keys()]
-        .map(number => String.fromCharCode(number + 1))
+        .map((number) => String.fromCharCode(number + 1))
         .join('')
       const badPaths = [
         'name with spaces',
@@ -274,7 +268,7 @@ describe('posix fs object', () => {
         '.invisible',
         'meta(*,?[(\\)])&<>"*?:[]"<>|(){}&\'!;$',
         'as$as',
-        all
+        all,
       ]
       // eslint-disable-next-line no-restricted-syntax
       for (const badPath of badPaths) {
@@ -310,22 +304,8 @@ describe('posix fs object', () => {
         // console.log(badPath)
       }
     })
-    it('change state appropriately', async () => {
-      await u(`${tstDir}/stateTest`).delete(true, undefined, true)
-      let dir = await tstDir.addDirectory('stateTest')
-      expect(dir.state).to.equal('loadable')
-      dir = u(`${tstDir}/stateTest`)
-      expect(dir.state).to.equal('init')
-      await dir.stat()
-      expect(dir.state).to.equal('loaded')
-      await dir.setPermissions('775')
-      expect(dir.state).to.equal('outdated')
-      await dir.setPermissions('777')
-      await dir.stat()
-      expect(dir.state).to.equal('loaded')
-    })
 
-    it('works with most posix file types', async () => {
+    it('works with most posix file oldtypes', async () => {
       // TODO Block file(b) Character device file(c)
       await u(`${tstDir}/posixTypes`).delete(true, undefined, true)
       const dir = await tstDir.addDirectory('posixTypes')
@@ -334,7 +314,7 @@ describe('posix fs object', () => {
       await u(`${dir}/directory/symlink`).linkTo(file)
       await sh('mkfifo test/posixTypes/fifo;')
       const pid = await sh(
-        'nc -lkU ./test/posixTypes/aSocket.sock & printf $!;'
+        'nc -lkU ./test/posixTypes/aSocket.sock & printf $!;',
       )
 
       await dir.content

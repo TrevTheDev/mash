@@ -1,5 +1,5 @@
-import {propertiesThatRequireStat} from './init.js'
-import {loadedMixin} from './loaded.js'
+import { propertiesThatRequireStat } from './init.js'
+import { loadedMixin } from './loaded.js'
 
 /* eslint-disable no-param-reassign */
 // const mixin = {}
@@ -25,24 +25,23 @@ export default {
         Object.defineProperty(target, prop, {
           configurable: true,
           enumerable: true,
-          get: () => {
-            return new Promise((resolve) => {
-              // console.log(`outdated: stat: ${target}: ${target.state}: ${prop}`)
-              stat().then(() => resolve(target[prop]))
-            })
-          },
+          get: () => new Promise((resolve) => {
+            // console.log(`outdated: stat: ${target}: ${target.state}: ${prop}`)
+            stat().then(() => resolve(target[prop]))
+          }),
         })
       })
     }
     return true
   },
   exit(target) {
-    if (target._createAutomationFunctions)
+    if (target._createAutomationFunctions) {
       propertiesThatRequireStat[target.constructor.name].forEach(
-        (key) => delete target[key]
+        (key) => delete target[key],
       )
+    }
     Object.keys(loadedMixin[target.constructor.name]).forEach(
-      (key) => delete target[key]
+      (key) => delete target[key],
     )
     Object.keys(target._props).forEach((key) => delete target[key])
   },

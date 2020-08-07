@@ -1,4 +1,5 @@
-import posixId from '../parsers/id.js'
+/* eslint-disable max-classes-per-file */
+import { id as posixId } from '../parsers/cmds.js'
 
 /* eslint-disable class-methods-use-this */
 class BaseUser {
@@ -21,6 +22,7 @@ class BaseUser {
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 class Group extends BaseUser {
   get type() {
     return 'group'
@@ -39,7 +41,7 @@ class Group extends BaseUser {
   }
 
   toJSON() {
-    return {group: this.name, gid: this.gid}
+    return { group: this.name, gid: this.gid }
   }
 }
 
@@ -72,7 +74,7 @@ class User extends BaseUser {
   }
 
   toJSON() {
-    return {user: this.name, uid: this.uid}
+    return { user: this.name, uid: this.uid }
   }
 }
 
@@ -96,9 +98,11 @@ export default class Users {
   }
 
   get currentGroup() {
-    return new Promise(async resolve => {
-      const user = await this.getUser()
-      resolve(user.effectiveGroup)
+    return new Promise((resolve) => {
+      (async () => {
+        const user = await this.getUser()
+        resolve(user.effectiveGroup)
+      })()
     })
   }
 
@@ -115,6 +119,7 @@ export default class Users {
     this._knownGroups[gid] = group
     return group
   }
+
   /**
    * @returns {ExecutionContext}
    */

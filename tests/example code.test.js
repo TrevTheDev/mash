@@ -5,11 +5,11 @@
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Server, {ShellHarness, u, sh} from '../src/server.js'
+import Server, { ShellHarness, u, sh } from '../src/server.js'
 
 chai.use(chaiAsPromised)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('example code', () => {
   before(() => {
@@ -28,11 +28,11 @@ describe('example code', () => {
 
     const workingDirs = await tstDir.addDirectory(
       ['examples', 'another dir'],
-      true
+      true,
     )
 
     // think of u as being similar to a url bar except for the filesystem
-    const someDir = u(`./test/examples`)
+    const someDir = u('./test/examples')
     const res = await someDir
     expect(`${res}`).to.equal(`${workingDirs[0]}`)
 
@@ -43,27 +43,27 @@ describe('example code', () => {
     // console.log(`${cwd}`) // /path/to/current/working/directory
 
     // creates a newFile in `some/dir` with content 'ABC'
-    const newFile = await u(`./test/examples`).addFile('newFile.txt', 'ABC')
+    const newFile = await u('./test/examples').addFile('newFile.txt', 'ABC')
     expect(await newFile.exists).to.be.true
     expect(await newFile.read()).to.equal('ABC')
 
-    const findIt = await u(`./test/examples`)
+    const findIt = await u('./test/examples')
       .find.byName('newFile')
       .byExt('txt')
       .smallerThan('100kB')
     expect(`${findIt[0]}`).to.equal(`${newFile}`) // some/dir/newFile.txt
 
     // stat, gio, lsattr newFile
-    await newFile.stat()
-    expect(newFile.loadedStat).to.be.true
-    expect(newFile.loadedGio).to.be.true
-    expect(newFile.loadedLsattr).to.be.true
+    const statFile = await newFile.stat()
+    expect(statFile.loadedStat).to.be.true
+    expect(statFile.loadedGio).to.be.true
+    expect(statFile.loadedLsattr).to.be.true
 
     // console.log(`${newFile.user}`) // someuser
-    expect(`${newFile.user}`).to.equal(`${process.env.USER}`)
+    expect(`${statFile.user}`).to.equal(`${process.env.USER}`)
 
     const content = await newFile.read() // returns 'ABC'
-    expect(content).to.equal(`ABC`)
+    expect(content).to.equal('ABC')
 
     // copies NewFile
     const copiedFile = await newFile.copyTo('./test/examples/another dir')
@@ -71,11 +71,11 @@ describe('example code', () => {
 
     // deletes newFile
     await newFile.delete()
-    expect(await u(`./test/examples/newFile.txt`).exists).to.be.false
+    expect(await u('./test/examples/newFile.txt').exists).to.be.false
 
     // moves copied file to trash
     await u(`./test/examples/another dir/${copiedFile.path.base}`).trash()
-    expect(await u(`./test/examples/another dir/newFile.txt`).exists).to.be
+    expect(await u('./test/examples/another dir/newFile.txt').exists).to.be
       .false
 
     console.log(JSON.stringify(await u().content))
@@ -90,20 +90,20 @@ describe('example code', () => {
   step('Interact with shell', async () => {
     const server = new Server()
     const cmd = server.shell.interact(
-      'echo "what is your name?" ; read name;\n'
+      'echo "what is your name?" ; read name;\n',
     )
-    cmd.on('data', stdout => {
+    cmd.on('data', (stdout) => {
       if (stdout === 'what is your name?\n') {
         cmd.stdin.write('Bob\necho $name\n')
         cmd.sendDoneMarker() // required to indicate that this interaction is completed
       } else {
         // console.log(stdout) // `Bob\n`
-        expect(stdout).to.equal(`Bob\n`)
+        expect(stdout).to.equal('Bob\n')
       }
     })
     const res = await cmd
     // console.log(res.output) // `what is your name?\nBob\n`
-    expect(res.output).to.equal(`what is your name?\nBob\n`)
+    expect(res.output).to.equal('what is your name?\nBob\n')
     server.close()
   })
   step('Get a root or other user shell', async () => {
@@ -111,7 +111,7 @@ describe('example code', () => {
 
     const rootShell = new ShellHarness({
       user: 'root', // or other user
-      rootPassword: process.env.RPASSWORD
+      rootPassword: process.env.RPASSWORD,
     })
     const res = await rootShell.createCommand('whoami;')
     // console.log(res.output) // 'root\n'
@@ -124,14 +124,15 @@ describe('example code', () => {
     const rootServer = new Server({
       shell: {
         user: 'root', // or other user
-        rootPassword: process.env.RPASSWORD
-      }
+        rootPassword: process.env.RPASSWORD,
+      },
     })
     const whoami = await sh('whoami;')
     expect(whoami.output).to.equal('root\n')
     rootServer.close()
   })
   step('Intercept and replace output', async () => {
+    if (Server.instance) await Server.instance.close()
     const server = new Server()
 
     const cb = (cmd, cbData) => {
@@ -140,24 +141,24 @@ describe('example code', () => {
       return true
     }
     // console.log(await sh('printf HELLO ;', 'HIT', cb)) // true
-    server.close() // clean up
+    await server.close() // clean up
 
     const callBackServer = new Server({
       shell: {
-        doneCallback: cb
-      }
+        doneCallback: cb,
+      },
     })
 
     // console.log(await sh('printf HELLO ;', 'HIT')) // true
-    callBackServer.close()
+    await callBackServer.close()
   })
   step('Receive data via IPC', async () => {
     const server = new Server()
 
     const cmd = server.shell.interact(
-      'printf "{\\"ipc\\": \\"true\\"}\\n" 1>&$NODE_CHANNEL_FD ; printf HELLO ; \n'
+      'printf "{\\"ipc\\": \\"true\\"}\\n" 1>&$NODE_CHANNEL_FD ; printf HELLO ; \n',
     )
-    cmd.on('message', data => {
+    cmd.on('message', (data) => {
       // console.log(data) // { ipc: "true" }
       expect(data.ipc).to.equal('true')
       cmd.sendDoneMarker()
@@ -172,7 +173,7 @@ describe('example code', () => {
 
     const cmd = server.shell.interact('echo ; \n')
 
-    cmd.on('data', stdout => {
+    cmd.on('data', (stdout) => {
       if (stdout === '\n') {
         cmd.sendMessage('HELLOBOB')
         cmd.stdin.write('read -r line <&3 ; printf $line ; \n')
