@@ -156,7 +156,7 @@ console.log(JSON.stringify(await u().content))
 const cmd = await sh('echo HELLO;')
 console.log(cmd.output) // HELLO\n
 
-Server.instance.close() // shuts down all active shell processes
+await Server.instance.close() // shuts down all active shell processes
 ```
 
 For more examples please see our test scripts
@@ -902,7 +902,7 @@ const rootServer = new Server({
 })
 // now all commands will use rootServer - note only one server can run at a time
 const whoami = sh('whoami;')
-rootServer.close()
+await rootServer.close()
 ```
 
 Root is gained using `sudo -S su` and assumes `sudo` requires a password. As a hack, sending of password is delayed by `config.shell.sudoWait` default is 50. If root is not be acquired increase this.
