@@ -28,13 +28,11 @@ describe('posix fs object', () => {
     })
     it('returns cwd if no arguments are supplied', async () => {
       const cwd = u()
-      expect(cwd.state).to.equal('init')
       expect(cwd.constructor.name).to.equal('FsObject')
       expect(`${cwd}`).to.equal(process.cwd())
-      await expect(cwd.stat()).to.be.fulfilled
-      expect(`${cwd}`).to.equal(process.cwd())
-      expect(cwd.constructor.name).to.equal('Directory')
-      expect(cwd.state).to.equal('loaded')
+      const ndir = await expect(cwd.stat()).to.be.fulfilled
+      expect(`${ndir}`).to.equal(process.cwd())
+      expect(ndir.constructor.name).to.equal('Directory')
     })
     it('promise rejects if path does not exist', async () => {
       const dne = u('/does/not/exist')
@@ -89,7 +87,7 @@ describe('posix fs object', () => {
     it('returns an array of all fs objects', async () => {
       const cwd = u()
       const fsArr = u([`${cwd}`, `${cwd}/badfiles`, `${cwd}/test`])
-      expect(fsArr.constructor.name).to.equal('FSObjectArray')
+      expect(fsArr.constructor.name).to.equal('FsObjectArray')
       expect(`${fsArr[0]}`).to.equal(`${cwd}`)
       expect(`${fsArr[1]}`).to.equal(`${cwd}/badfiles`)
       expect(`${fsArr[2]}`).to.equal(`${cwd}/test`)
@@ -111,17 +109,17 @@ describe('posix fs object', () => {
       await u(`${cwd}/test/newDir`).delete(true, undefined, true)
       const newDir = await tstDir.addDirectory('newDir')
       expect(`${newDir}`).to.equal(`${tstDir}/newDir`)
-      expect(newDir.type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await newDir.type).to.equal(FILE_TYPE_ENUMS.directory)
     })
     it('can add directories based on path seg/seg/seg', async () => {
       await u(`${cwd}/test/Seg1`).delete(true, undefined, true)
       const newDirs = await tstDir.addDirectory('Seg1/Seg2/Seg3')
-      expect(newDirs.constructor.name).to.equal('FSObjectArray')
+      expect(newDirs.constructor.name).to.equal('FsObjectArray')
       expect(newDirs.length).to.equal(3)
       expect(`${newDirs[0]}`).to.equal(`${tstDir}/Seg1`)
       expect(`${newDirs[1]}`).to.equal(`${tstDir}/Seg1/Seg2`)
       expect(`${newDirs[2]}`).to.equal(`${tstDir}/Seg1/Seg2/Seg3`)
-      expect(newDirs[2].type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await newDirs[2].type).to.equal(FILE_TYPE_ENUMS.directory)
       await expect(newDirs[2].stat()).to.be.fulfilled
     })
     it('can add array of directories', async () => {
@@ -157,7 +155,7 @@ describe('posix fs object', () => {
       await u(`${tstDir}/multiDirF1`).delete(true, undefined, true)
       const fs = await tstDir.addDirectory('multiDirF1', true)
       expect(`${fs}`).to.equal(`${tstDir}/multiDirF1`)
-      expect(fs.type).to.equal(FILE_TYPE_ENUMS.directory)
+      expect(await fs.type).to.equal(FILE_TYPE_ENUMS.directory)
     })
     it('deletes directories', async () => {
       await u(`${cwd}/test/xG1`).delete(true, undefined, true)
@@ -180,8 +178,6 @@ describe('posix fs object', () => {
     beforeEach(async () => {
       cwd = u()
       tstDir = await cwd.addDirectory('test', true)
-      // await tstDir.delete(true)
-      // tstDir = await cwd.addDirectory('test', true)
     })
     it('can cd and pwd', async () => {
       expect(`${await server.pwd}`).to.equal(`${cwd}`)
@@ -242,18 +238,18 @@ describe('posix fs object', () => {
       const file = await pop.addFile('file', 'CONTENT')
       const symD = await u(`${tstDir}/popSym`).linkTo(pop)
       const symF = await u(`${pop}/popF`).linkTo(file)
-      await expect(pop.stat(true, true, true)).to.be.fulfilled
-      expect(pop.size.fileCount.number === 2).to.be.true
-      expect(pop.size.directoryCount.number === 2).to.be.true
-      expect(pop.size.size.bytes > 0).to.be.true
-      await expect(file.stat(true, true)).to.be.fulfilled
-      expect(file.size.bytes > 0).to.be.true
-      await expect(symD.stat(true, true, true)).to.be.fulfilled
-      expect(symD.size.fileCount.number === 2).to.be.true
-      expect(symD.size.directoryCount.number === 2).to.be.true
-      expect(symD.size.size.bytes > 0).to.be.true
-      await expect(symF.stat(true, true, true)).to.be.fulfilled
-      expect(symF.size.bytes > 0).to.be.true
+      const pop2 = await expect(pop.stat(true, true, true)).to.be.fulfilled
+      expect(pop2.size.fileCount === 2).to.be.true
+      expect(pop2.size.directoryCount === 2).to.be.true
+      expect(pop2.size.size > 0).to.be.true
+      const file2 = await expect(file.stat(true, true)).to.be.fulfilled
+      expect(file2.size > 0).to.be.true
+      const symD2 = await expect(symD.stat(true, true, true)).to.be.fulfilled
+      expect(symD2.linkEndTarget.size.fileCount === 2).to.be.true
+      expect(symD2.linkEndTarget.size.directoryCount === 2).to.be.true
+      expect(symD2.linkEndTarget.size.size > 0).to.be.true
+      const symF2 = await expect(symF.stat(true, true, true)).to.be.fulfilled
+      expect(symF2.linkEndTarget.size > 0).to.be.true
     })
     it('bad file names', async () => {
       await u(`${tstDir}/badIdeaPathNames`).delete(true, undefined, true)
@@ -307,20 +303,6 @@ describe('posix fs object', () => {
 
         // console.log(badPath)
       }
-    })
-    it('change state appropriately', async () => {
-      await u(`${tstDir}/stateTest`).delete(true, undefined, true)
-      let dir = await tstDir.addDirectory('stateTest')
-      expect(dir.state).to.equal('loadable')
-      dir = u(`${tstDir}/stateTest`)
-      expect(dir.state).to.equal('init')
-      await dir.stat()
-      expect(dir.state).to.equal('loaded')
-      await dir.setPermissions('775')
-      expect(dir.state).to.equal('outdated')
-      await dir.setPermissions('777')
-      await dir.stat()
-      expect(dir.state).to.equal('loaded')
     })
 
     it('works with most posix file oldtypes', async () => {

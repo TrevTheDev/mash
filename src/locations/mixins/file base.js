@@ -1,68 +1,74 @@
 import fs, { promises as fsPromises } from 'fs'
 
 import { FILE_TYPE_ENUMS } from '../../util/globals.js'
-import FsObjectCommon from './common.js'
 
 import {
   cat, write, writeStream, chmod, chown, chgrp, rm,
 } from '../../parsers/cmds.js'
 
-function addStringToName(target, name, descriptor) {
-  const fn = descriptor.value
-  // saving a reference to our decorated method so we can use it later
-
-  descriptor.value = (wrestler) => {
-    fn.call(target, `${wrestler} is a wrestler`)
-  }
-  // replacing the decorated method (descriptor.value)
-  // this new function executes our original function (fn), that's why we saved the reference
-  // this new function adds some functionality (concatenating the string)
-  // we do this using call(), because we want to apply the right context (target)
-}
-
-export default class FileBase extends FsObjectCommon {
+const fileMixin = (Base) => class extends Base {
   /**
-   * @returns {Promise.<String>} content of file
+   * @returns {FILE_TYPE_ENUMS}
    */
-
   // eslint-disable-next-line class-methods-use-this
   get type() { return FILE_TYPE_ENUMS.file }
 
-  @addStringToName
-  read() {
+  /**
+   * @returns {string} content of file
+   */
+  async read() {
+    await this._canonisePath()
     return cat(this)
   }
 
   /**
-   * @returns {ReadStream} content of file
+   * @param { string | { flags?: string, encoding?: BufferEncoding, fd?: number, mode?: number, autoClose?: boolean, emitClose?: boolean, start?: number,
+  end?: number, highWaterMark?: number } } options
+   * @returns {NodeJS.ReadStream} readStream of file
    */
-  readStream(options) {
+  async readStream(options) {
+    await this._canonisePath()
     return fs.createReadStream(`${this}`, options)
   }
 
   /**
-   * @param {String} content
-   * @param {Boolean} overwrite
-   * @returns {Promise<FilePathed>}
+   * @param {string} content
+   * @param {boolean} overwrite
+   * @returns {File}
    */
-  write(content, overwrite = false) {
+  async write(content, overwrite = false) {
+    await this._canonisePath()
     return write(this, content, overwrite)
   }
 
   /**
-   * @param {Stream.Readable} readableStream - stream to write to fs
-   * @param {Boolean} overwrite
-   * @returns {Promise}
+   * @param {NodeJS.ReadableStream} readableStream - stream to write to fs
+   * @param {boolean} overwrite
+   * @returns {NodeJS.WritableStream}
    */
-  writeStream(readableStream, overwrite = false) {
+  async writeStream(readableStream, overwrite = false) {
+    await this._canonisePath()
     return writeStream(this, readableStream, overwrite)
   }
 
-  append(content, encoding = 'utf8', mode) {
-    return fsPromises.appendFile(`${this}`, content, { encoding, mode })
+  /**
+   * @param {string | Uint8Array} content
+   * @param {BaseEncodingOptions & { mode?: Mode, flag?: OpenMode } | BufferEncoding | null} options?
+   * @returns {Promise}
+   */
+  async append(content, options) {
+    await this._canonisePath()
+    return fsPromises.appendFile(`${this}`, content, options)
   }
 
-  readChunk(startPosition, numberOfBytes, encoding = 'utf8') {
+  /**
+   * @param {number} startPosition
+   * @param {number} numberOfBytes
+   * @param {"ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex" | undefined} encoding
+   * @returns {string}
+   */
+  async readChunk(startPosition, numberOfBytes, encoding = 'utf8') {
+    await this._canonisePath()
     return new Promise((resolve, reject) => {
       fs.open(`${this}`, 'r', (error, fd) => {
         if (error) throw error
@@ -82,7 +88,14 @@ export default class FileBase extends FsObjectCommon {
     })
   }
 
-  writeChunk(chunk, startPosition, encoding = 'utf8') {
+  /**
+   * @param {string} chunk
+   * @param {number} startPosition
+   * @param {"ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex" | undefined} encoding
+   * @returns {boolean}
+   */
+  async writeChunk(chunk, startPosition, encoding = 'utf8') {
+    await this._canonisePath()
     return new Promise((resolve, reject) => {
       fs.open(`${this}`, 'r+', (error, fd) => {
         if (error) throw error
@@ -96,20 +109,43 @@ export default class FileBase extends FsObjectCommon {
     })
   }
 
-  setPermissions(permissions) {
+  /**
+   * @param {string} permissions
+   * @returns {File|FilePromise|FsObject}
+   */
+  async setPermissions(permissions) {
+    await this._canonisePath()
     return chmod(this, permissions, false)
   }
 
-  setUser(user, group) {
-    if (user) return chown(this, user, group, false)
-    return this.setGroup(group)
+  /**
+   * @param {User|string} user
+   * @param {Group|string} group
+   * @returns {File|FilePromise|FsObject}
+   */
+  async setUser(user = undefined, group = undefined) {
+    if (!user) return this.setGroup(group)
+    await this._canonisePath()
+    return chown(this, user, group, false)
   }
 
-  setGroup(group) {
-    return chgrp(this, `${group}`)
+  /**
+   * @param {Group|string} group
+   * @returns {File|FilePromise|FsObject}
+   */
+  async setGroup(group) {
+    await this._canonisePath()
+    return chgrp(this, `${group}`, false)
   }
 
-  delete(onlyIfExists = false) {
+  /**
+   * @param {boolean} onlyIfExists
+   * @returns {boolean}
+   */
+  async delete(onlyIfExists = false) {
+    await this._canonisePath()
     return rm(this, false, false, onlyIfExists)
   }
 }
+
+export default fileMixin

@@ -22,8 +22,8 @@ describe('quick tests', () => {
     cwd = u()
     tstDir = await cwd.addDirectory('test', true)
   })
-  after(() => {
-    //    if (Server.instance) Server.instance.close()
+  after(async () => {
+    if (Server.instance) await Server.instance.close()
   })
   it("u('./path/to/dir').content", async () => {
     const content = await u(`${cwd}`).content
@@ -261,11 +261,11 @@ describe('quick tests', () => {
     expect(content).to.equal('ContentOfFileMORE')
   })
   it("u('./path/to/dir').find.byName('match')", async () => {
-    await u(`${tstDir}/match`).delete(true, undefined, true)
-    await u(`${tstDir}/unMatch`).delete(true, undefined, true)
-    await tstDir.addFile('match')
-    await tstDir.addFile('unMatch')
-    const find = await u(`${tstDir}`).find.byName('match')
+    await u(`${tstDir}/finder`).delete(true, true, true)
+    const findDir = await tstDir.addDirectory('finder')
+    await findDir.addFile('match')
+    await findDir.addFile('unMatch')
+    const find = await u(`${findDir}`).find.byName('match')
     expect(find.length).to.equal(1)
     expect(find[0].path.base).to.equal('match')
   })

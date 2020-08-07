@@ -15,7 +15,6 @@ import updateObjWithSizeOutput from './size.js'
  * @returns {File|Directory|Symlink}
  */
 export default async (executionContext, gio, lsattr, size, fsObjString) => {
-  // fsObj._transitionState('loading')
   const { server } = executionContext
   const [statOutput, gioOutput, lsattrOutput, sizeOutput] = fsObjString.split(server.config.cmdDivider)
 
@@ -24,7 +23,7 @@ export default async (executionContext, gio, lsattr, size, fsObjString) => {
   if (lsattr) updateObjWithLsattrOutput(lsattrOutput, newFsObject)
   if (newFsObject.type === FILE_TYPE_ENUMS.symbolicLink) {
     const pth = await newFsObject.paths.getSymlinkTargetPath()
-    let linkTarget = newFsObject.executionContext.getFsObjectPromisePathed(`${pth}`)
+    let linkTarget = newFsObject.executionContext.getFsObjectPathed(`${pth}`)
     if (await linkTarget.exists) {
       linkTarget = await linkTarget.stat(gio, lsattr, size)
       if (linkTarget.type !== FILE_TYPE_ENUMS.symbolicLink) newFsObject._props.linkEndTarget = linkTarget

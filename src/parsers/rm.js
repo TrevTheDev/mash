@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { LOCAL, glob } from '../util/globals.js'
 /**
- * @param {DirectoryBase|FileBase} fsObject
+ * @param {FsObject|FilePromise|File|Directory} fsObject
  * @param {boolean} recursive
  * @param {boolean} limitToCWDFilesystem
  * @param {boolean} onlyIfExists
- * @returns
+ * @returns {boolean}
  */
 export const rm = async (fsObject, recursive, limitToCWDFilesystem, onlyIfExists) => {
   if (onlyIfExists) if (!(await fsObject.exists)) return false

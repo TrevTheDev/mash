@@ -1,5 +1,11 @@
 import { LOCAL, glob } from '../util/globals.js'
 
+/**
+ * @param {Directory|DirectoryPromise|File|FilePromise|FsObject} fsObject
+ * @param {Group|string} group
+ * @param {boolean} recursive
+ * @returns {Directory|DirectoryPromise|File|FilePromise|FsObject}
+ */
 export const chgrp = async (fsObject, group, recursive) => {
   const chgrpSh = await fsObject.sh(
     `chgrp ${recursive ? '-R' : ''} ${group} -- ${fsObject.toSh()};`,

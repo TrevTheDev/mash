@@ -2,7 +2,7 @@ import { CP_TYPE, glob, LOCAL } from '../../util/globals.js'
 
 const handleDirtyPath = async (isNewTree, copyManager, src, dstP) => {
   if (isNewTree) return true
-  let dst = await src.executionContext.getFsObjectPromisePathed(dstP.path.addSegment(src.path.base).toString())
+  let dst = await src.executionContext.getFsObjectPathed(dstP.path.addSegment(src.path.base).toString())
 
   if (!(await dst.exists)) return true
 
@@ -62,7 +62,7 @@ const copyFile = async (copyManager, src, dstP, isNewTree = false) => {
     throw new Error(errMsg)
   }
 
-  const copiedFile = src.executionContext.getFilePathed(newFilePath.toString())
+  const copiedFile = src.executionContext.getFilePromise(newFilePath.toString())
   const sz = src.size
 
   if (copyManager.move && !copyManager.cancelled) await src.delete()

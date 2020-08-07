@@ -5,10 +5,10 @@ import { LOCAL, glob } from '../util/globals.js'
  * mkDir - see `addDirectory`
  * TODO: code could be slightly optimised (lowest priority)
  * TODO: consider using Array of Paths
- * @param {Directory|DirectoryBase} directory - parent directory
+ * @param {Directory|DirectoryPromise|FsObject} directory - parent directory
  * @param {string} folderName folder - name to add
  * @param {boolean} ignoreAnyExistingDirectories - whether to overwrite existing directories (-p)
- * @returns
+ * @returns {Directory}
  */
 
 const mkDirCmd = async (directory, folderName, ignoreAnyExistingDirectories) => {
@@ -31,20 +31,26 @@ const mkDirCmd = async (directory, folderName, ignoreAnyExistingDirectories) => 
     throw new Error(msg)
   }
 
-  const newDir = directory.executionContext.getDirectoryPathed(`${newDirPath}`)
+  const newDir = directory.executionContext.getDirectoryPromise(`${newDirPath}`)
   newDir._pvt.parent = directory
   return newDir
 }
 
+/**
+ * @param {Directory|DirectoryPromise|FsObject} directory
+ * @param {Array<string>|Array<Path>|Array<Array>} tree
+ * @param {boolean} ignoreAnyExistingDirectories
+ * @returns {FsObjectArray}
+ */
 export const mkdir = async (directory, tree, ignoreAnyExistingDirectories) => {
   const rArr = new glob.fsObjectsByType.FsObjectArray()
+  let workingDir = directory
+  let res
   for (const branch of tree) {
-    let res
-    if (Array.isArray(branch)) res = await mkdir(directory, branch, ignoreAnyExistingDirectories)
+    if (Array.isArray(branch)) res = await mkdir(workingDir, branch, ignoreAnyExistingDirectories)
     else {
-      res = await mkDirCmd(directory, branch, ignoreAnyExistingDirectories)
-      // eslint-disable-next-line no-param-reassign
-      directory = res
+      res = await mkDirCmd(workingDir, branch, ignoreAnyExistingDirectories)
+      workingDir = res
     }
     rArr.push(res)
   }

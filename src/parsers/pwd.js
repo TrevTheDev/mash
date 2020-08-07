@@ -2,7 +2,7 @@ import { LOCAL, glob } from '../util/globals.js'
 
 /**
  * @param { ExecutionContext } executionContext
- * @returns { Promise<DirectoryPathed> }
+ * @returns { DirectoryPromise }
  */
 export const pwd = async (executionContext) => {
   let cmd = await executionContext.sh('pwd;', undefined, undefined, true)
@@ -17,5 +17,5 @@ export const pwd = async (executionContext) => {
   const paths = cmd.map((obj) => obj.output)
   const unique = [...new Set(paths)]
   if (unique.length !== 1) throw new Error(`pwd: ${LOCAL.unexpectedError}`)
-  return executionContext.getDirectoryPathed(unique[0].slice(0, -1))
+  return executionContext.getDirectoryPromise(unique[0].slice(0, -1))
 }

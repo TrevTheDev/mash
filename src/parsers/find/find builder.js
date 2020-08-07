@@ -197,7 +197,7 @@ export class FindBuilder {
   }
 
   async execute() {
-    if (this._fsObject.state === 'init') await this._fsObject
+    await this._fsObject
     return find(this._fsObject, this.toString())
   }
 

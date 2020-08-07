@@ -47,7 +47,7 @@ export default class Elevator {
     const shell = await this.shell()
     const finalCommand = await shell.createCommand(cmd.command)
     if (shell.runningCommands === 0) {
-      shell.close()
+      await shell.close()
       this._shell = undefined
     }
 
@@ -64,8 +64,8 @@ export default class Elevator {
     return this._shell
   }
 
-  close() {
-    if (this._shell) this._shell.close()
+  async close() {
+    if (this._shell) await this._shell.close()
     this._shell = undefined
   }
 }

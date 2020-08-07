@@ -2,20 +2,9 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai'
-import { execSync } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import fs, { promises as fsPromises } from 'fs'
 import Server, { u } from '../src/server.js'
-import { FsObjectPromisePathed } from '../src/locations/fs objects.js'
-import { PathContainer } from '../src/locations/path.js'
-// import FsObjectBasic from '../src/locations/mixins/basics.js'
-// import FsObjectCommon from '../src/locations/mixins/common.js'
-// import FileBase from '../src/locations/mixins/file base.js'
-// import DirectoryBase from '../src/locations/mixins/directory base.js'
-// import FsObjectPromisePathed from '../src/locations/oldtypes/fs object promise pathed.js'
-// import FsObjectPromise from '../src/locations/oldtypes/fs object promise.js'
-// import { File, Directory } from '../src/locations/fs objects.js'
-// import { PathContainer } from '../src/locations/path.js'
-// import Directory from '../src/locations/oldtypes/directory.js'
 
 const { expect } = chai
 
@@ -24,77 +13,72 @@ describe('performance', () => {
   before(async () => {
     server = new Server({ log: false })
   })
-  after(() => {
-    server.close()
-  })
-  it("u('sss').content", async () => {
-    // const basic = new FsObjectBasic()
-    // const common = new FsObjectCommon()
-    // const fileBase = new FileBase()
-    // const dirBase = new DirectoryBase()
-    const pathedFsObjectPromise = new FsObjectPromisePathed(server.executionContext, new PathContainer(server.executionContext, `${process.cwd()}/package.json`))
-    const data = await pathedFsObjectPromise.read()
-    console.log(data)
-
-    // const fsObjectPromise = new FsObjectPromise()
-    // const file = new File()
-    // const directory = new Directory()
-    const uObj = u()
-    const fsObj = await uObj
-    const statObj = await fsObj.stat()
-    const result2 = statObj.accessRights
-    // const result = await arpms
-    console.log(result2)
-  })
-  it("u('./path/to/dir').content", async () => {
-    const content = await u(`${cwd}`).content
-    expect(content.constructor.name).to.equal('FSObjectArray')
+  after(async () => {
+    await server.close()
+    console.log('done')
   })
   it('performance test 1', async () => {
     let cmd
-    let flip = true
-    const maxTimes = 10000
+    const maxTimes = 1000
     const path1 = `${process.cwd()}/package.json`
-    const path2 = `${process.cwd()}/LICENSE`
-    const ec = server.executionContext
-    const pth1 = new PathContainer(ec, undefined, path1)
-    const pth2 = new PathContainer(ec, undefined, path2)
+    // const path2 = `${process.cwd()}/LICENSE`
+
     const start1 = new Date()
+    let fl = await u(path1)
     for (let i = 0; i < maxTimes; i++) {
       // eslint-disable-next-line no-await-in-loop
-      const fl = new FsObjectCommon(ec, flip ? pth1 : pth2)
       cmd = await fl.stat(false, false, false)
       expect(cmd.inode > 0).to.be.true
-      flip = !flip
     }
-    console.log((new Date() - start1))
+    console.log(`fsObject.stat: ${(new Date() - start1)}`)
     const start2 = new Date()
     for (let i = 0; i < maxTimes; i++) {
-      cmd = fs.statSync(flip ? path1 : path2)
+      cmd = fs.statSync(path1)
       expect(cmd.ino > 0).to.be.true
-      flip = !flip
     }
-    console.log((new Date() - start2))
+    console.log(`statSync: ${(new Date() - start2)}`)
 
     const arrayLoop = [...Array(maxTimes).keys()]
 
     const start3 = new Date()
     const res3 = arrayLoop.map(async () => {
-      cmd = await fsPromises.stat(flip ? path1 : path2)
+      cmd = await fsPromises.stat(path1)
       expect(cmd.ino > 0).to.be.true
-      flip = !flip
     })
-    const res3out = await Promise.all(res3)
-    console.log((new Date() - start3))
+    await Promise.all(res3)
+    console.log(`fsPromises.stat: ${(new Date() - start3)}`)
 
     const start4 = new Date()
+    fl = await u(path1)
     const result = arrayLoop.map(async () => {
-      const fl = new FsObjectCommon(ec, flip ? pth1 : pth2)
       cmd = await fl.stat(false, false, false)
       expect(cmd.inode > 0).to.be.true
-      flip = !flip
     })
-    const outcome = await Promise.all(result)
-    console.log((new Date() - start4))
+    await Promise.all(result)
+    console.log(`fsObject.stat promise.all: ${(new Date() - start4)}`)
+    const start5 = new Date()
+    for (let i = 0; i < maxTimes; i++) {
+      cmd = execSync(`stat --printf="%a\\0%b\\0%d\\0%F\\0%g\\0%G\\0%h\\0%i\\0%s\\0%t\\0%T\\0%u\\0%U\\0%w\\0%x\\0%y\\0%z\\0%n" -- "${path1}" || { printf "%s" "STATFAILED"; return 1; };`)
+      cmd = cmd.toString().split('\0')
+      expect(cmd[1] !== undefined).to.be.true
+    }
+    console.log(`execSync: ${(new Date() - start5)}`)
+    const start6 = new Date()
+    const spawnPromise = () => new Promise((resolve) => {
+      let spnData = ''
+      const spwn = spawn('stat', ['--printf="%a\\0%b\\0%d\\0%F\\0%g\\0%G\\0%h\\0%i\\0%s\\0%t\\0%T\\0%u\\0%U\\0%w\\0%x\\0%y\\0%z\\0%n"', path1])
+      spwn.stdout.on('data', (data) => {
+        spnData += data
+      })
+      spwn.on('close', () => {
+        spnData = spnData.toString().split('\0')
+        resolve(spnData)
+      })
+    })
+    for (let i = 0; i < maxTimes; i++) {
+      cmd = await spawnPromise()
+      expect(cmd[1] !== undefined).to.be.true
+    }
+    console.log(`spawn: ${(new Date() - start6)}`)
   }).timeout(50000)
 })

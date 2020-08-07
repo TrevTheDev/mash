@@ -1,12 +1,11 @@
 import { LOCAL, glob } from '../util/globals.js'
+
+// #TODO:improve parameter naming
 /**
  * @param {FsObjectCommon} fsObject
  * @param {Path|FsObjectCommon} destination
- * @returns {SymlinkPathed}
+ * @returns {Symlink}
  */
-
-// #TODO:improve parameter naming
-
 export const ln = async (fsObject, destination) => {
   const lnSh = await fsObject.sh(
     // `ln -Tsn -- ${destination.toSh()} ${FSObject.toSh()};`,
@@ -22,7 +21,7 @@ export const ln = async (fsObject, destination) => {
     throw new Error(msg)
   }
 
-  const newSymlink = await fsObject.executionContext.getSymlinkPathed(`${fsObject}`)
+  const newSymlink = await fsObject.executionContext.getSymlinkPromise(`${fsObject}`)
 
   fsObject.markAsInvalid()
 

@@ -17,7 +17,7 @@ export const mv = async (fsObject, newName) => {
     if (glob.logger) glob.logger.error(msg, 'rename')
     throw new Error(msg)
   }
-  const mvFsObject = fsObject.executionContext.getFsObjectPromisePathed(
+  const mvFsObject = fsObject.executionContext.getFsObjectPathed(
     `${fsObject.path.parentPath.addSegment(newName)}`,
   )
 

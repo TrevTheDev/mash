@@ -1,6 +1,6 @@
 export { CopyManager } from './copy/copy manager.js'
 export { FindBuilder } from './find/find builder.js'
-export { populateFsObject } from './populate/populateFSObject.js'
+export { populateFsObject } from './populate/populateFsObject.js'
 export { populateDirectory } from './populate/populateDirectory.js'
 export { cat } from './cat.js'
 export { cd } from './cd.js'

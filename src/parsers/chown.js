@@ -1,19 +1,16 @@
 import { LOCAL, glob } from '../util/globals.js'
 /**
- * mkdir - see `addDirectory`
  * TODO: check what happens if person tries to delete /
  * TODO: check what happens if insufficient permissions
- * @param {DirectoryBase|FileBase} fsObject
- * @param {String|String} user
- * @param {String|String} group
- * @param {Boolean} recursive
- * @returns
+ * @param {Directory|DirectoryPromise|File|FilePromise|FsObject} fsObject
+ * @param {User|string} user
+ * @param {Group|string} group
+ * @param {boolean} recursive
+ * @returns {Directory|DirectoryPromise|File|FilePromise|FsObject}
  */
 export const chown = async (fsObject, user, group, recursive) => {
   const chownSh = await fsObject.sh(
-    `chown${recursive ? ' -R' : ''} ${user}${
-      group ? `:${group}` : ''
-    } -- ${fsObject.toSh()};`,
+    `chown${recursive ? ' -R' : ''} ${user}${group ? `:${group}` : ''} -- ${fsObject.toSh()};`,
     'chown',
   )
   if (chownSh.error) {

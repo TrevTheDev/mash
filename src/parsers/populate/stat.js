@@ -58,7 +58,5 @@ const stat = (statOutput, executionContext) => {
       loadedStat: true,
     },
   )
-  // fsObj.paths._setStatPath(path)
-  // return fsObj
 }
 export default stat

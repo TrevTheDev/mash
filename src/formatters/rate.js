@@ -27,6 +27,7 @@ export default class Rate {
     this._number = rateInBytesPerSecond
   }
 
+  // noinspection JSUnusedGlobalSymbols
   get rate() {
     return this.number
   }

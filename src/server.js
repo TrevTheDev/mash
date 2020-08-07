@@ -107,7 +107,7 @@ export default class Server {
   /**
    * @param {Array<string|Path>|string|Path} paths
    * @param {ShellHarness} shellHarness - optional
-   * @returns {FsObjectArray|FsObjectPromise}
+   * @returns {FsObjectArray|FsObject}
    */
   u(paths, shellHarness = undefined) {
     const executionContext = shellHarness

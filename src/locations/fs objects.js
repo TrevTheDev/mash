@@ -1,19 +1,18 @@
-import { Directory, DirectoryPathed } from './types/directory.js'
-import { Symlink, SymlinkPathed } from './types/symlink.js'
 import {
-  File,
-  FilePathed,
-  BlockDevice,
-  BlockDevicePathed,
-  CharacterDevice,
-  CharacterDevicePathed,
-  LocalSocket,
-  LocalSocketPathed,
-  NamedPipe,
-  NamedPipePathed,
-} from './types/file types.js'
-import FsObjectPromise from './types/fs object promise.js'
-import FsObjectPromisePathed from './types/fs object promise pathed.js'
+  FsObject,
+  DirectoryPromise,
+  FilePromise,
+  BlockDevicePromise,
+  CharacterDevicePromise,
+  LocalSocketPromise,
+  NamedPipePromise,
+  SymlinkPromise,
+} from './mixins/fs object promises.js'
+
+import {
+  Directory, File, BlockDevice, CharacterDevice, LocalSocket, NamedPipe, Symlink,
+} from './mixins/fs objects.js'
+
 import FsObjectArray from './fs object array.js'
 
 import { glob } from '../util/globals.js'
@@ -41,8 +40,7 @@ import { glob } from '../util/globals.js'
 // }
 
 glob.fsObjectsByType = {
-  FsObjectPromise,
-  FsObjectPromisePathed,
+  FsObject,
 
   FsObjectArray,
 
@@ -61,21 +59,20 @@ glob.fsObjectsByType = {
   'block device': BlockDevice,
   socket: LocalSocket,
   fifo: NamedPipe,
-  changeFsObjectToType: (fsObject, type) => {
-    if (![undefined, 'loading'].includes(fsObject.state)) throw new Error('wrong state')
-    const newFsObjBase = new this[type](
-      fsObject.executionContext,
-      fsObject.path, false,
-    )
-    delete newFsObjBase._events
-    newFsObjBase._createAutomationFunctions = fsObject._createAutomationFunctions
-    Object.setPrototypeOf(this, newFsObjBase)
-  },
+  // changeFsObjectToType: (fsObject, type) => {
+  //   if (![undefined, 'loading'].includes(fsObject.state)) throw new Error('wrong state')
+  //   const newFsObjBase = new this[type](
+  //     fsObject.executionContext,
+  //     fsObject.path, false,
+  //   )
+  //   delete newFsObjBase._events
+  //   newFsObjBase._createAutomationFunctions = fsObject._createAutomationFunctions
+  //   Object.setPrototypeOf(this, newFsObjBase)
+  // },
 }
 
 export {
-  FsObjectPromise,
-  FsObjectPromisePathed,
+  FsObject,
 
   File,
   Directory,
@@ -85,13 +82,13 @@ export {
   LocalSocket,
   NamedPipe,
 
-  FilePathed,
-  DirectoryPathed,
-  SymlinkPathed,
-  BlockDevicePathed,
-  CharacterDevicePathed,
-  LocalSocketPathed,
-  NamedPipePathed,
+  FilePromise,
+  DirectoryPromise,
+  SymlinkPromise,
+  BlockDevicePromise,
+  CharacterDevicePromise,
+  LocalSocketPromise,
+  NamedPipePromise,
 
   FsObjectArray,
 }

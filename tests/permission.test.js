@@ -2,17 +2,17 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
 
-import {promises as fsPromises} from 'fs'
+import { promises as fsPromises } from 'fs'
 
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
-import Server, {u, ShellHarness} from '../src/server.js'
+import Server, { u, ShellHarness } from '../src/server.js'
 import Elevator from '../src/parsers/elevator.js'
 
 chai.use(chaiAsPromised)
 
-const {expect} = chai
+const { expect } = chai
 
 describe('permission', () => {
   let server
@@ -25,8 +25,9 @@ describe('permission', () => {
     tstDir = await cwd.addDirectory('test', true)
   })
 
-  after(() => {
-    if (Server.instance) Server.instance.close()
+  after(async () => {
+    if (Server.instance) await Server.instance.close()
+    console.log('okay')
   })
 
   it('does not allow the setting of read only properties', async () => {
@@ -36,30 +37,24 @@ describe('permission', () => {
     const ns = await fsPromises.stat(`${dummyDir}`)
 
     expect(rights).to.equal(`0${(ns.mode & 0o777).toString(8)}`)
-    expect(() => {
-      dummyDir.accessRights = '0'
-    }).to.throw()
-    expect(dummyDir.accessRights).to.equal(`0${(ns.mode & 0o777).toString(8)}`)
+    expect(() => { dummyDir.accessRights = '0' }).to.throw()
+    expect(await dummyDir.accessRights).to.equal(`0${(ns.mode & 0o777).toString(8)}`)
   })
 
   it('changes permissions', async () => {
     const rootShell = new ShellHarness({
       user: 'root',
-      rootPassword: process.env.RPASSWORD
+      rootPassword: process.env.RPASSWORD,
     })
     await u(`${tstDir}/perm2Dir`, rootShell).delete(true, undefined, true)
 
     let dummyDir = await tstDir.addDirectory('perm2Dir')
 
     const elevator = new Elevator(
-      async () =>
-        new Promise(resolve =>
-          setTimeout(() => resolve(process.env.RPASSWORD), 20)
-        )
+      () => new Promise((resolve) => setTimeout(() => resolve(process.env.RPASSWORD), 20)),
     )
 
-    const doneCallback = (cmd, elevatorCmdType) =>
-      elevator.elevateIfRequired(cmd, elevatorCmdType)
+    const doneCallback = (cmd, elevatorCmdType) => elevator.elevateIfRequired(cmd, elevatorCmdType)
 
     server.shell.config.doneCallback = doneCallback
 
@@ -69,12 +64,12 @@ describe('permission', () => {
     dummyDir = await tstDir.addDirectory('perm2Dir')
     const newDirs = await dummyDir.addDirectory(['chmod', 'D2', 'D3'], true)
     await expect(newDirs[0].setPermissions('777', true)).to.be.fulfilled
-    await expect(newDirs[0].setPermissions('775', true)).to.be.fulfilled
-    expect(newDirs[0].state).to.equal('loadable')
-    await newDirs[0].stat()
-    expect(newDirs[0].accessRights).to.equal('0775')
+
+    await expect(newDirs[0].setPermissions('770', true)).to.be.fulfilled
+    expect(await newDirs[0].accessRights).to.equal('0770')
+
     await expect(newDirs[0].setPermissions('o+w', true)).to.be.fulfilled
-    expect(await newDirs[0].accessRights).to.equal('0777')
+    expect(await newDirs[0].accessRights).to.equal('0772')
     await expect(newDirs[0].setPermissions('555')).to.be.fulfilled
     await expect(newDirs[1].setPermissions('555')).to.be.fulfilled
     await expect(newDirs[2].setPermissions('555')).to.be.fulfilled
@@ -107,7 +102,9 @@ describe('permission', () => {
 
     await u(`${tstDir}/perm2Dir`, rootShell).delete(true, undefined, true)
 
-    rootShell.close()
+    await elevator.close()
+
+    await rootShell.close()
 
     server.shell.config.doneCallback = undefined
   })
@@ -115,7 +112,7 @@ describe('permission', () => {
   it('permissions and symlinks', async () => {
     const rootShell = new ShellHarness({
       user: 'root',
-      rootPassword: process.env.RPASSWORD
+      rootPassword: process.env.RPASSWORD,
     })
     await u(`${tstDir}/SimPer`, rootShell).delete(true, undefined, true)
     await u(`${tstDir}/SimPerLink`, rootShell).delete(true, undefined, true)
@@ -135,6 +132,6 @@ describe('permission', () => {
 
     await expect(SL.addFile('HELLO', 'HELLO')).to.be.fulfilled
 
-    rootShell.close()
+    await rootShell.close()
   })
 })

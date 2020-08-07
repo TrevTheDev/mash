@@ -2,11 +2,10 @@
 import { pwd, gioTrashEmpty } from '../parsers/cmds.js'
 
 import {
-  DirectoryPathed,
-  FilePathed,
-  SymlinkPathed,
-  FsObjectPromise,
-  FsObjectPromisePathed,
+  DirectoryPromise,
+  FilePromise,
+  SymlinkPromise,
+  FsObject,
   FsObjectArray,
 } from './fs objects.js'
 import { PathContainer } from './path.js'
@@ -47,42 +46,42 @@ export default class ExecutionContext {
 
   /**
    * @param {string|Path} path
-   * @returns {FsObjectPromise}
+   * @returns {FsObject}
    */
-  getFsObjectPromise(path = process.cwd()) {
-    return new FsObjectPromise(this, new PathContainer(this, `${path}`))
+  getFsObject(path = process.cwd()) {
+    return new FsObject(this, new PathContainer(this, `${path}`))
   }
 
   /**
    * @param {string} path
-   * @returns {FsObjectPromisePathed}
+   * @returns {FsObject}
    */
-  getFsObjectPromisePathed(path) {
-    return new FsObjectPromisePathed(this, new PathContainer(this, undefined, path))
+  getFsObjectPathed(path) {
+    return new FsObject(this, new PathContainer(this, undefined, path))
   }
 
   /**
    * @param {string} path
-   * @returns {FilePathed}
+   * @returns {FilePromise}
    */
-  getFilePathed(path) {
-    return new FilePathed(this, new PathContainer(this, undefined, path))
+  getFilePromise(path) {
+    return new FilePromise(this, new PathContainer(this, undefined, path))
   }
 
   /**
    * @param {string} path
-   * @returns {DirectoryPathed}
+   * @returns {DirectoryPromise}
    */
-  getDirectoryPathed(path) {
-    return new DirectoryPathed(this, new PathContainer(this, undefined, path))
+  getDirectoryPromise(path) {
+    return new DirectoryPromise(this, new PathContainer(this, undefined, path))
   }
 
   /**
    * @param {string} path
-   * @returns {SymlinkPathed}
+   * @returns {SymlinkPromise}
    */
-  getSymlinkPathed(path) {
-    return new SymlinkPathed(this, new PathContainer(this, undefined, path))
+  getSymlinkPromise(path) {
+    return new SymlinkPromise(this, new PathContainer(this, undefined, path))
   }
 
   /**
@@ -90,17 +89,17 @@ export default class ExecutionContext {
    * @returns {FsObjectArray}
    */
   getFSObjArrayFromPaths(paths) {
-    return new FsObjectArray(...paths.map((path) => this.getFsObjectPromise(path)))
+    return new FsObjectArray(...paths.map((path) => this.getFsObject(path)))
   }
 
   /**
    * @param {Array<string|Path>|string|Path} paths
-   * @returns {FsObjectArray|FsObjectPromise}
+   * @returns {FsObjectArray|FsObject}
    */
   u(paths) {
     return Array.isArray(paths)
       ? this.getFSObjArrayFromPaths(paths)
-      : this.getFsObjectPromise(paths)
+      : this.getFsObject(paths)
   }
 
   /**
@@ -122,7 +121,7 @@ export default class ExecutionContext {
   }
 
   /**
-   * @returns {Promise<DirectoryPathed>}
+   * @returns {DirectoryPromise}
    */
   get pwd() {
     return pwd(this)

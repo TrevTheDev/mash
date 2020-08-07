@@ -151,14 +151,12 @@ describe('copy, move, rename and trash', () => {
 
       await expect(
         file1.copyTo(orDir, CP_TYPE.askBeforeOverwrite, (copyManager) => {
-          expect(`${copyManager.currentSourcePath}`).to.equal(`${file1}`)
-          expect(`${copyManager.currentDestinationDirectoryPath}`).to.equal(
+          expect(`${copyManager.progressReport.currentSourcePath}`).to.equal(`${file1}`)
+          expect(`${copyManager.progressReport.currentDestinationDirectoryPath}`).to.equal(
             `${orDir}`,
           )
           return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve('no')
-            }, 20)
+            setTimeout(() => resolve('no'), 20)
           })
         }),
       ).to.be.fulfilled
@@ -202,6 +200,7 @@ describe('copy, move, rename and trash', () => {
     })
 
     it('copies a node folder', async () => {
+      await u(`${tstDir}/node_modules`).delete(true, true, true)
       const nm = await cwd.u('node_modules')
       const copyCmd = nm.copyTo(tstDir)
       copyCmd.on('progressUpdate', (progressTracker) => {
@@ -254,9 +253,9 @@ describe('copy, move, rename and trash', () => {
       await tstDir.addDirectory(['moveL1', 'moveL2', 'L3'], true)
       const L2 = u(`${tstDir}/moveL1/moveL2`)
       const L2C = await expect(L2.moveTo(tstDir)).to.be.fulfilled
-      expect(L2.deleted).to.be.true
+      expect(await L2.exists).to.be.false
       expect(`${L2C}`).to.equal(`${tstDir}/moveL2`)
-      expect(L2C.state).to.equal('loadable')
+      expect(await L2C.exists).to.be.true
       await expect(L2C.stat(false, false)).to.be.fulfilled
       expect(await u(`${tstDir}/moveL1/moveL2/L3`).exists).to.be.false
       expect(await u(`${tstDir}/moveL2/L3`).exists).to.be.true
@@ -276,17 +275,17 @@ describe('copy, move, rename and trash', () => {
       await expect(L2.moveTo(tstDir)).rejectedWith(
         `moveTo: path already exists: ${Dest}`,
       )
-      expect(L2.state).to.equal('loaded')
+      expect(await L2.exists).to.be.true
 
       await expect(L2.moveTo(tstDir, 'dummy')).to.be.rejectedWith(
         'moveTo: invalid argument: copyType',
       )
-      expect(L2.state).to.equal('loaded')
+      expect(await L2.exists).to.be.true
 
       await expect(
         L2.moveTo(tstDir, CP_TYPE.askBeforeOverwrite, () => Promise.resolve('cancel')),
       ).to.be.rejectedWith('cancelled by user')
-      expect(L2.state).to.equal('loaded')
+      expect(await L2.exists).to.be.true
 
       const DestL3 = u(`${Dest}/L3`)
       expect(await DestL3.exists).to.be.false
@@ -320,7 +319,7 @@ describe('copy, move, rename and trash', () => {
       const nFile = await expect(file.moveTo(L1)).to.be.fulfilled
       expect(`${nFile}`).to.equal(`${tstDir}/moveDirC/moveAFileC`)
       expect(await nFile.exists).to.be.true
-      expect(file.deleted).to.be.true
+      expect(await file.exists).to.be.false
       expect(await u(`${tstDir}/moveAFileC`).exists).to.be.false
     })
 
@@ -355,8 +354,7 @@ describe('copy, move, rename and trash', () => {
       const nLargeFile = await expect(copyCmd).to.be.fulfilled
       expect(`${nLargeFile}`).to.equal(`${L1}/moveAFileD.iso`)
       expect(await nLargeFile.exists).to.be.true
-
-      expect(largeFile.deleted).to.be.true
+      expect(await largeFile.exists).to.be.false
       expect(await u(`${tstDir}/moveAFileD.iso`).exists).to.be.false
     })
     it('it can merge move two directories', async () => {
@@ -487,6 +485,7 @@ describe('copy, move, rename and trash', () => {
 
       const toTrash = await tstDir.addDirectory('ToTrash')
       await toTrash.trash()
+      expect(await toTrash.exists).to.be.false
       await expect(server.emptyTrash()).to.be.fulfilled
     })
   })

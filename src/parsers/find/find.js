@@ -16,7 +16,7 @@ const find = async (directory, cmdString) => {
     .split('\0')
     .slice(0, -1)
     .map((path) => {
-      const fsObj = directory.executionContext.getFsObjectPromisePathed(path)
+      const fsObj = directory.executionContext.getFsObjectPathed(path)
       // fsObj._transitionState('loadable')
       return fsObj.stat()
     })

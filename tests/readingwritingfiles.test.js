@@ -4,7 +4,6 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import Server, { u, ShellHarness, sh } from '../src/server.js'
 
-
 chai.use(chaiAsPromised)
 
 const { expect } = chai
@@ -60,10 +59,9 @@ describe('read/write files', () => {
     await rwfileDir.setPermissions('777', true)
     const RL1 = await u(`${rwfileDir}`, testusrShell).addDirectory('L1')
     const file = await RL1.addFile('testFile', 'content')
-    await file.stat()
-    expect(`${file.user}`).to.equal('testusr')
+    expect(`${await file.user}`).to.equal('testusr')
     await RL1.delete(true)
-    testusrShell.close()
+    await testusrShell.close()
   })
 
   it('streams files', async () => {

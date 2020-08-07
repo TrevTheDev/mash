@@ -29,7 +29,7 @@ const copy = async (copyM) => {
   try {
     let result
     if (src.type === FILE_TYPE_ENUMS.directory) {
-      const dst = await src.executionContext.getFsObjectPromise(
+      const dst = await src.executionContext.getFsObject(
         distDir.path.addSegment(src.path.base).toString(),
       )
       copyM.progressUpdateBeforeCopy(src.path, dst.path)

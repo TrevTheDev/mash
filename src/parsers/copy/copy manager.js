@@ -8,6 +8,14 @@ import copy from './copy.js'
 let outstandingPromptCounter = 0
 
 export class CopyManager {
+  /**
+   * @param {FsObjectCommon} sourceFSObj
+   * @param {Directory} destinationDirectory
+   * @param {CP_TYPE} copyType
+   * @param {boolean} confirmOverwriteCallBack
+   * @param {boolean} move
+   * @returns {ProgressTracker}
+   */
   constructor(
     sourceFSObj,
     destinationDirectory,
@@ -16,10 +24,7 @@ export class CopyManager {
     move = false,
   ) {
     this.sourceFSObj = sourceFSObj
-
-    this.destinationDirectory = sourceFSObj.executionContext.getDirectoryPathed(
-      `${destinationDirectory}`,
-    )
+    this.destinationDirectory = sourceFSObj.executionContext.getFsObject(`${destinationDirectory}`)
     this.copyType = copyType
     this.confirmOverwriteCallBack = confirmOverwriteCallBack
     this.move = move
@@ -41,12 +46,8 @@ export class CopyManager {
       this.success = resolve
       this.fail = cancel
       copy(this)
-        .then((results) => {
-          resolve(results)
-        })
-        .catch((error) => {
-          cancel(error)
-        })
+        .then((results) => resolve(results))
+        .catch((error) => cancel(error))
     })
 
     this.overwriteAll = undefined

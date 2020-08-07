@@ -22,6 +22,7 @@ class BaseUser {
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 class Group extends BaseUser {
   get type() {
     return 'group'

@@ -3,10 +3,10 @@ import { LOCAL, glob } from '../util/globals.js'
  * chmod - modifies fsObject permissions
  * TODO: check what happens if person tries to delete /
  * TODO: check what happens if insufficient permissions
- * @param {DirectoryBase|FileBase} fsObject
- * @param {boolean} permissions - string of permission '777' or 'a+w'
+ * @param {Directory|DirectoryPromise|File|FilePromise|FsObject} fsObject
+ * @param {string} permissions - string of permission '777' or 'a+w'
  * @param {boolean} recursive - apply permissions recursively
- * @returns fsObject - but state will be outdated
+ * @returns {Directory|DirectoryPromise|File|FilePromise|FsObject} fsObject - but state will be outdated
  */
 export const chmod = async (fsObject, permissions, recursive) => {
   const chmodSh = await fsObject.sh(

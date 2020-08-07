@@ -1,4 +1,5 @@
 /* eslint-disable no-bitwise */
+// noinspection JSUnusedGlobalSymbols
 export default class Permissions {
   /**
    * @param {string} accessRights

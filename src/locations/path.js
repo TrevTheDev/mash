@@ -166,8 +166,15 @@ export class PathContainer {
   /**
    * @return {Path}
    */
-  get canonizedPath() {
-    return this._canonizedPath
+  get canonisedPath() {
+    return this._canonisedPath
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get canonised() {
+    return this.canonisedPath !== undefined || this.statPath !== undefined
   }
 
   /**
@@ -180,9 +187,16 @@ export class PathContainer {
   /**
    * @return {Promise}
    */
-  async canonizeRequestPath() {
-    this._canonizedPath = new Path(await canonisePath(this._executionContext, this.requestedPath))
-    return this.canonizedPath
+  canoniseRequestPath() {
+    if (this._canonisationPromise) return this._canonisationPromise
+    this._canonisationPromise = new Promise((resolve) => {
+      (async () => {
+        this._canonisedPath = new Path(await canonisePath(this._executionContext, this.requestedPath))
+        resolve(this.canonisedPath)
+        delete this._canonisationPromise
+      })()
+    })
+    return this._canonisationPromise
   }
 
   /**
@@ -208,19 +222,12 @@ export class PathContainer {
   }
 
   /**
-   * @return {Path}
-   */
-  _setSymlinkTargetPath(value) {
-    this._symlinkTargetPath = new Path(value)
-  }
-
-  /**
    * @return {Promise}
    */
   async getSymlinkTargetPath() {
     this._symlinkTargetPath = undefined
     const res = await symlinkTarget(this._executionContext, this.path)
-    if (res !== false) this._setSymlinkTargetPath(res)
+    if (res !== false) this._symlinkTargetPath = new Path(res)
     return this.symlinkTargetPath
   }
 
@@ -230,7 +237,7 @@ export class PathContainer {
   get path() {
     return (
       this.statPath
-      || this.canonizedPath
+      || this.canonisedPath
       || this.requestedPath
       || new Error('path not found')
     )

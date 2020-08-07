@@ -10,7 +10,7 @@ export default async (src, dstP, copyType, isNewTree) => {
 
   if (isNewTree) return makeNewDst()
 
-  let dst = await src.executionContext.getFsObjectPromisePathed(
+  let dst = await src.executionContext.getFsObjectPathed(
     dstP.path.addSegment(dstName).toString(),
   )
 

@@ -5,10 +5,10 @@ import os from 'os'
 import { LOCAL, glob } from '../util/globals.js'
 
 /**
- * @param {FileBase} fsObject
+ * @param {FsObject|FilePromise|File} fsObject
  * @param {string} content
  * @param {boolean} overwrite
- * @returns {Promise<FilePathed>}
+ * @returns {Promise<FilePromise>}
  */
 export const write = async (fsObject, content, overwrite) => {
   if ((await fsObject.exists) && !overwrite) throw new Error(`write: ${LOCAL.fsObjAlreadyExists}: ${fsObject}`)
@@ -35,5 +35,5 @@ export const write = async (fsObject, content, overwrite) => {
   }
   fsObject.markAsInvalid()
 
-  return fsObject.executionContext.getFilePathed(`${fsObject}`)
+  return fsObject.executionContext.getFilePromise(`${fsObject}`)
 }
