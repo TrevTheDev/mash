@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
@@ -35,22 +35,22 @@
     "chai": "^4.2.0",
     "chai-arrays": "^2.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^7.4.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-chai-expect": "^2.1.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-mocha": "^7.0.1",
+    "eslint": "^7.17.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-chai-expect": "^2.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
-    "mocha": "^8.0.1",
+    "mocha": "^8.2.1",
     "mocha-steps": "^1.3.0",
-    "nyc": "^15.0.1"
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "@trevthedev/shell-harness": "^1.0.13",
-    "date-fns": "^2.13.0"
+    "date-fns": "^2.16.1"
   },
   "engines": {
-    "node": "^14.1.0"
+    "node": "^15.5.1"
   },
   "type": "module",
   "main": "./src/server.js",
