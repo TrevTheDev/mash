@@ -1,6 +1,6 @@
 {
   "name": "@trevthedev/mash",
-  "version": "0.0.23",
+  "version": "0.0.26",
   "description": "eventual javascript shell",
   "keywords": [
     "shell",
@@ -46,11 +46,11 @@
     "nyc": "^15.1.0"
   },
   "dependencies": {
-    "@trevthedev/shell-harness": "^1.0.13",
+    "@trevthedev/shell-harness": "^1.0.15",
     "date-fns": "^2.16.1"
   },
   "engines": {
-    "node": "^15.5.1"
+    "node": ">16.0.0"
   },
   "type": "module",
   "main": "./src/server.js",
